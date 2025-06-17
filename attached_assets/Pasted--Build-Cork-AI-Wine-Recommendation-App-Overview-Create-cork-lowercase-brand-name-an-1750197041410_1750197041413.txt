@@ -1,0 +1,171 @@
+# Build Cork - AI Wine Recommendation App
+
+## Overview
+Create **cork** (lowercase brand name), an AI-powered wine recommendation web app that will later be deployed as iOS/Android apps. Users get personalized wine suggestions and can save them to their personal "Cellar."
+
+## Core Requirements
+
+### 1. Technology Stack
+- **Framework**: Next.js 14+ with App Router
+- **Styling**: TailwindCSS
+- **AI Integration**: OpenAI GPT-4 API for wine recommendations
+- **TypeScript**: Required for type safety and scalability
+
+### 2. Authentication & Database Setup
+Please implement:
+- **Auth Platform**: Use the best solution compatible with Replit for secure 18+ age verification, login/signup, and profile management (Clerk is preferred if available, otherwise use NextAuth.js or similar)
+- **Database**: Use Replit's built-in database capabilities or implement a compatible external database service that works seamlessly with Replit hosting
+- **Payment Processing**: Implement Stripe for Premium subscriptions with webhook handling
+
+### 3. App Structure & Features
+
+#### Authentication
+- Secure login/signup with 18+ age verification
+- Password reset functionality
+- Profile creation and management
+
+#### Main App Features
+- **AI Wine Recommendations**: Users describe their mood, food pairing, or occasion → AI returns 3 personalized wine suggestions
+- **Wine Focus**: Prioritize Australian wine availability in recommendations
+- **Cellar (Profile Section)**: Users can save recommended wines to their personal collection
+- **Wine Upload & Analysis**: Users can upload photos/details of wines from their physical cellar and use AI to analyze optimal drinking years
+- **Freemium Model**: Free tier with limitations, Premium tier via Stripe payments
+- **Responsive Design**: Must work seamlessly on mobile and desktop
+
+#### Core User Flow
+1. User signs up (18+ verification)
+2. User describes what they're looking for (text input) OR uploads wine from physical cellar
+3. AI processes request and returns 3 wine recommendations OR analyzes uploaded wine for optimal drinking year
+4. User can save wines to their "Cellar" (subject to plan limits)
+5. User can view/manage saved wines in Cellar section
+6. User can upgrade to Premium for unlimited saves and future features
+
+### 4. Design System & Branding
+
+#### Brand Identity
+- **App Name**: `cork` (always lowercase)
+- **Target Audience**: Adults 18+ interested in wine
+
+#### Color Palette
+```css
+--primary: #6B21A8;      /* Grape Purple */
+--accent: #9B1C31;       /* Wine Red */
+--background: #FAF7F3;   /* Soft Cream */
+--text: #1F2937;         /* Dark Slate */
+```
+
+#### Typography
+- **Headlines**: Poppins Bold
+- **body text**: Inter Regular
+
+#### Design Principles
+- Clean, sophisticated aesthetic
+- Wine-focused imagery and icons
+- Intuitive navigation
+- Mobile-first responsive design
+
+### 5. Technical Requirements
+
+#### API Integration
+- OpenAI GPT-4 integration for wine recommendations AND wine analysis
+- Stripe API for payment processing and subscription management
+- Image upload handling for wine photos
+- Proper error handling and loading states
+- Rate limiting considerations
+
+#### Database Schema (minimum)
+- Users table (profile, preferences, age verification, subscription_status, plan_type)
+- Saved wines table (user_id, wine details, date saved, source: "recommendation" or "uploaded")
+- Uploaded wines table (user_id, wine photos, analysis results, upload date)
+- Subscriptions table (user_id, stripe_customer_id, plan_details, status)
+- Wine recommendations history (optional for analytics)
+
+#### Security
+- Secure API key management
+- 18+ age verification
+- Protected routes for authenticated users
+- Input validation and sanitization
+
+### 6. Key Pages/Components
+
+#### Required Pages
+- `/` - Landing page with hero and login/signup
+- `/dashboard` - Main app interface for getting recommendations
+- `/cellar` - User's saved wines (profile section)
+- `/upload` - Wine upload and analysis interface
+- `/pricing` - Plan comparison and upgrade options
+- `/auth/login` - Login page
+- `/auth/signup` - Signup with age verification
+- `/api/webhooks/stripe` - Stripe webhook handling
+
+#### Essential Components
+- Wine recommendation cards
+- Save/unsave wine functionality with plan limit enforcement
+- Wine upload interface with photo handling
+- AI wine analysis results display
+- User profile management with subscription status
+- Pricing/upgrade components
+- Plan limit indicators and upgrade prompts
+- Loading states and error handling
+
+### 7. Scalability Considerations
+- Clean component architecture for future features
+- Modular API structure
+- Database design that supports future enhancements
+- Code organization for potential mobile app conversion
+
+### 8. Subscription Plans
+
+#### Free Plan Limitations
+- Maximum 3 saved recommended wines in Cellar
+- Maximum 3 uploaded wines for analysis
+- Basic wine recommendations
+- Standard support
+
+#### Premium Plan Features
+- Unlimited saved wines in Cellar
+- Unlimited wine uploads and analysis
+- Enhanced AI recommendations (future feature)
+- Priority support (future feature)
+- Advanced cellar management tools (future feature)
+
+#### Implementation Requirements
+- Plan limit enforcement throughout the app
+- Clear upgrade prompts when limits reached
+- Stripe integration for seamless payments
+- Subscription status tracking and management
+- Webhook handling for subscription changes
+
+### 9. Environment Variables Needed
+```
+OPENAI_API_KEY=
+DATABASE_URL=
+AUTH_SECRET=
+NEXT_PUBLIC_APP_URL=
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+```
+
+## Deliverables
+1. Fully functional Next.js app with all core features
+2. Authentication system with recommended platform
+3. Database setup with recommended solution
+4. AI integration for wine recommendations AND wine analysis
+5. Complete Stripe payment integration with subscription management
+6. Wine upload functionality with image handling
+7. Plan limitation system (Free vs Premium)
+8. Responsive design matching brand guidelines
+9. Documentation for deployment and future development
+
+## Success Criteria
+- Users can sign up (18+), get AI wine recommendations, upload wines for analysis, and save wines to their Cellar
+- Free plan limits are properly enforced with upgrade prompts
+- Stripe payments work seamlessly for Premium upgrades
+- Wine upload and AI analysis features function correctly
+- App is responsive and matches the design system
+- Code is clean, scalable, and well-documented
+- Ready for future mobile app conversion and additional Premium features
+
+Please build this step-by-step, explaining your technology choices and ensuring all features work together seamlessly.
