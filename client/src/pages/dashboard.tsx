@@ -86,11 +86,11 @@ export default function Dashboard() {
         wineName: wine.name,
         wineType: wine.type,
         region: wine.region,
-        vintage: wine.vintage,
+        vintage: wine.vintage ? String(wine.vintage) : undefined,
         description: wine.description,
         priceRange: wine.priceRange,
-        abv: wine.abv,
-        rating: wine.rating,
+        abv: String(wine.abv),
+        rating: String(wine.rating),
         source: "recommendation",
       });
       return response.json();

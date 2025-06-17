@@ -14,7 +14,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-05-28.basil",
 }) : null;
 
 // Multer setup for file uploads
@@ -240,7 +240,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             recurring: { interval: 'month' },
             product_data: {
               name: 'Cork Premium Plan',
-              description: 'Unlimited wine saves and uploads',
             },
           });
           priceId = price.id;
@@ -256,10 +255,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
 
         await storage.updateUserStripeInfo(userId, customer.id, subscription.id);
+        
+        // Get the payment intent from the expanded latest invoice
+        const latestInvoice = subscription.latest_invoice as any;
+        const clientSecret = latestInvoice?.payment_intent?.client_secret;
     
         res.json({
           subscriptionId: subscription.id,
-          clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
+          clientSecret: clientSecret,
         });
       } catch (error) {
         console.error("Stripe subscription error:", error);
