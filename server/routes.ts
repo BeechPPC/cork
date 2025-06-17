@@ -230,10 +230,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
         });
 
+        // For demo purposes, create a test price if STRIPE_PRICE_ID is not set
+        let priceId = process.env.STRIPE_PRICE_ID;
+        if (!priceId) {
+          console.log('Creating test price for demo...');
+          const price = await stripe.prices.create({
+            unit_amount: 1900, // $19.00
+            currency: 'usd',
+            recurring: { interval: 'month' },
+            product_data: {
+              name: 'Cork Premium Plan',
+              description: 'Unlimited wine saves and uploads',
+            },
+          });
+          priceId = price.id;
+        }
+
         const subscription = await stripe.subscriptions.create({
           customer: customer.id,
           items: [{
-            price: process.env.STRIPE_PRICE_ID || 'price_1234567890', // User needs to set this
+            price: priceId,
           }],
           payment_behavior: 'default_incomplete',
           expand: ['latest_invoice.payment_intent'],

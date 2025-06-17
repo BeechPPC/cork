@@ -105,7 +105,7 @@ export class DatabaseStorage implements IStorage {
   async removeSavedWine(userId: string, wineId: number): Promise<void> {
     await db
       .delete(savedWines)
-      .where(eq(savedWines.id, wineId) && eq(savedWines.userId, userId));
+      .where(eq(savedWines.id, wineId));
   }
 
   // Uploaded wines operations
