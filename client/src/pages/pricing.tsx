@@ -73,10 +73,10 @@ export default function Pricing() {
             </Card>
 
             {/* Premium Plan */}
-            <Card className="bg-gradient-to-br from-grape to-purple-900 text-white relative transform scale-105">
+            <Card className="bg-gradient-to-br from-purple-700 via-grape to-purple-900 text-white relative transform scale-105 shadow-xl border-0">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-wine text-white px-4 py-2 text-sm font-semibold">
-                  Most Popular
+                <Badge className="bg-yellow-400 text-purple-900 px-4 py-2 text-sm font-bold shadow-lg">
+                  MOST POPULAR
                 </Badge>
               </div>
               
