@@ -162,10 +162,14 @@ export default function Cellar() {
 
           {/* Filter Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-            <TabsList className="grid grid-cols-3 max-w-md">
+            <TabsList className="grid grid-cols-4 max-w-2xl">
               <TabsTrigger value="all">All Wines</TabsTrigger>
               <TabsTrigger value="recommendations">Recommended</TabsTrigger>
               <TabsTrigger value="uploaded">Uploaded</TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4" />
+                <span>Analytics</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="mt-8">
@@ -357,6 +361,13 @@ export default function Cellar() {
                   <p className="text-gray-600">Upload photos of your wine collection for AI analysis</p>
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="analytics" className="mt-8">
+              <CellarAnalytics 
+                isPremium={user?.subscriptionPlan === 'premium'}
+                onUpgrade={() => window.location.href = '/pricing'}
+              />
             </TabsContent>
           </Tabs>
         </div>
