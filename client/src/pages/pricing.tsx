@@ -113,6 +113,10 @@ export default function Pricing() {
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
                     <span>Food pairing recommendations</span>
                   </li>
+                  <li className="flex items-center">
+                    <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
+                    <span>AI meal & menu photo analysis</span>
+                  </li>
 
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
@@ -180,6 +184,15 @@ export default function Pricing() {
                     </td>
                   </tr>
 
+                  <tr className="border-b border-gray-100">
+                    <td className="py-4 text-gray-700">AI meal & menu photo analysis</td>
+                    <td className="py-4 text-center">
+                      <X className="w-5 h-5 text-gray-400 mx-auto" />
+                    </td>
+                    <td className="py-4 text-center">
+                      <Check className="w-5 h-5 text-green-500 mx-auto" />
+                    </td>
+                  </tr>
                   <tr className="border-b border-gray-100">
                     <td className="py-4 text-gray-700">Cellar analytics dashboard</td>
                     <td className="py-4 text-center">

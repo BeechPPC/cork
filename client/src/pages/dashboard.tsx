@@ -11,6 +11,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import Header from "@/components/header";
 import WineCard from "@/components/wine-card";
 import WinePairingSuggestions from "@/components/wine-pairing-suggestions";
+import MealPairing from "@/components/meal-pairing";
 
 import PlanLimitModal from "@/components/plan-limit-modal";
 import { useEffect } from "react";
@@ -234,17 +235,21 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              {/* Premium Features for First Recommendation */}
-              {recommendations.length > 0 && (
-                <div className="mt-8">
+              {/* Premium Features */}
+              <div className="grid lg:grid-cols-2 gap-6 mt-8">
+                {recommendations.length > 0 && (
                   <WinePairingSuggestions 
                     wineName={recommendations[0].name}
                     wineType={recommendations[0].type}
                     isPremium={user?.subscriptionPlan === 'premium'}
                     onUpgrade={() => window.location.href = '/pricing'}
                   />
-                </div>
-              )}
+                )}
+                <MealPairing 
+                  isPremium={user?.subscriptionPlan === 'premium'}
+                  onUpgrade={() => window.location.href = '/pricing'}
+                />
+              </div>
             </div>
           )}
 
