@@ -26,11 +26,11 @@ export default function Landing() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-4xl lg:text-6xl font-poppins font-bold mb-6 leading-tight">
+              <h1 className="text-4xl lg:text-6xl font-poppins font-bold mb-6 leading-tight text-white">
                 Discover Your Perfect 
-                <span className="text-yellow-300"> Wine Match</span>
+                <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"> Wine Match</span>
               </h1>
-              <p className="text-xl lg:text-2xl mb-8 text-purple-100 font-light">
+              <p className="text-xl lg:text-2xl mb-8 text-gray-100 font-light">
                 AI-powered recommendations tailored to your taste, mood, and occasion. Focus on premium Australian wines.
               </p>
               
@@ -49,7 +49,7 @@ export default function Landing() {
                 </Button>
               </div>
 
-              <div className="flex items-center space-x-8 text-sm text-purple-200">
+              <div className="flex items-center space-x-8 text-sm text-gray-100">
                 <div className="flex items-center space-x-2">
                   <Shield className="w-5 h-5" />
                   <span>18+ Age Verified</span>
