@@ -27,8 +27,7 @@ export default function Landing() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-4xl lg:text-6xl font-poppins font-bold mb-6 leading-tight text-white">
-                Discover Your Perfect 
-                <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent"> Wine Match</span>
+                Discover Your <span className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">Perfect Wine Match</span>
               </h1>
               <p className="text-xl lg:text-2xl mb-8 text-gray-100 font-light">
                 AI-powered recommendations tailored to your taste, mood, and occasion. Focus on premium Australian wines.
