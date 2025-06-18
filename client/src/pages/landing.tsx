@@ -15,7 +15,7 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-grape to-purple-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 opacity-50">
           <img 
             src="https://images.unsplash.com/photo-1547595628-c61a29f496f0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080" 
             alt="Elegant wine cellar background" 
