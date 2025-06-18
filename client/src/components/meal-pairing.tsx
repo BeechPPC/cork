@@ -132,21 +132,19 @@ export default function MealPairing({ isPremium, onUpgrade }: MealPairingProps) 
   };
 
   return (
-    <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg text-gray-800 flex items-center">
-            <Camera className="w-5 h-5 mr-2 text-orange-600" />
-            AI Meal & Menu Pairing
-          </CardTitle>
-          <PremiumBadge size="sm" />
-        </div>
+    <div className="space-y-4">
+      <div className="text-center">
+        <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center justify-center">
+          <Camera className="w-5 h-5 mr-2 text-orange-600" />
+          AI Photo Analysis
+          <PremiumBadge size="sm" className="ml-2" />
+        </h3>
         <p className="text-sm text-gray-600">
-          Upload photos for instant wine pairing recommendations
+          Upload photos of your meals or restaurant wine menus for instant pairing recommendations
         </p>
-      </CardHeader>
+      </div>
       
-      <CardContent className="space-y-4">
+      <div className="space-y-4">
         {!isAnalyzing && !analysisResult && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Meal Upload */}
@@ -301,7 +299,7 @@ export default function MealPairing({ isPremium, onUpgrade }: MealPairingProps) 
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

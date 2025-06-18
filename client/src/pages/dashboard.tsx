@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wine, Sparkles } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Wine, Sparkles, Camera, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -235,21 +236,17 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              {/* Premium Features */}
-              <div className="grid lg:grid-cols-2 gap-6 mt-8">
-                {recommendations.length > 0 && (
+              {/* Premium Food Pairing Suggestions */}
+              {recommendations.length > 0 && (
+                <div className="mt-8">
                   <WinePairingSuggestions 
                     wineName={recommendations[0].name}
                     wineType={recommendations[0].type}
                     isPremium={user?.subscriptionPlan === 'premium'}
                     onUpgrade={() => window.location.href = '/pricing'}
                   />
-                )}
-                <MealPairing 
-                  isPremium={user?.subscriptionPlan === 'premium'}
-                  onUpgrade={() => window.location.href = '/pricing'}
-                />
-              </div>
+                </div>
+              )}
             </div>
           )}
 
