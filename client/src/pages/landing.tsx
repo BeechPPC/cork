@@ -10,7 +10,7 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-cream dark:bg-gray-900">
       <Header />
       
       {/* Hero Section */}
@@ -77,49 +77,49 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-poppins font-bold text-slate mb-4">
+            <h2 className="text-3xl lg:text-4xl font-poppins font-bold text-slate dark:text-white mb-4">
               Why Choose cork?
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               Experience the future of wine discovery with our AI-powered platform designed for wine enthusiasts
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center p-8">
+            <Card className="text-center p-8 bg-white dark:bg-gray-700 border dark:border-gray-600">
               <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-grape bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-grape" />
+                <div className="w-16 h-16 bg-grape bg-opacity-10 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-grape dark:text-purple-400" />
                 </div>
-                <h3 className="text-xl font-poppins font-semibold text-slate mb-3">AI Recommendations</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-poppins font-semibold text-slate dark:text-white mb-3">AI Recommendations</h3>
+                <p className="text-gray-600 dark:text-gray-300">
                   Get personalized wine suggestions based on your mood, occasion, and taste preferences
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="text-center p-8">
+            <Card className="text-center p-8 bg-white dark:bg-gray-700 border dark:border-gray-600">
               <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-wine bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Upload className="w-8 h-8 text-wine" />
+                <div className="w-16 h-16 bg-wine bg-opacity-10 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Upload className="w-8 h-8 text-wine dark:text-red-400" />
                 </div>
-                <h3 className="text-xl font-poppins font-semibold text-slate mb-3">Wine Analysis</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-poppins font-semibold text-slate dark:text-white mb-3">Wine Analysis</h3>
+                <p className="text-gray-600 dark:text-gray-300">
                   Upload photos of your wines and discover optimal drinking windows with AI analysis
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="text-center p-8">
+            <Card className="text-center p-8 bg-white dark:bg-gray-700 border dark:border-gray-600">
               <CardContent className="pt-6">
-                <div className="w-16 h-16 bg-grape bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Wine className="w-8 h-8 text-grape" />
+                <div className="w-16 h-16 bg-grape bg-opacity-10 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Wine className="w-8 h-8 text-grape dark:text-purple-400" />
                 </div>
-                <h3 className="text-xl font-poppins font-semibold text-slate mb-3">Personal Cellar</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-poppins font-semibold text-slate dark:text-white mb-3">Personal Cellar</h3>
+                <p className="text-gray-600 dark:text-gray-300">
                   Save and organize your wine discoveries in your personal digital cellar
                 </p>
               </CardContent>
@@ -129,40 +129,40 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 dark:bg-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-poppins font-bold text-slate mb-4">
+          <h2 className="text-3xl lg:text-4xl font-poppins font-bold text-slate dark:text-white mb-4">
             Ready to Discover Your Perfect Wine?
           </h2>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
             Join thousands of wine enthusiasts who trust cork for their wine discoveries
           </p>
           <Button 
             onClick={handleGetStarted}
-            className="bg-grape text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg hover:bg-purple-800 transition-all transform hover:scale-105 shadow-lg"
+            className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
           >
             Get Started Free
           </Button>
-          <p className="text-sm text-gray-500 mt-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
             Free plan includes 3 saved wines • Upgrade anytime
           </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate text-white py-12">
+      <footer className="bg-slate dark:bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="text-2xl font-poppins font-bold text-grape mb-4">cork</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
+              <h3 className="text-2xl font-poppins font-bold text-grape dark:text-purple-400 mb-4">cork</h3>
+              <p className="text-gray-300 dark:text-gray-400 text-sm leading-relaxed">
                 AI-powered wine recommendations with a focus on Australian wines. Discover your perfect match for any occasion.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
+              <h4 className="font-semibold mb-4 text-white">Product</h4>
+              <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Recommendations</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Wine Upload</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">My Cellar</a></li>
@@ -171,8 +171,8 @@ export default function Landing() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
+              <h4 className="font-semibold mb-4 text-white">Support</h4>
+              <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Wine Education</a></li>
@@ -180,8 +180,8 @@ export default function Landing() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
+              <h4 className="font-semibold mb-4 text-white">Legal</h4>
+              <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Age Verification</a></li>
@@ -190,11 +190,11 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-gray-400">
+          <div className="border-t border-gray-700 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-sm text-gray-400 dark:text-gray-500">
               © 2024 cork. All rights reserved. Drink responsibly.
             </p>
-            <p className="text-sm text-gray-400 mt-4 md:mt-0">
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-4 md:mt-0">
               Must be 18+ to use this service
             </p>
           </div>

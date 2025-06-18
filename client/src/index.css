@@ -6,53 +6,59 @@
 
 :root {
   --background: hsl(39, 26%, 97%);
-  --foreground: hsl(218, 23%, 23%);
+  --foreground: hsl(218, 23%, 15%);
   --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --muted-foreground: hsl(25, 5.3%, 35%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(218, 23%, 23%);
+  --popover-foreground: hsl(218, 23%, 15%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(218, 23%, 23%);
+  --card-foreground: hsl(218, 23%, 15%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
   --primary: hsl(271, 81%, 40%);
   --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --secondary-foreground: hsl(24, 9.8%, 5%);
   --accent: hsl(348, 83%, 36%);
   --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84.2%, 60.2%);
   --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(218, 23%, 23%);
+  --ring: hsl(218, 23%, 15%);
   --radius: 0.5rem;
 
   /* Custom cork colors */
   --grape: hsl(271, 81%, 40%);
   --wine: hsl(348, 83%, 36%);
   --cream: hsl(39, 26%, 97%);
-  --slate: hsl(218, 23%, 23%);
+  --slate: hsl(218, 23%, 15%);
 }
 
 .dark {
   --background: hsl(240, 10%, 3.9%);
   --foreground: hsl(0, 0%, 98%);
   --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
+  --muted-foreground: hsl(240, 5%, 75%);
   --popover: hsl(240, 10%, 3.9%);
   --popover-foreground: hsl(0, 0%, 98%);
   --card: hsl(240, 10%, 3.9%);
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(271, 81%, 40%);
+  --primary: hsl(271, 81%, 50%);
   --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(348, 83%, 36%);
+  --accent: hsl(348, 83%, 45%);
   --accent-foreground: hsl(0, 0%, 100%);
-  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive: hsl(0, 62.8%, 50%);
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 4.9%, 83.9%);
+  
+  /* Custom cork colors for dark mode */
+  --grape: hsl(271, 81%, 60%);
+  --wine: hsl(348, 83%, 55%);
+  --cream: hsl(39, 26%, 5%);
+  --slate: hsl(0, 0%, 98%);
 }
 
 @layer base {

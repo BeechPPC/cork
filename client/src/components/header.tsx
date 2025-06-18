@@ -38,12 +38,12 @@ export default function Header() {
   };
 
   return (
-    <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href={isAuthenticated ? "/dashboard" : "/"}>
-              <h1 className="text-2xl font-poppins font-bold text-grape cursor-pointer">cork</h1>
+              <h1 className="text-2xl font-poppins font-bold text-grape dark:text-purple-400 cursor-pointer">cork</h1>
             </Link>
           </div>
           
@@ -53,7 +53,7 @@ export default function Header() {
               <Link href="/dashboard">
                 <Button 
                   variant="ghost" 
-                  className={`text-slate hover:text-grape transition-colors ${isActive('/dashboard') ? 'text-grape font-medium' : ''}`}
+                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/dashboard') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
                 >
                   Recommendations
                 </Button>
@@ -61,7 +61,7 @@ export default function Header() {
               <Link href="/cellar">
                 <Button 
                   variant="ghost" 
-                  className={`text-slate hover:text-grape transition-colors ${isActive('/cellar') ? 'text-grape font-medium' : ''}`}
+                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/cellar') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
                 >
                   My Cellar
                 </Button>
@@ -69,7 +69,7 @@ export default function Header() {
               <Link href="/upload">
                 <Button 
                   variant="ghost" 
-                  className={`text-slate hover:text-grape transition-colors ${isActive('/upload') ? 'text-grape font-medium' : ''}`}
+                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/upload') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
                 >
                   Upload Wine
                 </Button>
@@ -77,7 +77,7 @@ export default function Header() {
               <Link href="/pricing">
                 <Button 
                   variant="ghost" 
-                  className={`text-slate hover:text-grape transition-colors ${isActive('/pricing') ? 'text-grape font-medium' : ''}`}
+                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/pricing') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
                 >
                   Pricing
                 </Button>
@@ -91,13 +91,13 @@ export default function Header() {
                 <Button 
                   variant="ghost" 
                   onClick={handleLogin}
-                  className="text-slate hover:text-grape transition-colors font-medium"
+                  className="text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors font-medium"
                 >
                   Sign In
                 </Button>
                 <Button 
                   onClick={handleLogin}
-                  className="bg-grape text-white px-4 py-2 rounded-lg hover:bg-purple-800 transition-colors font-medium"
+                  className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
                 >
                   Get Started
                 </Button>
@@ -105,7 +105,7 @@ export default function Header() {
             ) : (
               /* User Menu */
               <div className="flex items-center space-x-3">
-                <Badge variant="secondary" className="text-sm">
+                <Badge variant="secondary" className="text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                   {user?.subscriptionPlan === 'premium' ? 'Premium' : 'Free'} Plan
                 </Badge>
                 
@@ -114,18 +114,18 @@ export default function Header() {
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user?.profileImageUrl} alt="Profile" />
-                        <AvatarFallback className="bg-grape text-white text-sm">
+                        <AvatarFallback className="bg-grape dark:bg-purple-600 text-white text-sm">
                           {getInitials(user?.firstName, user?.lastName)}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700" align="end" forceMount>
                     <div className="flex flex-col space-y-1 p-2">
-                      <p className="text-sm font-medium leading-none">
+                      <p className="text-sm font-medium leading-none text-gray-900 dark:text-white">
                         {user?.firstName} {user?.lastName}
                       </p>
-                      <p className="text-xs leading-none text-muted-foreground">
+                      <p className="text-xs leading-none text-gray-600 dark:text-gray-400">
                         {user?.email}
                       </p>
                     </div>
