@@ -219,16 +219,37 @@ export default function Dashboard() {
 
           {/* Wine Recommendations */}
           {recommendations.length > 0 && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {recommendations.map((wine, index) => (
-                <WineCard
-                  key={index}
-                  wine={wine}
-                  onSave={() => handleSaveWine(wine)}
-                  isLoading={saveWineMutation.isPending}
-                  showSaveButton={true}
-                />
-              ))}
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {recommendations.map((wine, index) => (
+                  <WineCard
+                    key={index}
+                    wine={wine}
+                    onSave={() => handleSaveWine(wine)}
+                    isLoading={saveWineMutation.isPending}
+                    showSaveButton={true}
+                    isPremium={user?.subscriptionPlan === 'premium'}
+                    showPremiumFeatures={true}
+                  />
+                ))}
+              </div>
+
+              {/* Premium Features for First Recommendation */}
+              {recommendations.length > 0 && (
+                <div className="grid lg:grid-cols-2 gap-6 mt-8">
+                  <WinePairingSuggestions 
+                    wineName={recommendations[0].name}
+                    wineType={recommendations[0].type}
+                    isPremium={user?.subscriptionPlan === 'premium'}
+                    onUpgrade={() => window.location.href = '/pricing'}
+                  />
+                  <WineInvestmentTracker 
+                    wineName={recommendations[0].name}
+                    isPremium={user?.subscriptionPlan === 'premium'}
+                    onUpgrade={() => window.location.href = '/pricing'}
+                  />
+                </div>
+              )}
             </div>
           )}
 

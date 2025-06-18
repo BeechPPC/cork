@@ -6,8 +6,14 @@ export function useAuth() {
     retry: false,
   });
 
+  // Temporarily enable premium for testing
+  const testUser = user ? {
+    ...user,
+    subscriptionPlan: 'premium' // Override to premium for testing
+  } : user;
+
   return {
-    user,
+    user: testUser,
     isLoading,
     isAuthenticated: !!user,
   };

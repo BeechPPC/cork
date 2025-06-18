@@ -3,13 +3,16 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Wine, Upload, Trash2, Eye } from "lucide-react";
+import { Wine, Upload, Trash2, Eye, BarChart3, Search, Filter } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/header";
 import WineCard from "@/components/wine-card";
+import CellarAnalytics from "@/components/cellar-analytics";
+import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 
 interface SavedWine {
