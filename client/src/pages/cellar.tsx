@@ -11,7 +11,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/header";
 import WineCard from "@/components/wine-card";
-import CellarAnalytics from "@/components/cellar-analytics";
+import CellarAnalytics from "@/components/cellar-analytics-real";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 

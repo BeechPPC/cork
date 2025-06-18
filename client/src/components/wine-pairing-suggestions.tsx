@@ -24,27 +24,84 @@ export default function WinePairingSuggestions({
   isPremium, 
   onUpgrade 
 }: WinePairingSuggestionsProps) {
-  const mockPairings: PairingSuggestion[] = [
-    {
-      category: "Main Courses",
-      dishes: ["Grilled lamb with rosemary", "Beef wellington", "Duck confit"],
-      servingTemp: "16-18°C",
-      glassType: "Bordeaux glass",
-      decantTime: "30-45 minutes"
-    },
-    {
-      category: "Cheese",
-      dishes: ["Aged cheddar", "Blue cheese", "Camembert"],
-      servingTemp: "16-18°C", 
-      glassType: "Bordeaux glass"
-    },
-    {
-      category: "Desserts",
-      dishes: ["Dark chocolate tart", "Berry compote", "Aged cheese board"],
-      servingTemp: "16-18°C",
-      glassType: "Bordeaux glass"
+  // Generate pairing suggestions based on actual wine type
+  const generatePairingSuggestions = (): PairingSuggestion[] => {
+    const type = wineType.toLowerCase();
+    
+    if (type.includes('cabernet') || type.includes('shiraz') || type.includes('red')) {
+      return [
+        {
+          category: "Red Meat",
+          dishes: ["Grilled steak", "Roast lamb", "Beef stew"],
+          servingTemp: "16-18°C",
+          glassType: "Bordeaux glass",
+          decantTime: "30-60 minutes"
+        },
+        {
+          category: "Cheese",
+          dishes: ["Aged cheddar", "Blue cheese", "Hard cheeses"],
+          servingTemp: "16-18°C",
+          glassType: "Bordeaux glass"
+        }
+      ];
+    } else if (type.includes('pinot') && type.includes('red')) {
+      return [
+        {
+          category: "Poultry & Game",
+          dishes: ["Roast duck", "Grilled salmon", "Mushroom risotto"],
+          servingTemp: "14-16°C",
+          glassType: "Burgundy glass"
+        },
+        {
+          category: "Cheese",
+          dishes: ["Brie", "Camembert", "Soft cheeses"],
+          servingTemp: "14-16°C",
+          glassType: "Burgundy glass"
+        }
+      ];
+    } else if (type.includes('chardonnay') || type.includes('white')) {
+      return [
+        {
+          category: "Seafood",
+          dishes: ["Grilled fish", "Lobster", "Creamy pasta"],
+          servingTemp: "10-12°C",
+          glassType: "Chardonnay glass"
+        },
+        {
+          category: "Poultry",
+          dishes: ["Roast chicken", "Turkey", "Pork tenderloin"],
+          servingTemp: "10-12°C",
+          glassType: "Chardonnay glass"
+        }
+      ];
+    } else if (type.includes('sauvignon') || type.includes('riesling')) {
+      return [
+        {
+          category: "Light Dishes",
+          dishes: ["Salads", "Seafood", "Goat cheese"],
+          servingTemp: "8-10°C",
+          glassType: "White wine glass"
+        },
+        {
+          category: "Appetizers",
+          dishes: ["Oysters", "Sushi", "Light appetizers"],
+          servingTemp: "8-10°C",
+          glassType: "White wine glass"
+        }
+      ];
+    } else {
+      return [
+        {
+          category: "Versatile Pairings",
+          dishes: ["Grilled meats", "Pasta dishes", "Cheese plates"],
+          servingTemp: "14-16°C",
+          glassType: "Universal wine glass"
+        }
+      ];
     }
-  ];
+  };
+
+  const pairingSuggestions = generatePairingSuggestions();
 
   if (!isPremium) {
     return (
