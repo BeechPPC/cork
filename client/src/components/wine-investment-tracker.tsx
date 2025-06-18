@@ -117,7 +117,7 @@ export default function WineInvestmentTracker({
               <span className="text-xs text-gray-500">Current Value</span>
             </div>
             <div className="text-lg font-semibold text-gray-800">
-              {mockInvestmentData.currentValue}
+              {investmentData.currentValue}
             </div>
           </div>
           
@@ -127,7 +127,7 @@ export default function WineInvestmentTracker({
               <span className="text-xs text-gray-500 ml-1">Value Change</span>
             </div>
             <div className={`text-lg font-semibold ${getTrendColor()}`}>
-              +${mockInvestmentData.valueChange} ({mockInvestmentData.valueChangePercent}%)
+              {investmentData.valueChange > 0 ? '+' : ''}${investmentData.valueChange} ({investmentData.valueChangePercent}%)
             </div>
           </div>
         </div>
@@ -135,8 +135,8 @@ export default function WineInvestmentTracker({
         <div className="p-3 bg-white rounded-lg border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Market Analysis</span>
-            <Badge variant={mockInvestmentData.marketTrend === "up" ? "default" : "secondary"} className="text-xs">
-              {mockInvestmentData.marketTrend === "up" ? "Bullish" : "Stable"}
+            <Badge variant={investmentData.marketTrend === "up" ? "default" : "secondary"} className="text-xs">
+              {investmentData.marketTrend === "up" ? "Bullish" : "Stable"}
             </Badge>
           </div>
           <p className="text-xs text-gray-600 mb-2">
@@ -144,7 +144,7 @@ export default function WineInvestmentTracker({
           </p>
           <div className="flex items-center text-xs text-gray-500">
             <Calendar className="w-3 h-3 mr-1" />
-            Next review: {mockInvestmentData.nextReviewDate}
+            Next review: {investmentData.nextReviewDate}
           </div>
         </div>
       </CardContent>

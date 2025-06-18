@@ -6,10 +6,10 @@ export function useAuth() {
     retry: false,
   });
 
-  // Temporarily enable premium for testing
+  // Testing mode: Enable premium features for evaluation
   const testUser = user ? {
     ...user,
-    subscriptionPlan: 'premium' // Override to premium for testing
+    subscriptionPlan: 'premium' // Premium testing mode active
   } : user;
 
   return {

@@ -138,7 +138,7 @@ export default function WinePairingSuggestions({
         <p className="text-sm text-gray-600">Expert recommendations for {wineName}</p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {mockPairings.map((pairing, index) => (
+        {pairingSuggestions.map((pairing, index) => (
           <div key={index} className="border-l-4 border-yellow-400 pl-4">
             <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
               <Utensils className="w-4 h-4 mr-2 text-yellow-600" />
