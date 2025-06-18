@@ -124,23 +124,6 @@ export default function WineCard({
             </p>
           )}
 
-          {/* Premium Features Preview */}
-          {showPremiumFeatures && isPremium && (
-            <div className="mt-3 p-3 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-gray-700">Investment Value</span>
-                </div>
-                <PremiumBadge size="sm" />
-              </div>
-              <div className="text-xs text-gray-600 space-y-1">
-                <div>Est. Value: $180-220 (+23%)</div>
-                <div>Peak: 2026-2030</div>
-              </div>
-            </div>
-          )}
-
           {showPremiumFeatures && !isPremium && (
             <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
@@ -148,7 +131,7 @@ export default function WineCard({
                 <PremiumBadge size="sm" />
               </div>
               <div className="text-xs text-gray-500">
-                Investment tracking, food pairings, and more
+                Food pairings, cellar analytics, and more
               </div>
             </div>
           )}

@@ -11,7 +11,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import Header from "@/components/header";
 import WineCard from "@/components/wine-card";
 import WinePairingSuggestions from "@/components/wine-pairing-suggestions";
-import WineInvestmentTracker from "@/components/wine-investment-tracker";
+
 import PlanLimitModal from "@/components/plan-limit-modal";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -236,15 +236,10 @@ export default function Dashboard() {
 
               {/* Premium Features for First Recommendation */}
               {recommendations.length > 0 && (
-                <div className="grid lg:grid-cols-2 gap-6 mt-8">
+                <div className="mt-8">
                   <WinePairingSuggestions 
                     wineName={recommendations[0].name}
                     wineType={recommendations[0].type}
-                    isPremium={user?.subscriptionPlan === 'premium'}
-                    onUpgrade={() => window.location.href = '/pricing'}
-                  />
-                  <WineInvestmentTracker 
-                    wineName={recommendations[0].name}
                     isPremium={user?.subscriptionPlan === 'premium'}
                     onUpgrade={() => window.location.href = '/pricing'}
                   />

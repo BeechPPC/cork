@@ -50,7 +50,7 @@ export default function CellarAnalytics({ isPremium, onUpgrade, savedWines = [],
         cellaring: 0,
         peakWindow: 0,
         regions: [],
-        bestPerformer: "No wines yet"
+        totalBottles: 0
       };
     }
     
@@ -88,9 +88,7 @@ export default function CellarAnalytics({ isPremium, onUpgrade, savedWines = [],
     const totalValue = wineValues.reduce((sum, value) => sum + value, 0);
     const averageValue = totalValue / totalWines;
     
-    // Find best performer (highest estimated value)
-    const bestWineIndex = wineValues.indexOf(Math.max(...wineValues));
-    const bestPerformer = allWines[bestWineIndex]?.wineName || allWines[bestWineIndex]?.name || "Unknown Wine";
+    const totalBottles = totalWines;
     
     // Estimate drinking windows based on wine types and vintages
     const currentYear = new Date().getFullYear();
@@ -120,7 +118,7 @@ export default function CellarAnalytics({ isPremium, onUpgrade, savedWines = [],
       cellaring: cellaringCount,
       peakWindow: peakCount,
       regions,
-      bestPerformer
+      totalBottles
     };
   };
 
@@ -160,9 +158,9 @@ export default function CellarAnalytics({ isPremium, onUpgrade, savedWines = [],
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-purple-600 mb-1">Best Performer</p>
-                <p className="text-sm font-semibold text-purple-800">{analytics.bestPerformer}</p>
-                <p className="text-xs text-purple-600">Highest value</p>
+                <p className="text-sm text-purple-600 mb-1">Collection Size</p>
+                <p className="text-sm font-semibold text-purple-800">{allWines.length} wines</p>
+                <p className="text-xs text-purple-600">Total bottles</p>
               </div>
               <PieChart className="w-8 h-8 text-purple-600" />
             </div>
