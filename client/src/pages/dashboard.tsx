@@ -173,48 +173,73 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Recommendation Input */}
-          <div className="max-w-3xl mx-auto mb-12">
+          {/* Recommendation Input - Now with Tabs */}
+          <div className="max-w-4xl mx-auto mb-12">
             <Card className="bg-cream border border-gray-200">
               <CardContent className="p-8">
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-slate mb-3">Tell us what you're looking for</label>
-                  <Textarea 
-                    className="w-full resize-none focus:ring-grape focus:border-grape" 
-                    rows={4} 
-                    placeholder="I'm having a romantic dinner with my partner and we're serving grilled lamb with rosemary. Looking for something bold but not too heavy..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                </div>
+                <Tabs defaultValue="text" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                    <TabsTrigger value="text" className="flex items-center space-x-2">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Text Description</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="photo" className="flex items-center space-x-2">
+                      <Camera className="w-4 h-4" />
+                      <span>Meal & Menu Photos</span>
+                    </TabsTrigger>
+                  </TabsList>
 
-                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <div className="flex items-center space-x-1">
-                      <Wine className="w-4 h-4" />
-                      <span>Australian Focus</span>
+                  <TabsContent value="text" className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-slate mb-3">Tell us what you're looking for</label>
+                      <Textarea 
+                        className="w-full resize-none focus:ring-grape focus:border-grape" 
+                        rows={4} 
+                        placeholder="I'm having a romantic dinner with my partner and we're serving grilled lamb with rosemary. Looking for something bold but not too heavy..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                      />
                     </div>
-                    <div className="flex items-center space-x-1">
-                      <Sparkles className="w-4 h-4" />
-                      <span>AI Powered</span>
-                    </div>
-                  </div>
 
-                  <Button 
-                    onClick={handleGetRecommendations}
-                    disabled={getRecommendationsMutation.isPending}
-                    className="bg-grape text-white px-8 py-3 rounded-xl font-semibold hover:bg-purple-800 transition-all transform hover:scale-105 shadow-lg"
-                  >
-                    {getRecommendationsMutation.isPending ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Getting Recommendations...
-                      </>
-                    ) : (
-                      "Get Recommendations"
-                    )}
-                  </Button>
-                </div>
+                    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <Sparkles className="w-4 h-4 text-grape" />
+                          <span>AI-powered recommendations</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Wine className="w-4 h-4 text-grape" />
+                          <span>Australian wines focus</span>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        onClick={handleGetRecommendations}
+                        disabled={getRecommendationsMutation.isPending || !query.trim()}
+                        className="bg-grape hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
+                      >
+                        {getRecommendationsMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Getting Recommendations...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Get Recommendations
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="photo">
+                    <MealPairing 
+                      isPremium={user?.subscriptionPlan === 'premium'}
+                      onUpgrade={() => window.location.href = '/pricing'}
+                    />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>

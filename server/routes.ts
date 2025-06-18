@@ -60,6 +60,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Meal pairing analysis endpoint  
+  app.post("/api/analyze-meal-pairing", upload.single("image"), isAuthenticated, async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No image file provided" });
+      }
+
+      const analysisType = req.body.analysisType as 'meal' | 'menu';
+      if (!analysisType || !['meal', 'menu'].includes(analysisType)) {
+        return res.status(400).json({ message: "Invalid analysis type" });
+      }
+
+      // Convert image to base64
+      const base64Image = req.file.buffer.toString('base64');
+      
+      // Import and analyze meal/menu 
+      const { analyzeMealPairing } = await import("./openai");
+      const result = await analyzeMealPairing(base64Image, analysisType);
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Meal pairing analysis error:", error);
+      res.status(500).json({ message: "Analysis failed" });
+    }
+  });
+
   // Wine recommendations
   app.post("/api/recommendations", isAuthenticated, async (req: any, res) => {
     try {
