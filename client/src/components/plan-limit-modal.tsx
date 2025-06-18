@@ -105,10 +105,10 @@ export default function PlanLimitModal({
               <span className="font-semibold">Premium Plan</span>
             </div>
             <div className="flex items-baseline justify-center space-x-1">
-              <span className="text-2xl font-bold">$19</span>
+              <span className="text-2xl font-bold">$4.99</span>
               <span className="text-purple-200">/month</span>
             </div>
-            <p className="text-xs text-purple-200 mt-1">7-day free trial • Cancel anytime</p>
+            <div className="text-xs text-purple-200 mt-1">or $49.99/year • 7-day free trial</div>
           </div>
         </div>
 

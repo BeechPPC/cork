@@ -87,8 +87,11 @@ export default function Pricing() {
                     <h3 className="text-2xl font-poppins font-bold">Premium</h3>
                   </div>
                   <div className="flex items-baseline">
-                    <span className="text-4xl font-poppins font-bold">$19</span>
+                    <span className="text-4xl font-poppins font-bold">$4.99</span>
                     <span className="text-purple-200 ml-2">/month</span>
+                  </div>
+                  <div className="text-sm text-purple-200 mt-1">
+                    or $49.99/year (save 17%)
                   </div>
                   <p className="text-purple-200 mt-2">For serious wine enthusiasts</p>
                 </div>

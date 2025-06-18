@@ -161,7 +161,7 @@ export default function Landing() {
             Get Started Free
           </Button>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-            Free plan includes 3 saved wines • Upgrade anytime
+            Free plan includes 3 saved wines • Premium from $4.99/month
           </p>
         </div>
       </section>

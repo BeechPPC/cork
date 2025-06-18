@@ -81,7 +81,7 @@ const SubscribeForm = () => {
                 Processing...
               </>
             ) : (
-              'Subscribe for $19/month'
+              'Subscribe for $4.99/month'
             )}
           </Button>
         </form>
