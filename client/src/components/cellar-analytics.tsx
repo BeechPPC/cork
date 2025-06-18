@@ -6,6 +6,8 @@ import PremiumBadge from "./premium-badge";
 interface CellarAnalyticsProps {
   isPremium: boolean;
   onUpgrade?: () => void;
+  savedWines?: any[];
+  uploadedWines?: any[];
 }
 
 export default function CellarAnalytics({ isPremium, onUpgrade }: CellarAnalyticsProps) {
@@ -58,7 +60,7 @@ export default function CellarAnalytics({ isPremium, onUpgrade }: CellarAnalytic
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-blue-600 mb-1">Total Collection Value</p>
-                <p className="text-2xl font-bold text-blue-800">{mockAnalytics.totalValue}</p>
+                <p className="text-2xl font-bold text-blue-800">{analytics.totalValue}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-blue-600" />
             </div>
@@ -70,7 +72,7 @@ export default function CellarAnalytics({ isPremium, onUpgrade }: CellarAnalytic
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-green-600 mb-1">Ready to Drink</p>
-                <p className="text-2xl font-bold text-green-800">{mockAnalytics.readyToDrink} wines</p>
+                <p className="text-2xl font-bold text-green-800">{analytics.readyToDrink} wines</p>
               </div>
               <Target className="w-8 h-8 text-green-600" />
             </div>

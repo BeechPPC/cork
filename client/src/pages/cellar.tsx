@@ -367,6 +367,8 @@ export default function Cellar() {
               <CellarAnalytics 
                 isPremium={user?.subscriptionPlan === 'premium'}
                 onUpgrade={() => window.location.href = '/pricing'}
+                savedWines={savedWines}
+                uploadedWines={uploadedWines}
               />
             </TabsContent>
           </Tabs>
