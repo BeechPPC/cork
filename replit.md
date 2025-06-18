@@ -109,6 +109,7 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 17, 2025: Enhanced error handling and debugging for wine operations
 - June 18, 2025: Improved text color contrast across all components for better readability
 - June 18, 2025: Added red wine gradient to hero section "Perfect Wine Match" text and darkened hero text colors
+- June 18, 2025: Redesigned hero section with modern full-screen layout, glassmorphism effects, and enhanced visual elements
 
 ## User Preferences
 
