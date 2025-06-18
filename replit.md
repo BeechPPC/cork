@@ -103,7 +103,10 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 
 ## Changelog
 
-- June 17, 2025. Initial setup
+- June 17, 2025: Initial setup
+- June 17, 2025: Fixed wine saving functionality - resolved data type validation errors for vintage, ABV, and rating fields
+- June 17, 2025: Updated Stripe API integration to latest version for subscription handling
+- June 17, 2025: Enhanced error handling and debugging for wine operations
 
 ## User Preferences
 

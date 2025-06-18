@@ -247,7 +247,7 @@ export default function Dashboard() {
         open={showLimitModal}
         onOpenChange={setShowLimitModal}
         type="save"
-        currentCount={user?.usage?.savedWines || 0}
+        currentCount={0}
         maxCount={3}
       />
     </div>
