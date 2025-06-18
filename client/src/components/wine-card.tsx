@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Trash2, Loader2 } from "lucide-react";
+import { Heart, Trash2, Loader2, TrendingUp } from "lucide-react";
+import PremiumBadge from "./premium-badge";
 
 interface Wine {
   name: string;
@@ -24,6 +25,8 @@ interface WineCardProps {
   showRemoveButton?: boolean;
   source?: string;
   createdAt?: string;
+  isPremium?: boolean;
+  showPremiumFeatures?: boolean;
 }
 
 export default function WineCard({
@@ -35,6 +38,8 @@ export default function WineCard({
   showRemoveButton = false,
   source,
   createdAt,
+  isPremium = false,
+  showPremiumFeatures = false,
 }: WineCardProps) {
   // Default wine image - using a premium wine bottle from Unsplash
   const defaultImageUrl = "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300";
@@ -117,6 +122,35 @@ export default function WineCard({
             <p className="text-xs text-gray-600 dark:text-gray-400">
               Saved {formatDate(createdAt)}
             </p>
+          )}
+
+          {/* Premium Features Preview */}
+          {showPremiumFeatures && isPremium && (
+            <div className="mt-3 p-3 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium text-gray-700">Investment Value</span>
+                </div>
+                <PremiumBadge size="sm" />
+              </div>
+              <div className="text-xs text-gray-600 space-y-1">
+                <div>Est. Value: $180-220 (+23%)</div>
+                <div>Peak: 2026-2030</div>
+              </div>
+            </div>
+          )}
+
+          {showPremiumFeatures && !isPremium && (
+            <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600">Premium insights available</span>
+                <PremiumBadge size="sm" />
+              </div>
+              <div className="text-xs text-gray-500">
+                Investment tracking, food pairings, and more
+              </div>
+            </div>
           )}
         </div>
 

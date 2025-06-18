@@ -10,6 +10,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Header from "@/components/header";
 import WineCard from "@/components/wine-card";
+import WinePairingSuggestions from "@/components/wine-pairing-suggestions";
+import WineInvestmentTracker from "@/components/wine-investment-tracker";
 import PlanLimitModal from "@/components/plan-limit-modal";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";

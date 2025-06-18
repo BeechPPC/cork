@@ -111,6 +111,7 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 18, 2025: Added red wine gradient to hero section "Perfect Wine Match" text and darkened hero text colors
 - June 18, 2025: Redesigned hero section with modern full-screen layout, glassmorphism effects, and enhanced visual elements
 - June 18, 2025: Updated pricing structure to $4.99/month or $49.99/year for Premium plan
+- June 18, 2025: Enhanced premium features with food pairing suggestions, investment tracking, and cellar analytics
 
 ## User Preferences
 

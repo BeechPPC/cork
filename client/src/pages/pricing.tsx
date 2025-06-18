@@ -111,11 +111,15 @@ export default function Pricing() {
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span>Enhanced AI recommendations</span>
+                    <span>Food pairing recommendations</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span>Advanced cellar management</span>
+                    <span>Investment value tracking</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
+                    <span>Advanced cellar analytics</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
@@ -170,7 +174,25 @@ export default function Pricing() {
                     <td className="py-4 text-center text-grape font-semibold">Unlimited</td>
                   </tr>
                   <tr className="border-b border-gray-100">
-                    <td className="py-4 text-gray-700">Advanced cellar tools</td>
+                    <td className="py-4 text-gray-700">Food pairing suggestions</td>
+                    <td className="py-4 text-center">
+                      <X className="w-5 h-5 text-gray-400 mx-auto" />
+                    </td>
+                    <td className="py-4 text-center">
+                      <Check className="w-5 h-5 text-green-500 mx-auto" />
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-4 text-gray-700">Investment value tracking</td>
+                    <td className="py-4 text-center">
+                      <X className="w-5 h-5 text-gray-400 mx-auto" />
+                    </td>
+                    <td className="py-4 text-center">
+                      <Check className="w-5 h-5 text-green-500 mx-auto" />
+                    </td>
+                  </tr>
+                  <tr className="border-b border-gray-100">
+                    <td className="py-4 text-gray-700">Cellar analytics dashboard</td>
                     <td className="py-4 text-center">
                       <X className="w-5 h-5 text-gray-400 mx-auto" />
                     </td>
