@@ -84,47 +84,47 @@ export default function Pricing() {
                 <div className="mb-6">
                   <div className="flex items-center space-x-2 mb-2">
                     <Crown className="w-6 h-6 text-yellow-300" />
-                    <h3 className="text-2xl font-poppins font-bold">Premium</h3>
+                    <h3 className="text-2xl font-poppins font-bold text-white">Premium</h3>
                   </div>
                   <div className="flex items-baseline">
-                    <span className="text-4xl font-poppins font-bold">$4.99</span>
-                    <span className="text-purple-200 ml-2">/month</span>
+                    <span className="text-4xl font-poppins font-bold text-white">$4.99</span>
+                    <span className="text-white ml-2 font-medium">/month</span>
                   </div>
-                  <div className="text-sm text-purple-200 mt-1">
+                  <div className="text-sm text-white mt-1 font-medium">
                     or $49.99/year (save 17%)
                   </div>
-                  <p className="text-purple-200 mt-2">For serious wine enthusiasts</p>
+                  <p className="text-white mt-2 font-medium">For serious wine enthusiasts</p>
                 </div>
 
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span>Everything in Free, plus:</span>
+                    <span className="text-white font-medium">Everything in Free, plus:</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span><strong>Unlimited</strong> wine saves in cellar</span>
+                    <span className="text-white font-medium"><strong>Unlimited</strong> wine saves in cellar</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span><strong>Unlimited</strong> wine uploads & analysis</span>
+                    <span className="text-white font-medium"><strong>Unlimited</strong> wine uploads & analysis</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span>Food pairing recommendations</span>
+                    <span className="text-white font-medium">Food pairing recommendations</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span>AI meal & menu photo analysis</span>
+                    <span className="text-white font-medium">AI meal & menu photo analysis</span>
                   </li>
 
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span>Advanced cellar analytics</span>
+                    <span className="text-white font-medium">Advanced cellar analytics</span>
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
-                    <span>Priority support</span>
+                    <span className="text-white font-medium">Priority support</span>
                   </li>
                 </ul>
 
