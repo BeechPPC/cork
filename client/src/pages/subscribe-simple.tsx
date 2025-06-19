@@ -286,10 +286,14 @@ export default function Subscribe() {
           <p className="text-lg text-gray-600">
             Start your 7-day free trial and unlock unlimited wine discoveries
           </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
-            <p className="text-sm font-semibold text-blue-800 mb-2">Testing Mode</p>
-            <p className="text-xs text-blue-700">Use test card: <code className="bg-blue-100 px-1 rounded">4242 4242 4242 4242</code></p>
-            <p className="text-xs text-blue-700">Exp: 12/25, CVC: 123, ZIP: 12345</p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
+            <p className="text-sm font-semibold text-yellow-800 mb-2">⚠️ Stripe Configuration Issue</p>
+            <p className="text-xs text-yellow-700">Test cards are being rejected. This usually means:</p>
+            <ul className="text-xs text-yellow-700 mt-2 ml-4 list-disc">
+              <li>Stripe keys are in live mode (should start with sk_test_ and pk_test_)</li>
+              <li>Or test mode is not properly configured</li>
+            </ul>
+            <p className="text-xs text-yellow-700 mt-2">Test card: <code className="bg-yellow-100 px-1 rounded">4242 4242 4242 4242</code></p>
           </div>
         </div>
 
