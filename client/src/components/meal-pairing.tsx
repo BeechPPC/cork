@@ -95,6 +95,18 @@ export default function MealPairing({ isPremium, onUpgrade }: MealPairingProps) 
         body: formData,
       });
 
+      if (response.status === 403) {
+        const errorData = await response.json();
+        if (errorData.upgrade) {
+          toast({
+            title: "Premium Feature Required",
+            description: "Upgrade to Premium to analyze meal and menu photos",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
       if (!response.ok) {
         throw new Error('Analysis failed');
       }

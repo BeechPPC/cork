@@ -60,9 +60,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Meal pairing analysis endpoint  
-  app.post("/api/analyze-meal-pairing", upload.single("image"), isAuthenticated, async (req, res) => {
+  // Meal pairing analysis endpoint (Premium feature)
+  app.post("/api/analyze-meal-pairing", upload.single("image"), isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Check if user has premium access
+      if (user.subscriptionPlan !== 'premium') {
+        return res.status(403).json({ 
+          message: "Premium feature required",
+          upgrade: true 
+        });
+      }
+
       if (!req.file) {
         return res.status(400).json({ message: "No image file provided" });
       }
