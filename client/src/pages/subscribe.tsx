@@ -31,26 +31,53 @@ const SubscribeForm = ({ clientSecret }: { clientSecret: string }) => {
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: window.location.origin + '/dashboard',
-      },
-    });
-
-    setIsLoading(false);
-
-    if (error) {
-      toast({
-        title: "Payment Failed",
-        description: error.message,
-        variant: "destructive",
+    // Check if this is a SetupIntent or PaymentIntent
+    const isSetupIntent = clientSecret.startsWith('seti_');
+    
+    if (isSetupIntent) {
+      const { error } = await stripe.confirmSetup({
+        elements,
+        confirmParams: {
+          return_url: window.location.origin + '/dashboard',
+        },
       });
+
+      setIsLoading(false);
+
+      if (error) {
+        toast({
+          title: "Setup Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Setup Successful",
+          description: "Welcome to Premium! You now have unlimited access.",
+        });
+      }
     } else {
-      toast({
-        title: "Payment Successful",
-        description: "Welcome to Premium! You now have unlimited access.",
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: window.location.origin + '/dashboard',
+        },
       });
+
+      setIsLoading(false);
+
+      if (error) {
+        toast({
+          title: "Payment Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Payment Successful",
+          description: "Welcome to Premium! You now have unlimited access.",
+        });
+      }
     }
   };
 

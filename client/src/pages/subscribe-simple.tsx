@@ -32,27 +32,43 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
 
     // Check if this is a SetupIntent or PaymentIntent based on client_secret
     console.log('Client Secret:', clientSecret);
+    console.log('Stripe object:', stripe);
+    console.log('Elements object:', elements);
     const isSetupIntent = clientSecret.startsWith('seti_');
     console.log('Is SetupIntent:', isSetupIntent);
     
     if (isSetupIntent) {
       console.log('Using confirmSetup for SetupIntent');
-      const { error } = await stripe.confirmSetup({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/dashboard?subscription=success`,
-        },
-      });
+      try {
+        const result = await stripe.confirmSetup({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/dashboard?subscription=success`,
+          },
+        });
+        console.log('confirmSetup result:', result);
+        const { error } = result;
 
-      if (error) {
+        if (error) {
+          console.error('Setup error:', error);
+          toast({
+            title: "Setup Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+        } else {
+          console.log('Setup successful, calling onSuccess');
+          onSuccess();
+        }
+      } catch (setupError) {
+        console.error('Setup exception:', setupError);
         toast({
-          title: "Setup Failed",
-          description: error.message,
+          title: "Setup Error",
+          description: "An unexpected error occurred during setup",
           variant: "destructive",
         });
         setIsLoading(false);
-      } else {
-        onSuccess();
       }
     } else {
       console.log('Using confirmPayment for PaymentIntent');
