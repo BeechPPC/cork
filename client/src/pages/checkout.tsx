@@ -23,6 +23,14 @@ export default function Checkout() {
         body: JSON.stringify({ plan }),
       });
       
+      if (!response.ok) {
+        console.error('Response status:', response.status);
+        console.error('Response headers:', response.headers);
+        const text = await response.text();
+        console.error('Response text:', text);
+        throw new Error(`HTTP ${response.status}: ${text}`);
+      }
+      
       const data = await response.json();
       
       if (data.url) {

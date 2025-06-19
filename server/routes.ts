@@ -239,7 +239,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Subscription management endpoint
-  app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
+  app.post('/api/create-checkout-session', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
