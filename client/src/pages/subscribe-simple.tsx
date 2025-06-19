@@ -15,7 +15,7 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
 }
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-const SubscribeForm = ({ onSuccess, selectedPlan }: { onSuccess: () => void; selectedPlan: string }) => {
+const SubscribeForm = ({ onSuccess, selectedPlan, clientSecret }: { onSuccess: () => void; selectedPlan: string; clientSecret: string }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -30,22 +30,45 @@ const SubscribeForm = ({ onSuccess, selectedPlan }: { onSuccess: () => void; sel
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/dashboard?subscription=success`,
-      },
-    });
-
-    if (error) {
-      toast({
-        title: "Payment Failed",
-        description: error.message,
-        variant: "destructive",
+    // Check if this is a SetupIntent or PaymentIntent based on client_secret
+    const isSetupIntent = clientSecret.startsWith('seti_');
+    
+    if (isSetupIntent) {
+      const { error } = await stripe.confirmSetup({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/dashboard?subscription=success`,
+        },
       });
-      setIsLoading(false);
+
+      if (error) {
+        toast({
+          title: "Setup Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      } else {
+        onSuccess();
+      }
     } else {
-      onSuccess();
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/dashboard?subscription=success`,
+        },
+      });
+
+      if (error) {
+        toast({
+          title: "Payment Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      } else {
+        onSuccess();
+      }
     }
   };
 
@@ -229,6 +252,11 @@ export default function Subscribe() {
           <p className="text-lg text-gray-600">
             Start your 7-day free trial and unlock unlimited wine discoveries
           </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
+            <p className="text-sm font-semibold text-blue-800 mb-2">Testing Mode</p>
+            <p className="text-xs text-blue-700">Use test card: <code className="bg-blue-100 px-1 rounded">4242 4242 4242 4242</code></p>
+            <p className="text-xs text-blue-700">Exp: 12/25, CVC: 123, ZIP: 12345</p>
+          </div>
         </div>
 
         {/* Plan Selection */}
@@ -302,7 +330,7 @@ export default function Subscribe() {
             </CardHeader>
             <CardContent>
               <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <SubscribeForm onSuccess={handleSuccess} selectedPlan={selectedPlan} />
+                <SubscribeForm onSuccess={handleSuccess} selectedPlan={selectedPlan} clientSecret={clientSecret} />
               </Elements>
             </CardContent>
           </Card>
