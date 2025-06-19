@@ -238,109 +238,141 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe subscription routes
-  if (stripe) {
-    app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res) => {
-      try {
-        const userId = req.user.claims.sub;
-        let user = await storage.getUser(userId);
+  // Subscription management endpoint
+  app.post('/api/create-subscription', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-
-        if (user.stripeSubscriptionId) {
-          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-          const latestInvoice = await stripe.invoices.retrieve(subscription.latest_invoice as string, {
-            expand: ['payment_intent'],
+      if (user.stripeSubscriptionId && stripe) {
+        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        if (subscription.status === 'active' || subscription.status === 'trialing') {
+          return res.json({ 
+            message: "Already subscribed",
+            subscriptionId: subscription.id 
           });
-
-          res.json({
-            subscriptionId: subscription.id,
-            clientSecret: (latestInvoice.payment_intent as any)?.client_secret,
-          });
-          return;
         }
-        
-        if (!user.email) {
-          throw new Error('No user email on file');
-        }
+      }
 
+      if (!stripe) {
+        return res.status(500).json({ message: "Stripe not configured" });
+      }
+
+      // Create or get Stripe customer
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
         const customer = await stripe.customers.create({
-          email: user.email,
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+          email: user.email || '',
+          name: user.firstName || user.lastName || 'Cork User',
+          metadata: { userId: user.id }
         });
+        customerId = customer.id;
+        await storage.updateUserStripeInfo(userId, customerId, null);
+      }
 
-        // For demo purposes, create a test price if STRIPE_PRICE_ID is not set
-        let priceId = process.env.STRIPE_PRICE_ID;
-        if (!priceId) {
-          console.log('Creating test price for demo...');
-          const price = await stripe.prices.create({
-            unit_amount: 1900, // $19.00
+      // Create subscription with trial
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{
+          price_data: {
             currency: 'usd',
-            recurring: { interval: 'month' },
-            product_data: {
-              name: 'Cork Premium Plan',
+            unit_amount: 499, // $4.99 in cents
+            recurring: {
+              interval: 'month'
             },
-          });
-          priceId = price.id;
-        }
+            product_data: {
+              name: 'Cork Premium',
+              description: 'Unlimited wine recommendations and premium features'
+            }
+          }
+        }],
+        trial_period_days: 7,
+        payment_behavior: 'default_incomplete',
+        expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
+      });
 
-        const subscription = await stripe.subscriptions.create({
-          customer: customer.id,
-          items: [{
-            price: priceId,
-          }],
-          payment_behavior: 'default_incomplete',
-          expand: ['latest_invoice.payment_intent'],
-        });
+      // Update user with subscription ID
+      await storage.updateUserStripeInfo(userId, customerId, subscription.id);
 
-        await storage.updateUserStripeInfo(userId, customer.id, subscription.id);
-        
-        // Get the payment intent from the expanded latest invoice
-        const latestInvoice = subscription.latest_invoice as any;
-        const clientSecret = latestInvoice?.payment_intent?.client_secret;
-    
-        res.json({
-          subscriptionId: subscription.id,
-          clientSecret: clientSecret,
-        });
-      } catch (error) {
-        console.error("Stripe subscription error:", error);
-        return res.status(400).json({ error: { message: (error as Error).message } });
+      const latestInvoice = subscription.latest_invoice as any;
+      const setupIntent = subscription.pending_setup_intent as any;
+      const clientSecret = latestInvoice?.payment_intent?.client_secret || setupIntent?.client_secret;
+
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret,
+        trialEnd: subscription.trial_end
+      });
+    } catch (error: any) {
+      console.error("Subscription creation error:", error);
+      res.status(500).json({ message: "Failed to create subscription: " + error.message });
+    }
+  });
+
+  // Stripe webhook handler
+  app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    if (!stripe) {
+      return res.status(500).json({ message: "Stripe not configured" });
+    }
+
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+      // In production, you should set STRIPE_WEBHOOK_SECRET
+      event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test');
+    } catch (err: any) {
+      console.log(`Webhook signature verification failed.`, err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    try {
+      switch (event.type) {
+        case 'customer.subscription.updated':
+        case 'customer.subscription.created':
+          const subscription = event.data.object as any;
+          const customerId = subscription.customer;
+          
+          // Find user by customer ID
+          const customer = await stripe.customers.retrieve(customerId);
+          if (customer.deleted) break;
+          
+          const userId = (customer as any).metadata?.userId;
+          if (userId) {
+            const subscriptionPlan = (subscription.status === 'active' || subscription.status === 'trialing') ? 'premium' : 'free';
+            await storage.updateUserSubscriptionPlan(userId, subscriptionPlan);
+            console.log(`Updated user ${userId} subscription to ${subscriptionPlan}`);
+          }
+          break;
+
+        case 'customer.subscription.deleted':
+          const deletedSubscription = event.data.object as any;
+          const deletedCustomerId = deletedSubscription.customer;
+          
+          const deletedCustomer = await stripe.customers.retrieve(deletedCustomerId);
+          if (deletedCustomer.deleted) break;
+          
+          const deletedUserId = (deletedCustomer as any).metadata?.userId;
+          if (deletedUserId) {
+            await storage.updateUserSubscriptionPlan(deletedUserId, 'free');
+            console.log(`Downgraded user ${deletedUserId} to free plan`);
+          }
+          break;
+
+        default:
+          console.log(`Unhandled event type ${event.type}`);
       }
-    });
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+      return res.status(500).json({ message: 'Webhook processing failed' });
+    }
 
-    // Stripe webhook handler
-    app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
-      try {
-        const sig = req.headers['stripe-signature'];
-        const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-        if (!sig || !webhookSecret) {
-          return res.status(400).send('Missing signature or webhook secret');
-        }
-
-        const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-
-        switch (event.type) {
-          case 'customer.subscription.updated':
-          case 'customer.subscription.deleted':
-            const subscription = event.data.object as Stripe.Subscription;
-            // Handle subscription changes
-            console.log(`Subscription ${event.type}:`, subscription.id);
-            break;
-          default:
-            console.log(`Unhandled event type ${event.type}`);
-        }
-
-        res.json({ received: true });
-      } catch (error) {
-        console.error('Webhook error:', error);
-        res.status(400).send(`Webhook Error: ${(error as Error).message}`);
-      }
-    });
-  }
+    res.json({ received: true });
+  });
 
   const httpServer = createServer(app);
   return httpServer;

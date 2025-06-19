@@ -98,22 +98,40 @@ const SubscribeForm = () => {
 
 export default function Subscribe() {
   const [clientSecret, setClientSecret] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [subscriptionCreated, setSubscriptionCreated] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Create PaymentIntent as soon as the page loads
-    apiRequest("POST", "/api/get-or-create-subscription")
+    fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
-        setClientSecret(data.clientSecret);
+        if (data.clientSecret) {
+          setClientSecret(data.clientSecret);
+        } else if (data.message === "Already subscribed") {
+          toast({
+            title: "Already Subscribed",
+            description: "You're already a premium member!",
+          });
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 2000);
+        }
+        setLoading(false);
       })
       .catch((error) => {
+        console.error('Error:', error);
         toast({
           title: "Error",
-          description: "Failed to initialize payment. Please try again.",
+          description: "Failed to initialize subscription. Please try again.",
           variant: "destructive",
         });
-        console.error("Subscription error:", error);
+        setLoading(false);
       });
   }, [toast]);
 
