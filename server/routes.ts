@@ -291,43 +291,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Create subscription with trial
-      const subscription = await stripe.subscriptions.create({
+      // Create Checkout Session with trial
+      const session = await stripe.checkout.sessions.create({
         customer: customerId,
-        items: [{ price: priceId }],
-        trial_period_days: 7,
-        payment_behavior: 'default_incomplete',
-        payment_settings: {
-          save_default_payment_method: 'on_subscription'
+        payment_method_types: ['card'],
+        line_items: [{
+          price: priceId,
+          quantity: 1,
+        }],
+        mode: 'subscription',
+        subscription_data: {
+          trial_period_days: 7,
+          metadata: {
+            userId: userId,
+            plan: plan
+          }
         },
-        expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
+        success_url: `${req.headers.origin}/checkout?session_id={CHECKOUT_SESSION_ID}&subscription=success`,
+        cancel_url: `${req.headers.origin}/checkout?canceled=true`,
+        allow_promotion_codes: true,
+        billing_address_collection: 'auto',
+        customer_update: {
+          address: 'auto',
+          name: 'auto'
+        }
       });
 
-      // Update user with subscription ID
-      await storage.updateUserStripeInfo(userId, customerId, subscription.id);
-
-      const latestInvoice = subscription.latest_invoice as any;
-      const setupIntent = subscription.pending_setup_intent as any;
-      const clientSecret = latestInvoice?.payment_intent?.client_secret || setupIntent?.client_secret;
-      
-      console.log('Subscription created:', {
-        subscriptionId: subscription.id,
-        status: subscription.status,
-        clientSecret: clientSecret?.substring(0, 20) + '...',
-        hasSetupIntent: !!setupIntent,
-        hasPaymentIntent: !!latestInvoice?.payment_intent,
-        stripeMode: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
-        isProduction: true
+      console.log('Checkout session created:', {
+        sessionId: session.id,
+        customerId: customerId,
+        priceId: priceId,
+        plan: plan,
+        stripeMode: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST'
       });
 
       res.json({
-        subscriptionId: subscription.id,
-        clientSecret,
-        trialEnd: subscription.trial_end
+        sessionId: session.id,
+        url: session.url
       });
     } catch (error: any) {
-      console.error("Subscription creation error:", error);
-      res.status(500).json({ message: "Failed to create subscription: " + error.message });
+      console.error("Checkout session creation error:", error);
+      res.status(500).json({ message: "Failed to create checkout session: " + error.message });
     }
   });
 

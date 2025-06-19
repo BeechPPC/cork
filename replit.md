@@ -120,6 +120,7 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 19, 2025: Added monthly ($4.99) and yearly ($49.99) subscription plans with proper Stripe Price ID integration
 - June 19, 2025: Fixed routing issues causing occasional 404 pages during navigation
 - June 19, 2025: Configured production Stripe integration with live keys - real payments are now processed
+- June 19, 2025: Implemented Stripe Checkout flow with proper monthly/yearly subscription options and success handling
 
 ## User Preferences
 
