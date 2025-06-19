@@ -316,7 +316,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clientSecret: clientSecret?.substring(0, 20) + '...',
         hasSetupIntent: !!setupIntent,
         hasPaymentIntent: !!latestInvoice?.payment_intent,
-        stripeMode: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST'
+        stripeMode: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
+        isProduction: true
       });
 
       res.json({

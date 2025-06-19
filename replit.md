@@ -119,6 +119,7 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 19, 2025: Implemented complete Stripe payment system for premium subscriptions with 7-day free trial
 - June 19, 2025: Added monthly ($4.99) and yearly ($49.99) subscription plans with proper Stripe Price ID integration
 - June 19, 2025: Fixed routing issues causing occasional 404 pages during navigation
+- June 19, 2025: Configured production Stripe integration with live keys - real payments are now processed
 
 ## User Preferences
 
