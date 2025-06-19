@@ -307,6 +307,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             plan: plan
           }
         },
+        metadata: {
+          userId: userId,
+          plan: plan
+        },
         success_url: `${req.headers.origin}/checkout?session_id={CHECKOUT_SESSION_ID}&subscription=success`,
         cancel_url: `${req.headers.origin}/checkout?canceled=true`,
         allow_promotion_codes: true,
