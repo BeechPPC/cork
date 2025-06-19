@@ -36,6 +36,7 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
     console.log('Is SetupIntent:', isSetupIntent);
     
     if (isSetupIntent) {
+      console.log('Using confirmSetup for SetupIntent');
       const { error } = await stripe.confirmSetup({
         elements,
         confirmParams: {
@@ -54,6 +55,7 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
         onSuccess();
       }
     } else {
+      console.log('Using confirmPayment for PaymentIntent');
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
