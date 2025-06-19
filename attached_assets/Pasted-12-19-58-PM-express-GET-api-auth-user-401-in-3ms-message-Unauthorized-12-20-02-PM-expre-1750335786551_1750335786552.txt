@@ -1,0 +1,47 @@
+12:19:58 PM [express] GET /api/auth/user 401 in 3ms :: {"message":"Unauthorized"}
+12:20:02 PM [express] GET /api/auth/user 401 in 40ms :: {"message":"Unauthorized"}
+12:20:40 PM [express] GET /api/auth/user 304 in 189ms :: {"id":"42864309","email":"chris.beecheyppc@g…
+12:20:46 PM [express] GET /api/auth/user 304 in 108ms :: {"id":"42864309","email":"chris.beecheyppc@g…
+12:20:47 PM [express] POST /api/create-subscription 200 in 236ms :: {"message":"Already subscribed","…
+express deprecated req.host: Use req.hostname instead file:/home/runner/workspace/node_modules/openid-client/build/passport.js:165:49
+12:20:57 PM [express] GET /api/login 302 in 45ms
+12:20:59 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:21:14 PM [express] GET /api/auth/user 401 in 198ms :: {"message":"Unauthorized"}
+12:21:20 PM [express] GET /api/auth/user 304 in 176ms :: {"id":"42864309","email":"chris.beecheyppc@g…
+12:21:21 PM [express] GET /api/cellar 200 in 69ms :: [{"id":4,"userId":"42864309","wineName":"Ocean E…
+12:21:22 PM [express] GET /api/uploads 200 in 156ms :: []
+12:21:33 PM [express] GET /api/auth/user 304 in 180ms :: {"id":"42864309","email":"chris.beecheyppc@g…
+12:21:33 PM [express] POST /api/create-subscription 200 in 201ms :: {"message":"Already subscribed","…
+12:21:39 PM [express] GET /api/auth/user 304 in 112ms :: {"id":"42864309","email":"chris.beecheyppc@g…
+12:21:52 PM [express] GET /api/auth/user 401 in 42ms :: {"message":"Unauthorized"}
+12:21:59 PM [express] GET /api/auth/user 401 in 44ms :: {"message":"Unauthorized"}
+12:21:59 PM [express] GET /api/auth/user 401 in 63ms :: {"message":"Unauthorized"}
+12:22:00 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:00 PM [express] GET /api/auth/user 401 in 44ms :: {"message":"Unauthorized"}
+12:22:00 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:01 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:01 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:01 PM [express] GET /api/auth/user 401 in 42ms :: {"message":"Unauthorized"}
+12:22:02 PM [express] GET /api/auth/user 401 in 44ms :: {"message":"Unauthorized"}
+12:22:02 PM [express] GET /api/auth/user 401 in 42ms :: {"message":"Unauthorized"}
+12:22:02 PM [express] GET /api/auth/user 401 in 52ms :: {"message":"Unauthorized"}
+12:22:03 PM [express] GET /api/auth/user 401 in 56ms :: {"message":"Unauthorized"}
+12:22:03 PM [express] GET /api/auth/user 401 in 44ms :: {"message":"Unauthorized"}
+12:22:03 PM [express] GET /api/auth/user 401 in 42ms :: {"message":"Unauthorized"}
+12:22:03 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:04 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:04 PM [express] GET /api/auth/user 401 in 44ms :: {"message":"Unauthorized"}
+12:22:04 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:05 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:05 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:05 PM [express] GET /api/auth/user 401 in 46ms :: {"message":"Unauthorized"}
+12:22:05 PM [express] GET /api/auth/user 401 in 45ms :: {"message":"Unauthorized"}
+12:22:06 PM [express] GET /api/auth/user 401 in 46ms :: {"message":"Unauthorized"}
+12:22:06 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:11 PM [express] GET /api/auth/user 401 in 43ms :: {"message":"Unauthorized"}
+12:22:13 PM [express] GET /api/login 302 in 44ms
+12:22:24 PM [express] GET /api/callback 302 in 453ms
+12:22:29 PM [express] GET /api/auth/user 200 in 109ms :: {"id":"42864309","email":"chris.beecheyppc@g…
+12:22:41 PM [express] GET /api/auth/user 304 in 176ms :: {"id":"42864309","email":"chris.beecheyppc@g…
+12:22:41 PM [express] POST /api/create-subscription 200 in 186ms :: {"message":"Already subscribed","…
+12:22:48 PM [express] GET /api/auth/user 304 in 106ms :: {"id":"42864309","email":"chris.beecheyppc@g…

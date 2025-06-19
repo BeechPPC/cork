@@ -248,13 +248,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      if (user.stripeSubscriptionId && stripe) {
-        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
-        if (subscription.status === 'active' || subscription.status === 'trialing') {
-          return res.json({ 
-            message: "Already subscribed",
-            subscriptionId: subscription.id 
-          });
+      // Only check Stripe if user is marked as premium in database
+      if (user.subscriptionPlan === 'premium' && user.stripeSubscriptionId && stripe) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+          if (subscription.status === 'active' || subscription.status === 'trialing') {
+            return res.json({ 
+              message: "Already subscribed",
+              subscriptionId: subscription.id 
+            });
+          }
+        } catch (error) {
+          console.log('Stripe subscription error, allowing new subscription:', error);
         }
       }
 
