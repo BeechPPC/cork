@@ -285,7 +285,7 @@ export default function Subscribe() {
             </CardHeader>
             <CardContent>
               <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <SubscribeForm onSuccess={handleSuccess} />
+                <SubscribeForm onSuccess={handleSuccess} selectedPlan={selectedPlan} />
               </Elements>
             </CardContent>
           </Card>

@@ -117,6 +117,7 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 18, 2025: Added AI meal & menu photo analysis feature - users can upload photos of food or wine menus for intelligent pairing recommendations
 - June 18, 2025: Integrated meal pairing feature into main Dashboard interface using tabs for better UX
 - June 19, 2025: Implemented complete Stripe payment system for premium subscriptions with 7-day free trial
+- June 19, 2025: Added monthly ($4.99) and yearly ($49.99) subscription plans with proper Stripe Price ID integration
 
 ## User Preferences
 
