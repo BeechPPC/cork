@@ -6,14 +6,8 @@ export function useAuth() {
     retry: false,
   });
 
-  // Testing mode: Enable premium features for evaluation
-  const testUser = user ? {
-    ...user,
-    subscriptionPlan: 'premium' // Premium testing mode active
-  } : user;
-
   return {
-    user: testUser,
+    user,
     isLoading,
     isAuthenticated: !!user,
   };
