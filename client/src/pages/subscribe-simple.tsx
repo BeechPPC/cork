@@ -15,7 +15,7 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
 }
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-const SubscribeForm = ({ onSuccess, selectedPlan, clientSecret }: { onSuccess: () => void; selectedPlan: string; clientSecret: string }) => {
+const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuccess: () => void; selectedPlan: string; clientSecret: string }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -330,7 +330,11 @@ export default function Subscribe() {
             </CardHeader>
             <CardContent>
               <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <SubscribeForm onSuccess={handleSuccess} selectedPlan={selectedPlan} clientSecret={clientSecret} />
+                <SubscribeFormWrapper 
+                  onSuccess={handleSuccess} 
+                  selectedPlan={selectedPlan} 
+                  clientSecret={clientSecret} 
+                />
               </Elements>
             </CardContent>
           </Card>
