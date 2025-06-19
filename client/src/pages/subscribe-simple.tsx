@@ -83,14 +83,17 @@ export default function Subscribe() {
   const [selectedPlan, setSelectedPlan] = useState('monthly');
   const { toast } = useToast();
 
-  useEffect(() => {
+  const createSubscription = (plan: string) => {
+    setLoading(true);
+    setClientSecret("");
+    
     fetch('/api/create-subscription', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include', // Include cookies for authentication
-      body: JSON.stringify({ plan: selectedPlan })
+      body: JSON.stringify({ plan })
     })
       .then(async (res) => {
         if (res.status === 401) {
@@ -134,7 +137,18 @@ export default function Subscribe() {
         });
         setLoading(false);
       });
-  }, [toast, selectedPlan]);
+  };
+
+  useEffect(() => {
+    createSubscription(selectedPlan);
+  }, [toast]);
+
+  // Re-create subscription when plan changes
+  useEffect(() => {
+    if (!loading) {
+      createSubscription(selectedPlan);
+    }
+  }, [selectedPlan]);
 
   const handleSuccess = () => {
     setSubscriptionCreated(true);
@@ -220,6 +234,7 @@ export default function Subscribe() {
         {/* Plan Selection */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-center mb-4">Choose Your Plan</h2>
+          <p className="text-center text-gray-600 mb-6">Both plans include a 7-day free trial</p>
           <div className="grid md:grid-cols-2 gap-4 max-w-lg mx-auto">
             <Card 
               className={`cursor-pointer transition-all ${selectedPlan === 'monthly' ? 'ring-2 ring-grape' : ''}`}
@@ -239,7 +254,9 @@ export default function Subscribe() {
                 <h3 className="font-semibold">Yearly</h3>
                 <p className="text-2xl font-bold text-grape">$49.99</p>
                 <p className="text-sm text-gray-600">per year</p>
-                <Badge className="mt-1 bg-green-100 text-green-800">Save $10</Badge>
+                <div className="mt-1">
+                  <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Save $10</span>
+                </div>
               </CardContent>
             </Card>
           </div>
