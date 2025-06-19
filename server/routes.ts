@@ -392,6 +392,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ received: true });
   });
 
+  // Update subscription status after successful payment
+  app.post('/api/update-subscription-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { status } = req.body;
+      
+      if (status === 'premium') {
+        await storage.updateUserSubscriptionPlan(userId, 'premium');
+        console.log(`Updated user ${userId} to premium status`);
+      }
+      
+      res.json({ message: "Subscription status updated successfully" });
+    } catch (error) {
+      console.error("Error updating subscription status:", error);
+      res.status(500).json({ message: "Failed to update subscription status" });
+    }
+  });
+
   // Test endpoint to reset subscription for testing
   app.post('/api/reset-subscription-test', isAuthenticated, async (req: any, res) => {
     try {

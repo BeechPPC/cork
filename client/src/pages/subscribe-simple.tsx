@@ -59,7 +59,14 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
           setIsLoading(false);
         } else {
           console.log('Setup successful, calling onSuccess');
-          onSuccess();
+          toast({
+            title: "Payment Setup Successful!",
+            description: "Your premium subscription is now active. Redirecting to dashboard...",
+          });
+          // Update subscription status in database
+          setTimeout(() => {
+            onSuccess();
+          }, 2000);
         }
       } catch (setupError) {
         console.error('Setup exception:', setupError);
@@ -92,7 +99,13 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
           setIsLoading(false);
         } else {
           console.log('Payment successful, calling onSuccess');
-          onSuccess();
+          toast({
+            title: "Payment Successful!",
+            description: "Welcome to Premium! Your subscription is now active.",
+          });
+          setTimeout(() => {
+            onSuccess();
+          }, 2000);
         }
       } catch (paymentError) {
         console.error('Payment exception:', paymentError);
