@@ -13,6 +13,7 @@ import Header from "@/components/header";
 import WineCard from "@/components/wine-card";
 import WinePairingSuggestions from "@/components/wine-pairing-suggestions";
 import MealPairing from "@/components/meal-pairing";
+import VoiceSearch from "@/components/voice-search";
 
 import PlanLimitModal from "@/components/plan-limit-modal";
 import { useEffect } from "react";

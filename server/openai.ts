@@ -116,7 +116,7 @@ export async function analyzeMealPairing(base64Image: string, analysisType: 'mea
         }
       ]
     }`
-    : `You are an expert sommelier analyzing a meal photo. Identify the food items, cuisine type, ingredients, and cooking methods. Then recommend 3-5 wines (preferably Australian) that would pair perfectly with this meal.
+    : `You are an expert sommelier analyzing a meal photo. Identify the food items, cuisine type, ingredients, and cooking methods. Then recommend 3-5 wines (available to purchase in Australian) that would pair perfectly with this meal.
     
     Respond with JSON in this exact format:
     {

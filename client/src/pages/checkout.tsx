@@ -190,6 +190,10 @@ export default function Checkout() {
                     <Check className="w-5 h-5 text-green-600 mr-3" />
                     <span className="text-gray-700">Premium analytics</span>
                   </li>
+                  <li className="flex items-center">
+                    <Check className="w-5 h-5 text-green-600 mr-3" />
+                    <span className="text-gray-700">All future features</span>
+                  </li>
                 </ul>
                 <Button
                   onClick={() => handleSubscribe('monthly')}
@@ -283,7 +287,7 @@ export default function Checkout() {
           {/* Trust Indicators */}
           <div className="mt-16 text-center">
             <p className="text-sm text-gray-600 mb-4">
-              Trusted by wine enthusiasts worldwide
+              Trusted by wine enthusiasts
             </p>
             <div className="flex justify-center items-center space-x-8 text-gray-400">
               <div className="flex items-center">

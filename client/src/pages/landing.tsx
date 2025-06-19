@@ -209,7 +209,7 @@ export default function Landing() {
 
           <div className="border-t border-gray-700 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-400 dark:text-gray-500">
-              © 2024 cork. All rights reserved. Drink responsibly.
+              © 2025 cork. All rights reserved. Drink responsibly.
             </p>
             <p className="text-sm text-gray-400 dark:text-gray-500 mt-4 md:mt-0">
               Must be 18+ to use this service

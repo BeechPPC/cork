@@ -55,10 +55,6 @@ export default function Pricing() {
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-gray-700">Australian wine focus</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                     <span className="text-gray-700">Basic support</span>
                   </li>
                 </ul>
@@ -125,6 +121,10 @@ export default function Pricing() {
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
                     <span className="text-white font-medium">Priority support</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
+                    <span className="text-white font-medium">All future features</span>
                   </li>
                 </ul>
 
@@ -204,6 +204,15 @@ export default function Pricing() {
                   </tr>
                   <tr>
                     <td className="py-4 text-gray-700">Priority support</td>
+                    <td className="py-4 text-center">
+                      <X className="w-5 h-5 text-gray-400 mx-auto" />
+                    </td>
+                    <td className="py-4 text-center">
+                      <Check className="w-5 h-5 text-green-500 mx-auto" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="py-4 text-gray-700">New features</td>
                     <td className="py-4 text-center">
                       <X className="w-5 h-5 text-gray-400 mx-auto" />
                     </td>
