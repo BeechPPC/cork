@@ -38,7 +38,7 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
     console.log('Is SetupIntent:', isSetupIntent);
     
     if (isSetupIntent) {
-      console.log('Using confirmSetup for SetupIntent');
+      console.log('Using confirmSetup for SetupIntent - Trial Period');
       try {
         const result = await stripe.confirmSetup({
           elements,
@@ -47,26 +47,34 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
           },
         });
         console.log('confirmSetup result:', result);
-        const { error } = result;
+        const { setupIntent: confirmedSetup, error } = result;
 
         if (error) {
           console.error('Setup error:', error);
           toast({
-            title: "Setup Failed",
+            title: "Payment Setup Failed",
             description: error.message,
             variant: "destructive",
           });
           setIsLoading(false);
-        } else {
-          console.log('Setup successful, calling onSuccess');
+        } else if (confirmedSetup && confirmedSetup.status === 'succeeded') {
+          console.log('Setup successful - trial period started');
           toast({
-            title: "Payment Setup Successful!",
-            description: "Your premium subscription is now active. Redirecting to dashboard...",
+            title: "Welcome to Your 7-Day Free Trial!",
+            description: "Your payment method is saved. Trial starts now, billing begins after 7 days.",
           });
           // Update subscription status in database
           setTimeout(() => {
             onSuccess();
           }, 2000);
+        } else {
+          console.log('Setup requires additional action');
+          toast({
+            title: "Additional Action Required",
+            description: "Please complete the payment setup process.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
         }
       } catch (setupError) {
         console.error('Setup exception:', setupError);
@@ -78,7 +86,7 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
         setIsLoading(false);
       }
     } else {
-      console.log('Using confirmPayment for PaymentIntent');
+      console.log('Using confirmPayment for PaymentIntent - Immediate Charge');
       try {
         const result = await stripe.confirmPayment({
           elements,
@@ -87,7 +95,7 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
           },
         });
         console.log('confirmPayment result:', result);
-        const { error } = result;
+        const { paymentIntent, error } = result;
 
         if (error) {
           console.error('Payment error:', error);
@@ -97,8 +105,8 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
             variant: "destructive",
           });
           setIsLoading(false);
-        } else {
-          console.log('Payment successful, calling onSuccess');
+        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+          console.log('Payment successful - subscription activated');
           toast({
             title: "Payment Successful!",
             description: "Welcome to Premium! Your subscription is now active.",
@@ -106,6 +114,14 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
           setTimeout(() => {
             onSuccess();
           }, 2000);
+        } else {
+          console.log('Payment requires additional action');
+          toast({
+            title: "Additional Action Required",
+            description: "Please complete the payment process.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
         }
       } catch (paymentError) {
         console.error('Payment exception:', paymentError);
