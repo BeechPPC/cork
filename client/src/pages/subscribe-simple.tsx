@@ -1,5 +1,4 @@
-import { useStripe, Elements, PaymentElement, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+// Removed Stripe Elements - using Checkout instead
 import { useEffect, useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -8,12 +7,7 @@ import { Loader2, Crown, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/header";
 
-// Make sure to call `loadStripe` outside of a component's render to avoid
-// recreating the `Stripe` object on every render.
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Using Stripe Checkout - no need for Elements setup
 
 const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuccess: () => void; selectedPlan: string; clientSecret: string }) => {
   const stripe = useStripe();
