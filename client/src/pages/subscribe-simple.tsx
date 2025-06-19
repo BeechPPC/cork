@@ -31,7 +31,9 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
     setIsLoading(true);
 
     // Check if this is a SetupIntent or PaymentIntent based on client_secret
+    console.log('Client Secret:', clientSecret);
     const isSetupIntent = clientSecret.startsWith('seti_');
+    console.log('Is SetupIntent:', isSetupIntent);
     
     if (isSetupIntent) {
       const { error } = await stripe.confirmSetup({
