@@ -26,7 +26,7 @@ function Router() {
           <Route path="/cellar" component={Cellar} />
           <Route path="/upload" component={Upload} />
           <Route path="/pricing" component={Pricing} />
-          <Route path="/subscribe" component={() => import("./pages/subscribe-simple")} />
+          <Route path="/subscribe" component={Subscribe} />
         </>
       )}
       <Route component={NotFound} />
