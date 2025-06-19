@@ -21,7 +21,8 @@ export interface IStorage {
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User>;
+  updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User>;
+  updateUserSubscriptionPlan(userId: string, subscriptionPlan: string): Promise<User>;
   
   // Saved wines operations
   getSavedWines(userId: string): Promise<SavedWine[]>;
