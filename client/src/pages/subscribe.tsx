@@ -195,7 +195,7 @@ export default function Subscribe() {
           </div>
 
           <Elements stripe={stripePromise} options={{ clientSecret }}>
-            <SubscribeForm />
+            <SubscribeForm clientSecret={clientSecret} />
           </Elements>
 
           {/* Benefits Reminder */}

@@ -72,22 +72,36 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
       }
     } else {
       console.log('Using confirmPayment for PaymentIntent');
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/dashboard?subscription=success`,
-        },
-      });
+      try {
+        const result = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/dashboard?subscription=success`,
+          },
+        });
+        console.log('confirmPayment result:', result);
+        const { error } = result;
 
-      if (error) {
+        if (error) {
+          console.error('Payment error:', error);
+          toast({
+            title: "Payment Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+        } else {
+          console.log('Payment successful, calling onSuccess');
+          onSuccess();
+        }
+      } catch (paymentError) {
+        console.error('Payment exception:', paymentError);
         toast({
-          title: "Payment Failed",
-          description: error.message,
+          title: "Payment Error",
+          description: "An unexpected error occurred during payment",
           variant: "destructive",
         });
         setIsLoading(false);
-      } else {
-        onSuccess();
       }
     }
   };
