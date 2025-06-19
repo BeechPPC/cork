@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import Cellar from "@/pages/cellar";
 import Upload from "@/pages/upload";
 import Pricing from "@/pages/pricing";
+import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
       
       {/* Public routes */}
       <Route path="/pricing" component={Pricing} />
+      <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}
       {isAuthenticated && (
