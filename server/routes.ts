@@ -283,6 +283,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             unit_amount: 499, // $4.99 in cents
             recurring: {
               interval: 'month'
+            },
+            product_data: {
+              name: 'Cork Premium',
+              description: 'Unlimited wine recommendations and premium features'
             }
           }
         }],
