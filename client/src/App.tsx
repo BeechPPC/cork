@@ -27,6 +27,7 @@ function Router() {
           <Route path="/upload" component={Upload} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/subscribe" component={Subscribe} />
+          <Route path="/subscription-test" component={SubscriptionTest} />
         </>
       )}
       <Route component={NotFound} />

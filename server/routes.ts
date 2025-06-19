@@ -377,6 +377,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ received: true });
   });
 
+  // Test endpoint to reset subscription for testing
+  app.post('/api/reset-subscription-test', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Reset user subscription status for testing
+      await storage.updateUserSubscriptionPlan(userId, 'free');
+      
+      // Note: In production, you would also cancel the Stripe subscription
+      // For testing, we'll just reset the local status
+      
+      res.json({ message: "Subscription reset for testing" });
+    } catch (error) {
+      console.error("Error resetting subscription:", error);
+      res.status(500).json({ message: "Failed to reset subscription" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

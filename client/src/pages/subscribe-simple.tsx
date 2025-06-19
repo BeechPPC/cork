@@ -114,11 +114,11 @@ export default function Subscribe() {
         } else if (data.message === "Already subscribed") {
           toast({
             title: "Already Subscribed",
-            description: "You're already a premium member!",
+            description: "You're already a premium member! Redirecting...",
           });
           setTimeout(() => {
             window.location.href = '/dashboard';
-          }, 2000);
+          }, 1500);
         } else if (data.message) {
           toast({
             title: "Error",
