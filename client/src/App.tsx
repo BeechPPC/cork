@@ -17,7 +17,7 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" exact>
+      <Route path="/">
         {isLoading || !isAuthenticated ? <Landing /> : <Dashboard />}
       </Route>
       
