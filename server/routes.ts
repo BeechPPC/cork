@@ -274,24 +274,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateUserStripeInfo(userId, customerId, null);
       }
 
-      // Create subscription with trial
+      // Create subscription with trial using setup intent for trial period
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{
           price_data: {
             currency: 'usd',
             unit_amount: 499, // $4.99 in cents
-            recurring: {
-              interval: 'month'
-            },
-            product_data: {
-              name: 'Cork Premium',
-              description: 'Unlimited wine recommendations and premium features'
-            }
+            recurring: { interval: 'month' },
+            product: 'Cork Premium'
           }
         }],
         trial_period_days: 7,
         payment_behavior: 'default_incomplete',
+        payment_settings: {
+          save_default_payment_method: 'on_subscription'
+        },
         expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
       });
 

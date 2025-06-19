@@ -87,9 +87,22 @@ export default function Subscribe() {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include' // Include cookies for authentication
     })
-      .then((res) => res.json())
-      .then((data) => {
+      .then(async (res) => {
+        if (res.status === 401) {
+          toast({
+            title: "Please log in",
+            description: "You need to be logged in to subscribe",
+            variant: "destructive",
+          });
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 2000);
+          return;
+        }
+        
+        const data = await res.json();
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
         } else if (data.message === "Already subscribed") {
@@ -100,6 +113,12 @@ export default function Subscribe() {
           setTimeout(() => {
             window.location.href = '/dashboard';
           }, 2000);
+        } else if (data.message) {
+          toast({
+            title: "Error",
+            description: data.message,
+            variant: "destructive",
+          });
         }
         setLoading(false);
       })
