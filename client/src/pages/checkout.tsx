@@ -28,6 +28,17 @@ export default function Checkout() {
       if (data.url) {
         // Redirect to Stripe Checkout
         window.location.href = data.url;
+      } else if (data.hasActiveSubscription) {
+        toast({
+          title: "Already Subscribed",
+          description: data.message || "You already have an active subscription.",
+          variant: "destructive",
+        });
+        setIsLoading(prev => ({ ...prev, [plan]: false }));
+        // Redirect to dashboard after a delay
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 2000);
       } else {
         console.error('No checkout URL received:', data);
         toast({

@@ -331,7 +331,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Checkout session creation error:", error);
-      res.status(500).json({ message: "Failed to create checkout session: " + error.message });
+      
+      // Handle specific Stripe errors
+      if (error.type === 'StripeInvalidRequestError' && error.message?.includes('currency')) {
+        res.status(400).json({ 
+          message: "This customer already has an active subscription. Please contact support to modify your subscription.",
+          hasActiveSubscription: true 
+        });
+      } else {
+        res.status(500).json({ message: "Failed to create checkout session: " + error.message });
+      }
     }
   });
 
