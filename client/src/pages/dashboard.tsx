@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Wine, Sparkles, Camera, MessageSquare } from "lucide-react";
+import { Loader2, Wine, Sparkles, Camera, MessageSquare, Mic } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -134,8 +134,9 @@ export default function Dashboard() {
     },
   });
 
-  const handleGetRecommendations = () => {
-    if (!query.trim()) {
+  const handleGetRecommendations = (searchQuery?: string) => {
+    const queryToUse = searchQuery || query;
+    if (!queryToUse.trim()) {
       toast({
         title: "Input Required",
         description: "Please describe what kind of wine you're looking for.",
@@ -143,7 +144,8 @@ export default function Dashboard() {
       });
       return;
     }
-    getRecommendationsMutation.mutate(query);
+    setQuery(queryToUse);
+    getRecommendationsMutation.mutate(queryToUse);
   };
 
   const handleSaveWine = (wine: WineRecommendation) => {
@@ -179,14 +181,18 @@ export default function Dashboard() {
             <Card className="bg-cream border border-gray-200">
               <CardContent className="p-8">
                 <Tabs defaultValue="text" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsList className="grid w-full grid-cols-3 mb-6">
                     <TabsTrigger value="text" className="flex items-center space-x-2">
                       <MessageSquare className="w-4 h-4" />
-                      <span>Text Description</span>
+                      <span>Text Search</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="voice" className="flex items-center space-x-2">
+                      <Mic className="w-4 h-4" />
+                      <span>Voice Search</span>
                     </TabsTrigger>
                     <TabsTrigger value="photo" className="flex items-center space-x-2">
                       <Camera className="w-4 h-4" />
-                      <span>Meal & Menu Photos</span>
+                      <span>Meal Photos</span>
                     </TabsTrigger>
                   </TabsList>
 
@@ -232,6 +238,15 @@ export default function Dashboard() {
                         )}
                       </Button>
                     </div>
+                  </TabsContent>
+
+                  <TabsContent value="voice" className="space-y-6">
+                    <VoiceSearch 
+                      onSearch={handleGetRecommendations}
+                      isSearching={getRecommendationsMutation.isPending}
+                      isPremium={user?.subscriptionPlan === 'premium'}
+                      onUpgrade={() => window.location.href = '/pricing'}
+                    />
                   </TabsContent>
 
                   <TabsContent value="photo">

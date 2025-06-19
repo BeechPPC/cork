@@ -120,6 +120,10 @@ export default function Pricing() {
                   </li>
                   <li className="flex items-center">
                     <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
+                    <span className="text-white font-medium">Voice-to-text wine search</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="w-5 h-5 text-yellow-300 mr-3 flex-shrink-0" />
                     <span className="text-white font-medium">Priority support</span>
                   </li>
                   <li className="flex items-center">
