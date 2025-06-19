@@ -17,19 +17,31 @@ function Router() {
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
+      <Route path="/" exact>
+        {isLoading || !isAuthenticated ? <Landing /> : <Dashboard />}
+      </Route>
+      
+      {/* Public routes */}
+      <Route path="/pricing" component={Pricing} />
+      
+      {/* Protected routes */}
+      {isAuthenticated && (
         <>
-          <Route path="/" component={Dashboard} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/cellar" component={Cellar} />
           <Route path="/upload" component={Upload} />
-          <Route path="/pricing" component={Pricing} />
           <Route path="/subscribe" component={Subscribe} />
-
         </>
       )}
+      
+      {/* Redirect unauthenticated users to landing */}
+      {!isLoading && !isAuthenticated && (
+        <Route path="*">
+          <Landing />
+        </Route>
+      )}
+      
+      {/* 404 for authenticated users */}
       <Route component={NotFound} />
     </Switch>
   );
