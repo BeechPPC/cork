@@ -11,7 +11,7 @@ export default function Pricing() {
   const isPremium = user?.subscriptionPlan === 'premium';
 
   const handleUpgrade = () => {
-    window.location.href = '/subscribe';
+    window.location.href = '/checkout';
   };
 
   return (
