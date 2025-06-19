@@ -274,17 +274,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateUserStripeInfo(userId, customerId, null);
       }
 
-      // Create subscription with trial using setup intent for trial period
+      // Get price ID based on plan (default to monthly)
+      const plan = req.body.plan || 'monthly';
+      const priceId = plan === 'yearly' 
+        ? process.env.STRIPE_YEARLY_PRICE_ID 
+        : process.env.STRIPE_MONTHLY_PRICE_ID;
+
+      if (!priceId) {
+        return res.status(500).json({ 
+          message: `Stripe price ID not configured for ${plan} plan. Please contact support.` 
+        });
+      }
+
+      // Create subscription with trial
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
-        items: [{
-          price_data: {
-            currency: 'usd',
-            unit_amount: 499, // $4.99 in cents
-            recurring: { interval: 'month' },
-            product: 'Cork Premium'
-          }
-        }],
+        items: [{ price: priceId }],
         trial_period_days: 7,
         payment_behavior: 'default_incomplete',
         payment_settings: {

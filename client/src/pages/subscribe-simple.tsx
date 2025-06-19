@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Crown, Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import Header from "@/components/header";
 
 // Make sure to call `loadStripe` outside of a component's render to avoid
@@ -14,7 +15,7 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
 }
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-const SubscribeForm = ({ onSuccess }: { onSuccess: () => void }) => {
+const SubscribeForm = ({ onSuccess, selectedPlan }: { onSuccess: () => void; selectedPlan: string }) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -64,12 +65,12 @@ const SubscribeForm = ({ onSuccess }: { onSuccess: () => void }) => {
         ) : (
           <>
             <Crown className="w-4 h-4 mr-2" />
-            Start 7-Day Free Trial
+            Start 7-Day Free Trial ({selectedPlan === 'yearly' ? '$49.99/year' : '$4.99/month'})
           </>
         )}
       </Button>
       <p className="text-sm text-gray-600 text-center">
-        Your trial starts today. You'll be charged $4.99/month after 7 days. Cancel anytime.
+        Your trial starts today. You'll be charged {selectedPlan === 'yearly' ? '$49.99/year' : '$4.99/month'} after 7 days. Cancel anytime.
       </p>
     </form>
   );
@@ -79,6 +80,7 @@ export default function Subscribe() {
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(true);
   const [subscriptionCreated, setSubscriptionCreated] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('monthly');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -87,7 +89,8 @@ export default function Subscribe() {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include' // Include cookies for authentication
+      credentials: 'include', // Include cookies for authentication
+      body: JSON.stringify({ plan: selectedPlan })
     })
       .then(async (res) => {
         if (res.status === 401) {
@@ -131,7 +134,7 @@ export default function Subscribe() {
         });
         setLoading(false);
       });
-  }, [toast]);
+  }, [toast, selectedPlan]);
 
   const handleSuccess = () => {
     setSubscriptionCreated(true);
@@ -212,6 +215,34 @@ export default function Subscribe() {
           <p className="text-lg text-gray-600">
             Start your 7-day free trial and unlock unlimited wine discoveries
           </p>
+        </div>
+
+        {/* Plan Selection */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-center mb-4">Choose Your Plan</h2>
+          <div className="grid md:grid-cols-2 gap-4 max-w-lg mx-auto">
+            <Card 
+              className={`cursor-pointer transition-all ${selectedPlan === 'monthly' ? 'ring-2 ring-grape' : ''}`}
+              onClick={() => setSelectedPlan('monthly')}
+            >
+              <CardContent className="p-4 text-center">
+                <h3 className="font-semibold">Monthly</h3>
+                <p className="text-2xl font-bold text-grape">$4.99</p>
+                <p className="text-sm text-gray-600">per month</p>
+              </CardContent>
+            </Card>
+            <Card 
+              className={`cursor-pointer transition-all ${selectedPlan === 'yearly' ? 'ring-2 ring-grape' : ''}`}
+              onClick={() => setSelectedPlan('yearly')}
+            >
+              <CardContent className="p-4 text-center">
+                <h3 className="font-semibold">Yearly</h3>
+                <p className="text-2xl font-bold text-grape">$49.99</p>
+                <p className="text-sm text-gray-600">per year</p>
+                <Badge className="mt-1 bg-green-100 text-green-800">Save $10</Badge>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
