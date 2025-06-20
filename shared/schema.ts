@@ -92,6 +92,13 @@ export const recommendationHistory = pgTable("recommendation_history", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Email signups for pre-launch
+export const emailSignups = pgTable("email_signups", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   savedWines: many(savedWines),
