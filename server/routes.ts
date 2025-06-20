@@ -210,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const base64Image = req.file.buffer.toString('base64');
       
       // Analyze with AI
-      const analysis = await analyzeWineImage(base64Image);
+      const analysis = await analyseWineImage(base64Image);
 
       // Save uploaded wine record
       const uploadedWine = await storage.saveUploadedWine({

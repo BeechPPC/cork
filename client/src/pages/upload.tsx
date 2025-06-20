@@ -290,7 +290,7 @@ export default function Upload() {
                         onClick={handleNewAnalysis}
                         className="flex-1 bg-grape text-white hover:bg-purple-800"
                       >
-                        Analyze Another Wine
+                        Analyse Another Wine
                       </Button>
                       <Button 
                         variant="outline"

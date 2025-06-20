@@ -306,7 +306,7 @@ export default function MealPairing({ isPremium, onUpgrade }: MealPairingProps) 
                 className="border-orange-300 text-orange-700 hover:bg-orange-50"
               >
                 <Upload className="w-4 h-4 mr-2" />
-                Analyze Another Photo
+                Analyse Another Photo
               </Button>
             </div>
           </div>

@@ -194,13 +194,13 @@ export async function analyseMealPairing(base64Image: string, analysisType: 'mea
     };
   } catch (error) {
     console.error("OpenAI meal pairing analysis error:", error);
-    throw new Error("Failed to analyze meal for wine pairings");
+    throw new Error("Failed to analyse meal for wine pairings");
   }
 }
 
 export async function analyseWineImage(base64Image: string): Promise<WineAnalysis> {
   try {
-    const prompt = `You are an expert wine analyst. Analyze this wine bottle image and provide detailed information about the wine.
+    const prompt = `You are an expert wine analyst. Analyse this wine bottle image and provide detailed information about the wine.
 
 Look at the label, bottle shape, and any visible details to identify:
 1. The wine name and producer
