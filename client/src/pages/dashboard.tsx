@@ -145,6 +145,7 @@ export default function Dashboard() {
 
   const handleGetRecommendations = (searchQuery?: string) => {
     const queryToUse = searchQuery || query;
+    
     if (!queryToUse || typeof queryToUse !== 'string' || !queryToUse.trim()) {
       toast({
         title: "Input Required",
@@ -153,7 +154,10 @@ export default function Dashboard() {
       });
       return;
     }
-    setQuery(queryToUse);
+    
+    if (searchQuery) {
+      setQuery(searchQuery);
+    }
     getRecommendationsMutation.mutate(queryToUse);
   };
 
@@ -230,8 +234,8 @@ export default function Dashboard() {
                       </div>
                       
                       <Button 
-                        onClick={handleGetRecommendations}
-                        disabled={getRecommendationsMutation.isPending || !query.trim()}
+                        onClick={() => handleGetRecommendations()}
+                        disabled={getRecommendationsMutation.isPending || !query || typeof query !== 'string' || !query.trim()}
                         className="bg-grape hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
                       >
                         {getRecommendationsMutation.isPending ? (
