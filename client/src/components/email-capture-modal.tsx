@@ -14,12 +14,13 @@ interface EmailCaptureModalProps {
 
 export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureModalProps) {
   const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
 
   const submitEmailMutation = useMutation({
-    mutationFn: async (email: string) => {
-      const response = await apiRequest("POST", "/api/email-signup", { email });
+    mutationFn: async ({ email, firstName }: { email: string; firstName?: string }) => {
+      const response = await apiRequest("POST", "/api/email-signup", { email, firstName });
       return response.json();
     },
     onSuccess: () => {
@@ -56,13 +57,14 @@ export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureMo
       return;
     }
 
-    submitEmailMutation.mutate(email);
+    submitEmailMutation.mutate({ email, firstName });
   };
 
   const handleClose = () => {
     onOpenChange(false);
     setIsSubmitted(false);
     setEmail("");
+    setFirstName("");
   };
 
   return (
@@ -96,12 +98,22 @@ export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureMo
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
+                  type="text"
+                  placeholder="First name (optional)"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full focus:ring-grape focus:border-grape"
+                  disabled={submitEmailMutation.isPending}
+                />
+                
+                <Input
                   type="email"
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full focus:ring-grape focus:border-grape"
                   disabled={submitEmailMutation.isPending}
+                  required
                 />
                 
                 <Button
@@ -132,7 +144,7 @@ export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureMo
               </h2>
               
               <p className="text-gray-600">
-                We'll notify you as soon as cork is available.
+                We'll notify you as soon as cork is available. Check your email for a confirmation message!
               </p>
             </>
           )}

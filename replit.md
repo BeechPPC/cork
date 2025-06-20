@@ -127,6 +127,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 20, 2025: Implemented email capture modal for pre-launch marketing on landing page
 - June 20, 2025: Updated all branding to lowercase "cork" as per brand guidelines
 - June 20, 2025: Updated all text to use Australian English spelling and grammar
+- June 20, 2025: Implemented email confirmation system with SendGrid for email capture signups
 
 ## User Preferences
 

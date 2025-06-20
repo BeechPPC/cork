@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { getWineRecommendations, analyseWineImage } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
+import { sendEmailSignupConfirmation } from "./emailService";
 import Stripe from "stripe";
 import multer from "multer";
 
@@ -522,22 +523,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email signup for pre-launch
   app.post("/api/email-signup", async (req, res) => {
     try {
-      const { email } = req.body;
+      const { email, firstName } = req.body;
       
       if (!email || typeof email !== 'string' || !email.includes('@')) {
         return res.status(400).json({ message: "Valid email is required" });
       }
 
-      await storage.saveEmailSignup(email);
-      res.json({ message: "Email saved successfully" });
+      // Check if email already exists
+      try {
+        await storage.saveEmailSignup(email);
+      } catch (error: any) {
+        if (error.message && error.message.includes('duplicate key')) {
+          return res.status(409).json({ message: "Email already registered" });
+        }
+        throw error;
+      }
+
+      // Send confirmation email
+      const emailSent = await sendEmailSignupConfirmation({ 
+        email, 
+        firstName: firstName || undefined 
+      });
+
+      if (emailSent) {
+        console.log(`Email signup confirmation sent to ${email}`);
+      }
+
+      res.json({ 
+        message: "Email saved successfully",
+        confirmationSent: emailSent
+      });
     } catch (error: any) {
       console.error("Error saving email signup:", error);
-      
-      // Handle duplicate email error
-      if (error.message && error.message.includes('duplicate key')) {
-        return res.status(409).json({ message: "Email already registered" });
-      }
-      
       res.status(500).json({ message: "Failed to save email" });
     }
   });
