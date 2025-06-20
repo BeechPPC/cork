@@ -128,7 +128,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md" hideClose>
+      <DialogContent className="sm:max-w-md"onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold text-slate">
             Welcome to Cork!

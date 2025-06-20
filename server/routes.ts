@@ -466,6 +466,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Downgrade to free plan endpoint
+  app.post('/api/downgrade-to-free', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Cancel Stripe subscription if it exists
+      if (user.stripeSubscriptionId) {
+        try {
+          await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+          console.log(`Cancelled Stripe subscription ${user.stripeSubscriptionId} for user ${userId}`);
+        } catch (stripeError) {
+          console.error("Error cancelling Stripe subscription:", stripeError);
+          // Continue with local downgrade even if Stripe fails
+        }
+      }
+      
+      // Update user to free plan
+      await storage.updateUserSubscriptionPlan(userId, 'free');
+      await storage.updateUserStripeInfo(userId, user.stripeCustomerId || '', null);
+      
+      res.json({ 
+        message: "Successfully downgraded to free plan",
+        subscriptionPlan: "free"
+      });
+    } catch (error) {
+      console.error("Error downgrading subscription:", error);
+      res.status(500).json({ message: "Failed to downgrade subscription" });
+    }
+  });
+
   // Test endpoint to reset subscription for testing
   app.post('/api/reset-subscription-test', isAuthenticated, async (req: any, res) => {
     try {
