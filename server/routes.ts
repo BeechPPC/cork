@@ -519,6 +519,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email signup for pre-launch
+  app.post("/api/email-signup", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || typeof email !== 'string' || !email.includes('@')) {
+        return res.status(400).json({ message: "Valid email is required" });
+      }
+
+      await storage.saveEmailSignup(email);
+      res.json({ message: "Email saved successfully" });
+    } catch (error: any) {
+      console.error("Error saving email signup:", error);
+      
+      // Handle duplicate email error
+      if (error.message && error.message.includes('duplicate key')) {
+        return res.status(409).json({ message: "Email already registered" });
+      }
+      
+      res.status(500).json({ message: "Failed to save email" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

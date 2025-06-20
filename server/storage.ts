@@ -3,6 +3,7 @@ import {
   savedWines,
   uploadedWines,
   recommendationHistory,
+  emailSignups,
   type User,
   type UpsertUser,
   type SavedWine,
@@ -11,6 +12,7 @@ import {
   type InsertUploadedWine,
   type RecommendationHistory,
   type InsertRecommendationHistory,
+  type EmailSignup,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, count } from "drizzle-orm";

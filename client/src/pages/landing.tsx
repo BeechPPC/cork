@@ -230,6 +230,11 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      <EmailCaptureModal 
+        open={showEmailCapture} 
+        onOpenChange={setShowEmailCapture} 
+      />
     </div>
   );
 }
