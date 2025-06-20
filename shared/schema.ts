@@ -34,7 +34,6 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  dateOfBirth: timestamp("date_of_birth"),
   subscriptionPlan: varchar("subscription_plan").default("free"), // "free" or "premium"
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
