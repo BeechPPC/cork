@@ -45,6 +45,9 @@ export interface IStorage {
   // Recommendation history operations
   saveRecommendationHistory(history: InsertRecommendationHistory): Promise<RecommendationHistory>;
   getRecommendationHistory(userId: string, limit?: number): Promise<RecommendationHistory[]>;
+  
+  // Email signup operations
+  saveEmailSignup(email: string): Promise<EmailSignup>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -205,6 +208,14 @@ export class DatabaseStorage implements IStorage {
       .where(eq(recommendationHistory.userId, userId))
       .orderBy(desc(recommendationHistory.createdAt))
       .limit(limit);
+  }
+
+  async saveEmailSignup(email: string): Promise<EmailSignup> {
+    const [emailSignup] = await db
+      .insert(emailSignups)
+      .values({ email })
+      .returning();
+    return emailSignup;
   }
 }
 

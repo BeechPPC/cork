@@ -142,6 +142,11 @@ export const insertRecommendationHistorySchema = createInsertSchema(recommendati
   createdAt: true,
 });
 
+export const insertEmailSignupSchema = createInsertSchema(emailSignups).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -151,3 +156,5 @@ export type UploadedWine = typeof uploadedWines.$inferSelect;
 export type InsertUploadedWine = z.infer<typeof insertUploadedWineSchema>;
 export type RecommendationHistory = typeof recommendationHistory.$inferSelect;
 export type InsertRecommendationHistory = z.infer<typeof insertRecommendationHistorySchema>;
+export type EmailSignup = typeof emailSignups.$inferSelect;
+export type InsertEmailSignup = z.infer<typeof insertEmailSignupSchema>;
