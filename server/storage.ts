@@ -23,6 +23,13 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User>;
   updateUserSubscriptionPlan(userId: string, subscriptionPlan: string): Promise<User>;
+  updateUserProfile(userId: string, profileData: {
+    dateOfBirth?: string;
+    wineExperienceLevel?: string;
+    preferredWineTypes?: string[];
+    budgetRange?: string;
+    location?: string;
+  }): Promise<User>;
   
   // Saved wines operations
   getSavedWines(userId: string): Promise<SavedWine[]>;

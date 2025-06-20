@@ -427,6 +427,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile setup endpoint
+  app.post('/api/profile/setup', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body;
+      
+      // Validate age (must be 18+)
+      if (dateOfBirth) {
+        const birthDate = new Date(dateOfBirth);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        
+        if (age < 18) {
+          return res.status(400).json({ message: "You must be 18 or older to use Cork" });
+        }
+      }
+      
+      const updatedUser = await storage.updateUserProfile(userId, {
+        dateOfBirth,
+        wineExperienceLevel,
+        preferredWineTypes,
+        budgetRange,
+        location
+      });
+      
+      res.json({ 
+        message: "Profile setup completed successfully",
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error("Error setting up profile:", error);
+      res.status(500).json({ message: "Failed to set up profile" });
+    }
+  });
+
   // Test endpoint to reset subscription for testing
   app.post('/api/reset-subscription-test', isAuthenticated, async (req: any, res) => {
     try {

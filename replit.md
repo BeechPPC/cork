@@ -123,6 +123,7 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 19, 2025: Implemented Stripe Checkout flow with proper monthly/yearly subscription options and success handling
 - June 19, 2025: Added comprehensive Stripe webhook handling for subscription lifecycle management
 - June 19, 2025: Implemented voice-to-text wine search as premium feature using Web Speech API
+- June 19, 2025: Added seamless profile setup with age verification (18+) and wine preferences collection
 
 ## User Preferences
 

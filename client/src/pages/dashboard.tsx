@@ -16,6 +16,7 @@ import MealPairing from "@/components/meal-pairing";
 import VoiceSearch from "@/components/voice-search";
 
 import PlanLimitModal from "@/components/plan-limit-modal";
+import ProfileSetupModal from "@/components/profile-setup-modal";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
