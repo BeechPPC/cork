@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Wine, Sparkles, Upload, Shield } from "lucide-react";
+import { FaFacebook, FaInstagram, FaLinkedin, FaThreads } from "react-icons/fa6";
 import Header from "@/components/header";
 import EmailCaptureModal from "@/components/email-capture-modal";
 
@@ -185,25 +186,55 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <h3 className="text-2xl font-poppins font-bold text-grape dark:text-purple-400 mb-4">cork</h3>
-              <p className="text-gray-300 dark:text-gray-400 text-sm leading-relaxed">
+              <p className="text-gray-300 dark:text-gray-400 text-sm leading-relaxed mb-6">
                 AI-powered wine recommendations with a focus on Australian wines. Discover your perfect match for any occasion.
               </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4 text-white">Product</h4>
-              <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Recommendations</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Wine Upload</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">My Cellar</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-              </ul>
+              
+              {/* Social Media Links */}
+              <div className="flex space-x-4">
+                <a 
+                  href="https://facebook.com/corkwine" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                  aria-label="Follow cork on Facebook"
+                >
+                  <FaFacebook className="h-6 w-6" />
+                </a>
+                <a 
+                  href="https://instagram.com/corkwine" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                  aria-label="Follow cork on Instagram"
+                >
+                  <FaInstagram className="h-6 w-6" />
+                </a>
+                <a 
+                  href="https://threads.net/@corkwine" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                  aria-label="Follow cork on Threads"
+                >
+                  <FaThreads className="h-6 w-6" />
+                </a>
+                <a 
+                  href="https://linkedin.com/company/corkwine" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                  aria-label="Follow cork on LinkedIn"
+                >
+                  <FaLinkedin className="h-6 w-6" />
+                </a>
+              </div>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4 text-white">Support</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Wine Education</a></li>
               </ul>
