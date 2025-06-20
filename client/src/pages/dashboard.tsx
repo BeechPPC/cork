@@ -145,7 +145,7 @@ export default function Dashboard() {
 
   const handleGetRecommendations = (searchQuery?: string) => {
     const queryToUse = searchQuery || query;
-    if (!queryToUse.trim()) {
+    if (!queryToUse || typeof queryToUse !== 'string' || !queryToUse.trim()) {
       toast({
         title: "Input Required",
         description: "Please describe what kind of wine you're looking for.",
