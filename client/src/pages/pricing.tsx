@@ -3,15 +3,46 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Crown, Wine } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import Header from "@/components/header";
 import { Link } from "wouter";
 
 export default function Pricing() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const isPremium = user?.subscriptionPlan === 'premium';
+
+  const downgradeToFreeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/downgrade-to-free");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Downgraded Successfully",
+        description: "You've been downgraded to the free plan. Your subscription has been cancelled.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Downgrade Failed",
+        description: "There was an error downgrading your subscription. Please try again or contact support.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleUpgrade = () => {
     window.location.href = '/checkout';
+  };
+
+  const handleDowngrade = () => {
+    if (confirm("Are you sure you want to downgrade to the free plan? This will cancel your subscription and limit your access to premium features.")) {
+      downgradeToFreeMutation.mutate();
+    }
   };
 
   return (
@@ -60,10 +91,11 @@ export default function Pricing() {
                 </ul>
 
                 <Button 
+                  onClick={isPremium ? handleDowngrade : undefined}
                   className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
-                  disabled={!isPremium}
+                  disabled={!isPremium || downgradeToFreeMutation.isPending}
                 >
-                  {!isPremium ? 'Current Plan' : 'Downgrade to Free'}
+                  {downgradeToFreeMutation.isPending ? 'Processing...' : !isPremium ? 'Current Plan' : 'Downgrade to Free'}
                 </Button>
               </CardContent>
             </Card>
