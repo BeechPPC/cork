@@ -36,6 +36,7 @@ export default function Dashboard() {
   const [query, setQuery] = useState("");
   const [recommendations, setRecommendations] = useState<WineRecommendation[]>([]);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
 
@@ -53,6 +54,13 @@ export default function Dashboard() {
       return;
     }
   }, [isAuthenticated, isLoading, toast]);
+
+  // Check if profile setup is needed
+  useEffect(() => {
+    if (user && !user.profileCompleted) {
+      setShowProfileSetup(true);
+    }
+  }, [user]);
 
   const getRecommendationsMutation = useMutation({
     mutationFn: async (searchQuery: string) => {
@@ -311,6 +319,11 @@ export default function Dashboard() {
         type="save"
         currentCount={0}
         maxCount={3}
+      />
+
+      <ProfileSetupModal
+        open={showProfileSetup}
+        onComplete={() => setShowProfileSetup(false)}
       />
     </div>
   );

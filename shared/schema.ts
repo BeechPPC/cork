@@ -38,6 +38,12 @@ export const users = pgTable("users", {
   subscriptionPlan: varchar("subscription_plan").default("free"), // "free" or "premium"
   stripeCustomerId: varchar("stripe_customer_id"),
   stripeSubscriptionId: varchar("stripe_subscription_id"),
+  dateOfBirth: varchar("date_of_birth"),
+  wineExperienceLevel: varchar("wine_experience_level"),
+  preferredWineTypes: varchar("preferred_wine_types").array(),
+  budgetRange: varchar("budget_range"),
+  location: varchar("location"),
+  profileCompleted: boolean("profile_completed").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -105,6 +105,34 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async updateUserProfile(userId: string, profileData: {
+    dateOfBirth?: string;
+    wineExperienceLevel?: string;
+    preferredWineTypes?: string[];
+    budgetRange?: string;
+    location?: string;
+  }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        dateOfBirth: profileData.dateOfBirth,
+        wineExperienceLevel: profileData.wineExperienceLevel,
+        preferredWineTypes: profileData.preferredWineTypes,
+        budgetRange: profileData.budgetRange,
+        location: profileData.location,
+        profileCompleted: true,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    return user;
+  }
+
   // Saved wines operations
   async getSavedWines(userId: string): Promise<SavedWine[]> {
     return await db
