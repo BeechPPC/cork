@@ -1,8 +1,8 @@
-# Wine Recommendation Application (Cork)
+# Wine Recommendation Application (cork)
 
 ## Overview
 
-Cork is a full-stack web application that provides AI-powered wine recommendations and analysis. The application focuses on Australian wines and offers both recommendation services and wine image analysis capabilities. It features a freemium model with subscription-based premium features powered by Stripe.
+cork is a full-stack web application that provides AI-powered wine recommendations and analysis. The application focuses on Australian wines and offers both recommendation services and wine image analysis capabilities. It features a freemium model with subscription-based premium features powered by Stripe.
 
 ## System Architecture
 
@@ -124,6 +124,8 @@ Cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 19, 2025: Added comprehensive Stripe webhook handling for subscription lifecycle management
 - June 19, 2025: Implemented voice-to-text wine search as premium feature using Web Speech API
 - June 19, 2025: Added seamless profile setup with age verification (18+) and wine preferences collection
+- June 20, 2025: Implemented email capture modal for pre-launch marketing on landing page
+- June 20, 2025: Updated all branding to lowercase "cork" as per brand guidelines
 
 ## User Preferences
 

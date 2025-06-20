@@ -91,7 +91,7 @@ export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureMo
               </h2>
               
               <p className="text-gray-600 mb-6">
-                Cork is launching soon! Get notified when our AI wine sommelier becomes available.
+                cork is launching soon! Get notified when our AI wine sommelier becomes available.
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -118,7 +118,7 @@ export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureMo
               </form>
 
               <p className="text-xs text-gray-500 mt-4">
-                We'll only email you when Cork launches. No spam, ever.
+                We'll only email you when cork launches. No spam, ever.
               </p>
             </>
           ) : (
@@ -132,7 +132,7 @@ export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureMo
               </h2>
               
               <p className="text-gray-600">
-                We'll notify you as soon as Cork is available.
+                We'll notify you as soon as cork is available.
               </p>
             </>
           )}

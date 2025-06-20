@@ -131,7 +131,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
       <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold text-slate">
-            Welcome to Cork!
+            Welcome to cork!
           </DialogTitle>
         </DialogHeader>
 
@@ -141,7 +141,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
               <Calendar className="h-12 w-12 text-grape mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-slate mb-2">Age Verification</h3>
               <p className="text-gray-600 text-sm">
-                Cork is an alcohol-related service. You must be 18 or older to continue.
+                cork is an alcohol-related service. You must be 18 or older to continue.
               </p>
             </div>
 
@@ -160,7 +160,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
                 />
                 {dateOfBirth && !isValidAge && (
                   <p className="text-sm text-red-600 mt-1">
-                    You must be 18 or older to use Cork.
+                    You must be 18 or older to use cork.
                   </p>
                 )}
                 {dateOfBirth && isValidAge && (
