@@ -126,6 +126,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 19, 2025: Added seamless profile setup with age verification (18+) and wine preferences collection
 - June 20, 2025: Implemented email capture modal for pre-launch marketing on landing page
 - June 20, 2025: Updated all branding to lowercase "cork" as per brand guidelines
+- June 20, 2025: Updated all text to use Australian English spelling and grammar
 
 ## User Preferences
 

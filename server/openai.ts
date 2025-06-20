@@ -90,7 +90,7 @@ export interface MealPairingAnalysis {
   recommendations: PairingRecommendation[];
 }
 
-export async function analyzeMealPairing(base64Image: string, analysisType: 'meal' | 'menu'): Promise<MealPairingAnalysis> {
+export async function analyseMealPairing(base64Image: string, analysisType: 'meal' | 'menu'): Promise<MealPairingAnalysis> {
   // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
   const isMenuAnalysis = analysisType === 'menu';
   
@@ -198,7 +198,7 @@ export async function analyzeMealPairing(base64Image: string, analysisType: 'mea
   }
 }
 
-export async function analyzeWineImage(base64Image: string): Promise<WineAnalysis> {
+export async function analyseWineImage(base64Image: string): Promise<WineAnalysis> {
   try {
     const prompt = `You are an expert wine analyst. Analyze this wine bottle image and provide detailed information about the wine.
 
