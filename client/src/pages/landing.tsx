@@ -183,7 +183,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-slate dark:bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="text-2xl font-poppins font-bold text-grape dark:text-purple-400 mb-4">cork</h3>
               <p className="text-gray-300 dark:text-gray-400 text-sm leading-relaxed mb-6">
@@ -235,16 +235,7 @@ export default function Landing() {
               <h4 className="font-semibold mb-4 text-white">Support</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Wine Education</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-4 text-white">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Wine Education</a></li>
               </ul>
             </div>

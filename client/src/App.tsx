@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import Cellar from "@/pages/cellar";
 import Upload from "@/pages/upload";
 import Pricing from "@/pages/pricing";
+import Contact from "@/pages/contact";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -24,6 +25,7 @@ function Router() {
       
       {/* Public routes */}
       <Route path="/pricing" component={Pricing} />
+      <Route path="/contact" component={Contact} />
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}
