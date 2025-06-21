@@ -215,6 +215,29 @@ export default function TermsOfService() {
             </CardContent>
           </Card>
 
+          {/* Data & Privacy Reference */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Data Collection & Privacy</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                By using cork, you acknowledge and agree to our data collection and processing practices:
+              </p>
+              <ul className="space-y-2 text-gray-600 dark:text-gray-300">
+                <li>• We collect personal information including name, email, age verification, and wine preferences</li>
+                <li>• Wine images and searches are processed to provide recommendations and analysis</li>
+                <li>• Payment information is securely processed through third-party providers</li>
+                <li>• Usage data helps improve our services and personalise recommendations</li>
+                <li>• We comply with Australian Privacy Principles under the Privacy Act 1988</li>
+              </ul>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                For complete details on data collection, use, and your privacy rights, please review our 
+                <a href="/privacy-policy" className="text-grape hover:underline ml-1">Privacy Policy</a>.
+              </p>
+            </CardContent>
+          </Card>
+
           {/* Disclaimers & Limitations */}
           <Card>
             <CardHeader>
@@ -232,27 +255,55 @@ export default function TermsOfService() {
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-grape mb-2">Wine Recommendations</h3>
+                <h3 className="font-semibold text-grape mb-2">Wine Recommendations & AI Analysis</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Our wine recommendations are for informational purposes only and based on AI analysis. 
-                  Wine preferences are subjective, and we cannot guarantee you will enjoy recommended wines. 
-                  We are not responsible for purchases made based on our recommendations.
+                  Our wine recommendations are for informational and entertainment purposes only. They are generated 
+                  by artificial intelligence and based on algorithmic analysis of your preferences and wine data. 
+                  Wine taste is highly subjective and personal. We make no warranties about the accuracy, completeness, 
+                  or suitability of recommendations. We are not responsible for purchases, disappointment, or financial 
+                  loss resulting from wines purchased based on our recommendations. Always consider your own preferences 
+                  and budget when making wine purchases.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-grape mb-2">Wine Analysis Accuracy</h3>
+                <h3 className="font-semibold text-grape mb-2">Wine Image Analysis & Valuation</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Wine image analysis and valuation estimates are provided for entertainment and educational purposes. 
-                  We cannot guarantee accuracy of wine identification, vintage dating, or value estimates. 
-                  Always consult professional appraisers for definitive wine valuations.
+                  Wine image analysis, identification, and valuation estimates are provided for entertainment, 
+                  educational, and general informational purposes only. Our AI system may misidentify wines, 
+                  incorrectly estimate vintages, or provide inaccurate valuations. Factors affecting wine value 
+                  include storage conditions, provenance, market fluctuations, and authenticity - none of which 
+                  can be determined from photographs alone. Never rely on our analysis for insurance, investment, 
+                  or sales decisions. Always consult certified wine appraisers, sommeliers, or auction houses for 
+                  professional wine valuation and authentication.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-grape mb-2">Health & Safety</h3>
+                <h3 className="font-semibold text-grape mb-2">Alcohol Consumption & Health</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Cork promotes responsible alcohol consumption. We are not liable for any health issues, 
-                  accidents, or consequences resulting from alcohol consumption. Please drink responsibly 
-                  and seek medical advice if you have health concerns related to alcohol.
+                  Cork promotes responsible alcohol consumption in accordance with Australian guidelines. 
+                  We are not liable for any health issues, injuries, accidents, property damage, or consequences 
+                  resulting from alcohol consumption, including but not limited to: alcohol poisoning, addiction, 
+                  impaired driving, accidents, or health complications. Alcohol affects individuals differently 
+                  based on factors including weight, medications, health conditions, and tolerance. 
+                  Please drink responsibly, never drink and drive, and consult healthcare professionals 
+                  if you have concerns about alcohol consumption or potential interactions with medications.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-grape mb-2">Professional Advice Disclaimer</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  Cork does not provide professional wine investment, sommelier, or health advice. 
+                  Our content should not be considered professional recommendations. For investment decisions, 
+                  consult financial advisors. For wine service and pairing expertise, consult certified sommeliers. 
+                  For health concerns related to alcohol, consult medical professionals.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-grape mb-2">Contact for Additional Information</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  If you require more detailed information about our disclaimers, limitations, or liability terms, 
+                  please contact us through our support channels. We are happy to provide additional clarification 
+                  on any aspect of these terms.
                 </p>
               </div>
             </CardContent>
