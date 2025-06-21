@@ -131,6 +131,108 @@ const australianRegionsByState: RegionsByState[] = [
         foodPairings: ["Red meat", "Roast lamb", "Game", "Hard cheeses", "Hearty stews"],
         priceRange: "$18-$200+",
         bestVintages: ["2010", "2012", "2016", "2018", "2020"]
+      },
+      {
+        id: "eden-valley",
+        name: "Eden Valley",
+        description: "High-altitude cool-climate region renowned for exceptional Riesling and elegant Shiraz. The elevated vineyards produce wines with remarkable purity and aging potential.",
+        climate: "Cool continental with high altitude influence",
+        established: "1847",
+        signatureVarieties: ["Riesling", "Shiraz", "Cabernet Sauvignon", "Chardonnay"],
+        characteristics: ["High altitude", "Cool climate", "Exceptional Riesling", "Elegant structure"],
+        famousWineries: [
+          { name: "Henschke", specialty: "Hill of Grace Shiraz", established: "1868", description: "Legendary family winery with some of the world's oldest Shiraz vines." },
+          { name: "Pewsey Vale", specialty: "The Contours Riesling", established: "1847", description: "Historic vineyard producing ethereal, long-lived Rieslings at high elevation." },
+          { name: "Wolf Blass", specialty: "Gold Label Riesling", established: "1966", description: "Premium producer known for elegant cool-climate expressions." }
+        ],
+        foodPairings: ["Asian cuisine", "Shellfish", "White meats", "Spicy foods", "Fresh herbs"],
+        priceRange: "$16-$300+",
+        bestVintages: ["2012", "2014", "2017", "2019", "2021"]
+      },
+      {
+        id: "langhorne-creek",
+        name: "Langhorne Creek",
+        description: "Unique flood-irrigated region producing rich, full-bodied reds. The alluvial soils and traditional flooding techniques create distinctive, fruit-driven wines.",
+        climate: "Mediterranean with unique flood irrigation",
+        established: "1850s",
+        signatureVarieties: ["Cabernet Sauvignon", "Shiraz", "Merlot", "Malbec"],
+        characteristics: ["Flood irrigation", "Rich, fruit-driven wines", "Alluvial soils", "Full-bodied reds"],
+        famousWineries: [
+          { name: "Bleasdale Vineyards", specialty: "Generations Shiraz", established: "1850", description: "Historic family winery pioneering the region's flood irrigation methods." },
+          { name: "Wolf Blass", specialty: "Grey Label Langhorne Creek", established: "1966", description: "Premium producer showcasing the region's distinctive terroir." },
+          { name: "Casa Freschi", specialty: "Shiraz", established: "1998", description: "Modern family winery focusing on sustainable viticulture." }
+        ],
+        foodPairings: ["Red meat", "Game", "Rich pasta", "BBQ", "Aged cheeses"],
+        priceRange: "$14-$80+",
+        bestVintages: ["2010", "2014", "2016", "2018", "2020"]
+      },
+      {
+        id: "padthaway",
+        name: "Padthaway",
+        description: "Cool-climate region known for elegant whites and structured reds. The terra rossa over limestone soils produce wines with excellent minerality and aging potential.",
+        climate: "Cool continental with limestone influence",
+        established: "1960s",
+        signatureVarieties: ["Chardonnay", "Sauvignon Blanc", "Shiraz", "Cabernet Sauvignon"],
+        characteristics: ["Terra rossa over limestone", "Elegant whites", "Mineral complexity", "Cool climate"],
+        famousWineries: [
+          { name: "Henry's Drive Vignerons", specialty: "Dead Letter Office Shiraz", established: "1998", description: "Modern winery focusing on single-vineyard expressions." },
+          { name: "Stonehaven Wines", specialty: "Chardonnay", established: "1989", description: "Boutique producer specialising in cool-climate varieties." },
+          { name: "Browns of Padthaway", specialty: "Family Reserve Shiraz", established: "1994", description: "Family winery producing premium estate wines." }
+        ],
+        foodPairings: ["Seafood", "Poultry", "Soft cheeses", "Light meats", "Asian cuisine"],
+        priceRange: "$15-$70+",
+        bestVintages: ["2013", "2015", "2017", "2019", "2021"]
+      },
+      {
+        id: "riverland",
+        name: "Riverland",
+        description: "Australia's largest wine region by volume, producing approachable, value-driven wines. The Murray River irrigation supports consistent production of fruit-driven styles.",
+        climate: "Hot continental with river irrigation",
+        established: "1887",
+        signatureVarieties: ["Chardonnay", "Shiraz", "Cabernet Sauvignon", "Merlot"],
+        characteristics: ["High volume production", "Value wines", "River irrigation", "Consistent quality"],
+        famousWineries: [
+          { name: "Banrock Station", specialty: "Environmental wines", established: "1994", description: "Pioneering winery combining wine production with environmental conservation." },
+          { name: "Kingston Estate", specialty: "Murray Darling wines", established: "1979", description: "Family winery producing accessible, food-friendly wines." },
+          { name: "Angove Family Winemakers", specialty: "Organic Range", established: "1886", description: "Historic family winery focusing on sustainable and organic viticulture." }
+        ],
+        foodPairings: ["Casual dining", "BBQ", "Pizza", "Light pasta", "Everyday meals"],
+        priceRange: "$8-$40+",
+        bestVintages: ["2016", "2018", "2019", "2020", "2021"]
+      },
+      {
+        id: "southern-fleurieu",
+        name: "Southern Fleurieu",
+        description: "Cool maritime region influenced by the Southern Ocean. Known for elegant wines with natural acidity, particularly Sauvignon Blanc and Pinot Noir.",
+        climate: "Cool maritime with Southern Ocean influence",
+        established: "1970s",
+        signatureVarieties: ["Sauvignon Blanc", "Pinot Noir", "Chardonnay", "Shiraz"],
+        characteristics: ["Maritime climate", "Natural acidity", "Cool climate elegance", "Ocean influence"],
+        famousWineries: [
+          { name: "Alexandrina Wines", specialty: "Sauvignon Blanc", established: "1998", description: "Boutique winery specialising in cool-climate maritime wines." },
+          { name: "Currency Creek Estate", specialty: "Pinot Noir", established: "1969", description: "Pioneer of the region focusing on cool-climate varieties." },
+          { name: "Finniss River Vineyard", specialty: "Shiraz", established: "1997", description: "Family winery producing distinctive maritime-influenced wines." }
+        ],
+        foodPairings: ["Fresh seafood", "Oysters", "Light salads", "Goat cheese", "Coastal cuisine"],
+        priceRange: "$16-$60+",
+        bestVintages: ["2015", "2017", "2019", "2020", "2021"]
+      },
+      {
+        id: "kangaroo-island",
+        name: "Kangaroo Island",
+        description: "Isolated island region with pristine environment producing unique wines. The maritime climate and diverse soils create distinctive, terroir-driven expressions.",
+        climate: "Maritime with island isolation",
+        established: "1970s",
+        signatureVarieties: ["Shiraz", "Cabernet Sauvignon", "Sangiovese", "Viognier"],
+        characteristics: ["Island terroir", "Pristine environment", "Maritime influence", "Unique expressions"],
+        famousWineries: [
+          { name: "Dudley Wines", specialty: "Dexter Shiraz", established: "1994", description: "Pioneering island winery showcasing unique Kangaroo Island terroir." },
+          { name: "False Cape Wines", specialty: "Shiraz", established: "2000", description: "Boutique producer focusing on minimal intervention winemaking." },
+          { name: "Islander Estate Vineyards", specialty: "Sangiovese", established: "1999", description: "Family winery exploring alternative varieties on the island." }
+        ],
+        foodPairings: ["Game meats", "Island seafood", "Native herbs", "Artisan cheeses", "Unique local produce"],
+        priceRange: "$18-$90+",
+        bestVintages: ["2014", "2016", "2018", "2020", "2021"]
       }
     ]
   },

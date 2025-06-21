@@ -134,6 +134,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 21, 2025: Created comprehensive Wine Education page covering Australian wine regions, grape varieties, famous wineries, and wine basics
 - June 21, 2025: Expanded Wine Education page to include all major Australian wine regions organized by state (SA, NSW, VIC, WA, TAS) with detailed information on varieties, wineries, and food pairings
 - June 21, 2025: Added 6 additional Victoria wine regions: Goulburn Valley, Pyrenees, Grampians, Alpine Valleys, Bendigo, King Valley with comprehensive details
+- June 21, 2025: Added 6 additional South Australia wine regions: Eden Valley, Langhorne Creek, Padthaway, Riverland, Southern Fleurieu, Kangaroo Island with comprehensive details
 
 ## User Preferences
 
