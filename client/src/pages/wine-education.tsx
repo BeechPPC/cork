@@ -733,6 +733,14 @@ export default function WineEducation() {
   const [selectedVariety, setSelectedVariety] = useState<string | null>(null);
   const [expandedStates, setExpandedStates] = useState<string[]>([]);
 
+  const toggleStateExpanded = (stateName: string) => {
+    setExpandedStates(prev => 
+      prev.includes(stateName) 
+        ? prev.filter(state => state !== stateName)
+        : [...prev, stateName]
+    );
+  };
+
   return (
     <div className="min-h-screen bg-cream dark:bg-gray-900">
       <Header />
