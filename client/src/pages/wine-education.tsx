@@ -37,196 +37,296 @@ interface WineVariety {
   characteristics: string[];
 }
 
-const australianRegions: WineRegion[] = [
+interface RegionsByState {
+  state: string;
+  regions: WineRegion[];
+}
+
+const australianRegionsByState: RegionsByState[] = [
   {
-    id: "barossa-valley",
-    name: "Barossa Valley",
-    description: "Australia's most famous wine region, renowned worldwide for exceptional Shiraz and rich, full-bodied reds. Located in South Australia, just northeast of Adelaide.",
-    climate: "Mediterranean with warm, dry summers and mild winters",
-    established: "1840s",
-    signatureVarieties: ["Shiraz", "Grenache", "Cabernet Sauvignon", "Riesling"],
-    characteristics: ["Rich, powerful reds", "Concentrated flavours", "Old vine heritage", "Full-bodied wines"],
-    famousWineries: [
+    state: "South Australia",
+    regions: [
       {
-        name: "Penfolds",
-        specialty: "Grange Shiraz",
-        established: "1844",
-        description: "Home to Australia's most iconic wine, Grange, and pioneers of premium Australian winemaking."
+        id: "barossa-valley",
+        name: "Barossa Valley",
+        description: "Australia's most famous wine region, renowned worldwide for exceptional Shiraz and rich, full-bodied reds. Home to some of the world's oldest Shiraz vines.",
+        climate: "Mediterranean with warm, dry summers and mild winters",
+        established: "1840s",
+        signatureVarieties: ["Shiraz", "Grenache", "Cabernet Sauvignon", "Riesling"],
+        characteristics: ["Rich, powerful reds", "Old vine heritage", "Full-bodied wines", "Premium fortified wines"],
+        famousWineries: [
+          { name: "Penfolds", specialty: "Grange Shiraz", established: "1844", description: "Home to Australia's most iconic wine, Grange, and pioneers of premium Australian winemaking." },
+          { name: "Henschke", specialty: "Hill of Grace Shiraz", established: "1868", description: "Five generations of family winemaking, famous for single vineyard expressions and old vine Shiraz." },
+          { name: "Wolf Blass", specialty: "Black Label Cabernet", established: "1966", description: "Innovative winemaking techniques producing approachable premium wines." },
+          { name: "Seppeltsfield", specialty: "Fortified wines", established: "1851", description: "Historic estate famous for aged tawny ports and centennial collection." }
+        ],
+        foodPairings: ["BBQ beef", "Lamb roasts", "Game meats", "Aged cheeses", "Dark chocolate"],
+        priceRange: "$15-$800+",
+        bestVintages: ["2010", "2012", "2016", "2018", "2020"]
       },
       {
-        name: "Henschke",
-        specialty: "Hill of Grace Shiraz",
-        established: "1868",
-        description: "Five generations of family winemaking, famous for single vineyard expressions and old vine Shiraz."
+        id: "mclaren-vale",
+        name: "McLaren Vale",
+        description: "Known for powerful Shiraz and innovative winemaking, McLaren Vale combines Mediterranean climate with diverse soils to create bold, expressive wines.",
+        climate: "Mediterranean with sea breezes from Gulf St Vincent",
+        established: "1838",
+        signatureVarieties: ["Shiraz", "Grenache", "Cabernet Sauvignon", "Chardonnay"],
+        characteristics: ["Bold, fruit-driven wines", "Sustainable practices", "Innovative winemaking", "Food-friendly styles"],
+        famousWineries: [
+          { name: "d'Arenberg", specialty: "The Dead Arm Shiraz", established: "1912", description: "Fourth-generation family winery known for quirky labels and exceptional quality." },
+          { name: "Clarendon Hills", specialty: "Astralis Shiraz", established: "1990", description: "Small-batch producer focusing on single-vineyard expressions." },
+          { name: "Hardys", specialty: "Eileen Hardy Shiraz", established: "1853", description: "Historic winery producing premium wines across multiple price points." }
+        ],
+        foodPairings: ["Grilled meats", "Mediterranean cuisine", "Pasta with red sauce", "Mature cheeses"],
+        priceRange: "$12-$200+",
+        bestVintages: ["2010", "2014", "2016", "2018", "2020"]
       },
       {
-        name: "Wolf Blass",
-        specialty: "Black Label Cabernet",
-        established: "1966",
-        description: "Innovative winemaking techniques producing approachable premium wines with international acclaim."
+        id: "clare-valley",
+        name: "Clare Valley",
+        description: "World-renowned for exceptional Riesling with incredible aging potential and elegant Shiraz. Australia's premier cool-climate region in South Australia.",
+        climate: "Continental with cool nights and warm days",
+        established: "1840s",
+        signatureVarieties: ["Riesling", "Shiraz", "Cabernet Sauvignon", "Grenache"],
+        characteristics: ["World-class Riesling", "Mineral-driven wines", "Excellent aging potential", "Crisp, dry styles"],
+        famousWineries: [
+          { name: "Grosset", specialty: "Polish Hill Riesling", established: "1981", description: "Boutique producer crafting some of Australia's finest Rieslings." },
+          { name: "Jim Barry Wines", specialty: "The Armagh Shiraz", established: "1959", description: "Family winery producing iconic single-vineyard Shiraz and exceptional Rieslings." },
+          { name: "Kilikanoon", specialty: "Oracle Shiraz", established: "1997", description: "Modern winery focusing on small-batch, single-vineyard expressions." }
+        ],
+        foodPairings: ["Asian cuisine", "Spicy foods", "Fresh seafood", "Pork", "Aromatic herbs"],
+        priceRange: "$14-$150+",
+        bestVintages: ["2012", "2014", "2017", "2019", "2021"]
       },
       {
-        name: "Seppeltsfield",
-        specialty: "Fortified wines",
-        established: "1851",
-        description: "Historic estate famous for aged tawny ports and centennial collection dating back to 1878."
+        id: "adelaide-hills",
+        name: "Adelaide Hills",
+        description: "Cool-climate region known for elegant Chardonnay, Pinot Noir, and sparkling wines. The high altitude provides ideal conditions for premium cool-climate varieties.",
+        climate: "Cool continental with significant elevation variation",
+        established: "1970s",
+        signatureVarieties: ["Chardonnay", "Pinot Noir", "Sauvignon Blanc", "Sparkling wines"],
+        characteristics: ["Cool-climate elegance", "High-altitude vineyards", "Crisp acidity", "Premium sparkling wines"],
+        famousWineries: [
+          { name: "Shaw + Smith", specialty: "M3 Chardonnay", established: "1989", description: "Premium producer specialising in elegant cool-climate wines." },
+          { name: "Henschke", specialty: "Green's Hill Riesling", established: "1868", description: "Historic family winery with cool-climate vineyards in the Hills." },
+          { name: "Bird in Hand", specialty: "Nest Egg Chardonnay", established: "1997", description: "Modern winery focusing on single-vineyard expressions." }
+        ],
+        foodPairings: ["Fresh seafood", "Poultry", "Soft cheeses", "Light Asian dishes", "Salads"],
+        priceRange: "$16-$120+",
+        bestVintages: ["2013", "2015", "2017", "2019", "2021"]
+      },
+      {
+        id: "coonawarra",
+        name: "Coonawarra",
+        description: "Famous for terra rossa soil and exceptional Cabernet Sauvignon. This narrow strip of red earth produces some of Australia's most elegant and age-worthy reds.",
+        climate: "Cool maritime climate with limestone drainage",
+        established: "1890s",
+        signatureVarieties: ["Cabernet Sauvignon", "Shiraz", "Merlot", "Chardonnay"],
+        characteristics: ["Terra rossa soil", "Elegant structure", "Excellent aging potential", "Classic Bordeaux style"],
+        famousWineries: [
+          { name: "Wynns Coonawarra Estate", specialty: "Black Label Cabernet", established: "1951", description: "Iconic producer showcasing the best of Coonawarra terroir." },
+          { name: "Majella Wines", specialty: "The Malleea Cabernet", established: "1991", description: "Family winery producing concentrated, age-worthy Cabernet Sauvignon." },
+          { name: "Penley Estate", specialty: "Phoenix Cabernet", established: "1988", description: "Small family winery focusing on premium Cabernet Sauvignon." }
+        ],
+        foodPairings: ["Red meat", "Roast lamb", "Game", "Hard cheeses", "Hearty stews"],
+        priceRange: "$18-$200+",
+        bestVintages: ["2010", "2012", "2016", "2018", "2020"]
       }
-    ],
-    foodPairings: ["BBQ beef", "Lamb roasts", "Game meats", "Aged cheeses", "Dark chocolate"],
-    priceRange: "$15-$800+",
-    bestVintages: ["2010", "2012", "2016", "2018", "2020"]
+    ]
   },
   {
-    id: "hunter-valley",
-    name: "Hunter Valley",
-    description: "Australia's oldest wine region, famous for elegant Semillon and Shiraz. Located in New South Wales, just 2 hours north of Sydney.",
-    climate: "Humid subtropical with warm summers and mild winters",
-    established: "1820s",
-    signatureVarieties: ["Semillon", "Shiraz", "Chardonnay", "Verdelho"],
-    characteristics: ["Elegant, food-friendly wines", "Unique Hunter Valley Semillon", "Medium-bodied reds", "Cellar-worthy whites"],
-    famousWineries: [
+    state: "New South Wales",
+    regions: [
       {
-        name: "Tyrrell's Wines",
-        specialty: "Vat 1 Semillon",
+        id: "hunter-valley",
+        name: "Hunter Valley",
+        description: "Australia's oldest wine region, famous for elegant Semillon that develops incredible complexity with age, and distinctive earthy Shiraz.",
+        climate: "Humid subtropical with warm summers and mild winters",
+        established: "1820s",
+        signatureVarieties: ["Semillon", "Shiraz", "Chardonnay", "Verdelho"],
+        characteristics: ["Unique Hunter Semillon", "Elegant, food-friendly wines", "Medium-bodied reds", "Cellar-worthy whites"],
+        famousWineries: [
+          { name: "Tyrrell's Wines", specialty: "Vat 1 Semillon", established: "1858", description: "Pioneer of Hunter Valley winemaking, famous for developing the region's signature Semillon style." },
+          { name: "Brokenwood", specialty: "Graveyard Vineyard Shiraz", established: "1970", description: "Boutique winery producing exceptional single-vineyard Shiraz." },
+          { name: "Lindemans", specialty: "Hunter River Semillon", established: "1843", description: "Historic family winery instrumental in establishing Hunter Valley's reputation." },
+          { name: "Mount Pleasant", specialty: "Elizabeth Semillon", established: "1921", description: "Historic producer known for long-lived Semillon and Shiraz." }
+        ],
+        foodPairings: ["Fresh seafood", "Grilled chicken", "Asian cuisine", "Soft cheeses", "Light pasta dishes"],
+        priceRange: "$12-$200+",
+        bestVintages: ["2011", "2014", "2016", "2019", "2021"]
+      },
+      {
+        id: "mudgee",
+        name: "Mudgee",
+        description: "High-altitude region producing robust reds and crisp whites. Known for sustainable practices and family-owned wineries in a picturesque rural setting.",
+        climate: "Continental with hot days and cool nights",
         established: "1858",
-        description: "Pioneer of Hunter Valley winemaking, famous for developing the region's signature Semillon style."
+        signatureVarieties: ["Cabernet Sauvignon", "Shiraz", "Chardonnay", "Merlot"],
+        characteristics: ["High-altitude viticulture", "Intense fruit flavours", "Good structure", "Value for money"],
+        famousWineries: [
+          { name: "Huntington Estate", specialty: "Special Reserve Cabernet", established: "1969", description: "Family-owned estate known for premium Cabernet Sauvignon." },
+          { name: "Logan Wines", specialty: "Orange Vineyard wines", established: "1997", description: "Innovative producer working across multiple cool-climate regions." },
+          { name: "Lowe Wines", specialty: "Organic wines", established: "1987", description: "Pioneering organic producer focusing on sustainable viticulture." }
+        ],
+        foodPairings: ["Beef", "Lamb", "Game meats", "Rich pasta", "Aged cheeses"],
+        priceRange: "$15-$80+",
+        bestVintages: ["2014", "2016", "2018", "2020", "2021"]
       },
       {
-        name: "Brokenwood",
-        specialty: "Graveyard Vineyard Shiraz",
-        established: "1970",
-        description: "Boutique winery producing exceptional single-vineyard Shiraz and elegant cricket-themed wines."
-      },
-      {
-        name: "Lindemans",
-        specialty: "Hunter River Semillon",
-        established: "1843",
-        description: "Historic family winery instrumental in establishing Hunter Valley's reputation for premium wines."
-      },
-      {
-        name: "Lake's Folly",
-        specialty: "Cabernet Sauvignon",
-        established: "1963",
-        description: "Pioneering boutique winery that helped establish the modern Hunter Valley wine renaissance."
+        id: "orange",
+        name: "Orange",
+        description: "Cool-climate region at high altitude, producing elegant wines with excellent natural acidity. Known for Chardonnay, Pinot Noir, and aromatic varieties.",
+        climate: "Cool continental with high altitude influence",
+        established: "1980s",
+        signatureVarieties: ["Chardonnay", "Pinot Noir", "Sauvignon Blanc", "Cabernet Sauvignon"],
+        characteristics: ["High altitude", "Cool climate elegance", "Natural acidity", "Emerging reputation"],
+        famousWineries: [
+          { name: "Bloodwood Estate", specialty: "Big Men in Tights Chardonnay", established: "1983", description: "Pioneer of Orange region, known for elegant cool-climate wines." },
+          { name: "Philip Shaw Wines", specialty: "No. 8 Pinot Noir", established: "1989", description: "Premium producer focusing on single-vineyard expressions." },
+          { name: "Borrodell Vineyard", specialty: "Pinot Noir", established: "1994", description: "Boutique family winery specialising in cool-climate varieties." }
+        ],
+        foodPairings: ["Seafood", "Poultry", "Pork", "Asian cuisine", "Fresh cheeses"],
+        priceRange: "$18-$100+",
+        bestVintages: ["2015", "2017", "2019", "2020", "2021"]
       }
-    ],
-    foodPairings: ["Fresh seafood", "Grilled chicken", "Asian cuisine", "Soft cheeses", "Light pasta dishes"],
-    priceRange: "$12-$200+",
-    bestVintages: ["2011", "2014", "2016", "2019", "2021"]
+    ]
   },
   {
-    id: "margaret-river",
-    name: "Margaret River",
-    description: "Western Australia's premium wine region, renowned for elegant Cabernet Sauvignon and Chardonnay. Located between two oceans, creating a unique maritime climate.",
-    climate: "Mediterranean maritime with consistent ocean breezes",
-    established: "1960s",
-    signatureVarieties: ["Cabernet Sauvignon", "Chardonnay", "Sauvignon Blanc", "Merlot"],
-    characteristics: ["Elegant, refined wines", "Bordeaux-style blends", "Pristine fruit flavours", "Excellent aging potential"],
-    famousWineries: [
+    state: "Victoria",
+    regions: [
       {
-        name: "Cullen Wines",
-        specialty: "Diana Madeline Cabernet Blend",
-        established: "1971",
-        description: "Biodynamic pioneers producing some of Australia's most respected Cabernet blends and Chardonnay."
+        id: "yarra-valley",
+        name: "Yarra Valley",
+        description: "Victoria's premier cool-climate region, famous for elegant Pinot Noir and sparkling wines. Located just east of Melbourne with diverse microclimates.",
+        climate: "Cool continental with significant diurnal temperature variation",
+        established: "1830s (revived 1960s)",
+        signatureVarieties: ["Pinot Noir", "Chardonnay", "Cabernet Sauvignon", "Sparkling wines"],
+        characteristics: ["Cool-climate elegance", "Complex Pinot Noir", "Premium sparkling wines", "Food-friendly styles"],
+        famousWineries: [
+          { name: "Domaine Chandon", specialty: "Sparkling wines", established: "1986", description: "French Champagne house Moët & Chandon's Australian venture." },
+          { name: "Coldstream Hills", specialty: "Pinot Noir", established: "1985", description: "Founded by wine writer James Halliday, specialising in elegant Pinot Noir." },
+          { name: "Yering Station", specialty: "Village wines", established: "1838 (replanted 1996)", description: "Historic estate combining heritage buildings with modern winemaking." },
+          { name: "Mount Mary", specialty: "Quintet Cabernet Blend", established: "1971", description: "Iconic family winery producing age-worthy Bordeaux-style blends." }
+        ],
+        foodPairings: ["Duck", "Salmon", "Mushroom dishes", "Goat cheese", "Fine dining cuisine"],
+        priceRange: "$16-$250+",
+        bestVintages: ["2013", "2015", "2017", "2019", "2021"]
       },
       {
-        name: "Leeuwin Estate",
-        specialty: "Art Series Chardonnay",
-        established: "1974",
-        description: "Iconic estate known for world-class Chardonnay and hosting major concerts among the vines."
+        id: "mornington-peninsula",
+        name: "Mornington Peninsula",
+        description: "Cool maritime climate region specialising in Pinot Noir and Chardonnay. The sea breezes and rolling hills create ideal conditions for elegant wines.",
+        climate: "Cool maritime with consistent sea breezes",
+        established: "1970s",
+        signatureVarieties: ["Pinot Noir", "Chardonnay", "Pinot Gris", "Shiraz"],
+        characteristics: ["Maritime influence", "Elegant Pinot Noir", "Complex Chardonnay", "Boutique wineries"],
+        famousWineries: [
+          { name: "Kooyong", specialty: "Single vineyard Pinot Noir", established: "1996", description: "Premium producer focusing on single-vineyard expressions of Pinot Noir." },
+          { name: "Ten Minutes by Tractor", specialty: "McCutcheon Pinot Noir", established: "1999", description: "Unique winery focusing on three distinct vineyard sites." },
+          { name: "Paringa Estate", specialty: "The Paringa Single Vineyard Shiraz", established: "1985", description: "Family winery producing elegant cool-climate wines." }
+        ],
+        foodPairings: ["Seafood", "Duck", "Soft cheeses", "Mushrooms", "Light Asian dishes"],
+        priceRange: "$20-$150+",
+        bestVintages: ["2014", "2016", "2018", "2020", "2021"]
       },
       {
-        name: "Vasse Felix",
-        specialty: "Tom Cullity Cabernet",
-        established: "1967",
-        description: "The region's founding winery, pioneering Margaret River's reputation for premium wine production."
+        id: "rutherglen",
+        name: "Rutherglen",
+        description: "World-famous for fortified wines, particularly Muscat and Tokay. This warm climate region produces Australia's most celebrated dessert wines.",
+        climate: "Warm continental with hot summers",
+        established: "1851",
+        signatureVarieties: ["Muscat", "Tokay (Muscadelle)", "Shiraz", "Durif"],
+        characteristics: ["World-class fortified wines", "Rich, sweet dessert wines", "Unique aging systems", "Historic wine region"],
+        famousWineries: [
+          { name: "Chambers Rosewood", specialty: "Rare Muscat", established: "1858", description: "Legendary producer of Australia's finest fortified wines." },
+          { name: "Campbells Wines", specialty: "Merchant Prince Muscat", established: "1870", description: "Family winery specialising in premium fortified wines." },
+          { name: "All Saints Estate", specialty: "Museum Muscat", established: "1864", description: "Historic estate with extensive cellars of aged fortified wines." }
+        ],
+        foodPairings: ["Desserts", "Blue cheese", "Chocolate", "Fruit tarts", "Nuts"],
+        priceRange: "$25-$300+",
+        bestVintages: ["Multi-vintage blends", "Aged reserves", "Museum releases"]
       },
       {
-        name: "Moss Wood",
-        specialty: "Cabernet Sauvignon",
-        established: "1969",
-        description: "Boutique family winery producing consistently excellent Cabernet and pioneering Pinot Noir."
+        id: "heathcote",
+        name: "Heathcote",
+        description: "Known for powerful Shiraz grown on distinctive red Cambrian soil. This region produces concentrated, age-worthy reds with unique mineral characteristics.",
+        climate: "Continental with warm days and cool nights",
+        established: "1970s",
+        signatureVarieties: ["Shiraz", "Cabernet Sauvignon", "Tempranillo", "Viognier"],
+        characteristics: ["Red Cambrian soil", "Powerful Shiraz", "Mineral complexity", "Age-worthy reds"],
+        famousWineries: [
+          { name: "Jasper Hill", specialty: "Emily's Paddock Shiraz", established: "1975", description: "Iconic producer of full-bodied, age-worthy Shiraz." },
+          { name: "Heathcote Estate", specialty: "Shiraz", established: "1978", description: "Pioneer of the region focusing on estate-grown wines." },
+          { name: "Wild Duck Creek", specialty: "Duck Muck Shiraz", established: "1980", description: "Boutique winery producing intense, concentrated reds." }
+        ],
+        foodPairings: ["Red meat", "Game", "Spicy cuisine", "Hard cheeses", "BBQ"],
+        priceRange: "$18-$120+",
+        bestVintages: ["2010", "2014", "2016", "2018", "2020"]
       }
-    ],
-    foodPairings: ["Fresh crayfish", "Roast lamb", "Soft cheeses", "Grilled fish", "Mediterranean cuisine"],
-    priceRange: "$18-$300+",
-    bestVintages: ["2012", "2015", "2017", "2019", "2021"]
+    ]
   },
   {
-    id: "yarra-valley",
-    name: "Yarra Valley",
-    description: "Victoria's premier cool-climate region, famous for elegant Pinot Noir and sparkling wines. Located just east of Melbourne with diverse microclimates.",
-    climate: "Cool continental with significant diurnal temperature variation",
-    established: "1830s (revived 1960s)",
-    signatureVarieties: ["Pinot Noir", "Chardonnay", "Cabernet Sauvignon", "Sparkling wines"],
-    characteristics: ["Cool-climate elegance", "Complex Pinot Noir", "Premium sparkling wines", "Food-friendly styles"],
-    famousWineries: [
+    state: "Western Australia",
+    regions: [
       {
-        name: "Domaine Chandon",
-        specialty: "Sparkling wines",
-        established: "1986",
-        description: "French Champagne house Moët & Chandon's Australian venture, producing world-class sparkling wines."
+        id: "margaret-river",
+        name: "Margaret River",
+        description: "Premium wine region renowned for elegant Cabernet Sauvignon and Chardonnay. Located between two oceans, creating a unique maritime climate perfect for Bordeaux varieties.",
+        climate: "Mediterranean maritime with consistent ocean breezes",
+        established: "1960s",
+        signatureVarieties: ["Cabernet Sauvignon", "Chardonnay", "Sauvignon Blanc", "Merlot"],
+        characteristics: ["Elegant, refined wines", "Bordeaux-style blends", "Pristine fruit flavours", "Excellent aging potential"],
+        famousWineries: [
+          { name: "Cullen Wines", specialty: "Diana Madeline Cabernet Blend", established: "1971", description: "Biodynamic pioneers producing some of Australia's most respected Cabernet blends." },
+          { name: "Leeuwin Estate", specialty: "Art Series Chardonnay", established: "1974", description: "Iconic estate known for world-class Chardonnay and hosting concerts." },
+          { name: "Vasse Felix", specialty: "Tom Cullity Cabernet", established: "1967", description: "The region's founding winery, pioneering Margaret River's reputation." },
+          { name: "Moss Wood", specialty: "Cabernet Sauvignon", established: "1969", description: "Boutique family winery producing consistently excellent Cabernet." }
+        ],
+        foodPairings: ["Fresh crayfish", "Roast lamb", "Soft cheeses", "Grilled fish", "Mediterranean cuisine"],
+        priceRange: "$18-$300+",
+        bestVintages: ["2012", "2015", "2017", "2019", "2021"]
       },
       {
-        name: "Coldstream Hills",
-        specialty: "Pinot Noir",
-        established: "1985",
-        description: "Founded by wine writer James Halliday, specialising in elegant cool-climate Pinot Noir."
-      },
-      {
-        name: "Yering Station",
-        specialty: "Village wines",
-        established: "1838 (replanted 1996)",
-        description: "Historic estate combining heritage buildings with modern winemaking, known for accessible premium wines."
-      },
-      {
-        name: "De Bortoli",
-        specialty: "Noble One Botrytis Semillon",
-        established: "1928 (Yarra since 1987)",
-        description: "Family winery producing exceptional dessert wines and elegant table wines across multiple regions."
+        id: "great-southern",
+        name: "Great Southern",
+        description: "Western Australia's largest wine region, known for cool-climate varieties including exceptional Riesling and Pinot Noir. Diverse sub-regions with varying microclimates.",
+        climate: "Cool to moderate with maritime influence",
+        established: "1960s",
+        signatureVarieties: ["Riesling", "Pinot Noir", "Chardonnay", "Cabernet Sauvignon"],
+        characteristics: ["Cool-climate elegance", "Diverse sub-regions", "Excellent Riesling", "Emerging Pinot Noir"],
+        famousWineries: [
+          { name: "Howard Park", specialty: "Riesling", established: "1986", description: "Premium producer working across multiple Western Australian regions." },
+          { name: "Plantagenet Wines", specialty: "Cabernet Sauvignon", established: "1974", description: "Pioneer of the Great Southern region, known for structured reds." },
+          { name: "Forest Hill Vineyard", specialty: "Estate Block Riesling", established: "1965", description: "Historic estate specialising in cool-climate varieties." }
+        ],
+        foodPairings: ["Seafood", "Poultry", "Asian cuisine", "Fresh cheeses", "Light meats"],
+        priceRange: "$16-$100+",
+        bestVintages: ["2014", "2016", "2018", "2020", "2021"]
       }
-    ],
-    foodPairings: ["Duck", "Salmon", "Mushroom dishes", "Goat cheese", "Fine dining cuisine"],
-    priceRange: "$16-$250+",
-    bestVintages: ["2013", "2015", "2017", "2019", "2021"]
+    ]
   },
   {
-    id: "clare-valley",
-    name: "Clare Valley",
-    description: "South Australia's premier cool-climate region, world-renowned for exceptional Riesling with incredible aging potential and elegant Shiraz.",
-    climate: "Continental with cool nights and warm days",
-    established: "1840s",
-    signatureVarieties: ["Riesling", "Shiraz", "Cabernet Sauvignon", "Grenache"],
-    characteristics: ["World-class Riesling", "Mineral-driven wines", "Excellent aging potential", "Crisp, dry styles"],
-    famousWineries: [
+    state: "Tasmania",
+    regions: [
       {
-        name: "Grosset",
-        specialty: "Polish Hill Riesling",
-        established: "1981",
-        description: "Boutique producer crafting some of Australia's finest Rieslings with exceptional purity and aging potential."
-      },
-      {
-        name: "Jim Barry Wines",
-        specialty: "The Armagh Shiraz",
-        established: "1959",
-        description: "Family winery producing iconic single-vineyard Shiraz and exceptional Rieslings across multiple sites."
-      },
-      {
-        name: "Kilikanoon",
-        specialty: "Oracle Shiraz",
-        established: "1997",
-        description: "Modern winery focusing on small-batch, single-vineyard expressions of Clare Valley terroir."
-      },
-      {
-        name: "Pewsey Vale",
-        specialty: "Eden Valley Riesling",
-        established: "1847",
-        description: "Historic vineyard at high elevation producing ethereal, long-lived Rieslings with remarkable purity."
+        id: "tasmania",
+        name: "Tasmania",
+        description: "Australia's coolest wine region, producing exceptional sparkling wines, elegant Pinot Noir, and crisp Chardonnay. The pristine environment and cool climate create wines of remarkable finesse.",
+        climate: "Cool maritime with consistent temperatures",
+        established: "1950s (modern era 1970s)",
+        signatureVarieties: ["Pinot Noir", "Chardonnay", "Sparkling wines", "Sauvignon Blanc"],
+        characteristics: ["Cool climate", "Exceptional sparkling wines", "Elegant Pinot Noir", "Pristine environment"],
+        famousWineries: [
+          { name: "Tamar Ridge", specialty: "Kayena Pinot Noir", established: "1994", description: "Leading Tasmanian producer known for premium cool-climate wines." },
+          { name: "Bay of Fires", specialty: "Eddystone Point Pinot Noir", established: "1999", description: "Premium winery focusing on single-vineyard expressions." },
+          { name: "Josef Chromy", specialty: "Pepik Pinot Noir", established: "1994", description: "Boutique producer creating elegant wines in the Tamar Valley." },
+          { name: "House of Arras", specialty: "Sparkling wines", established: "1988", description: "Specialist sparkling wine producer using traditional methods." }
+        ],
+        foodPairings: ["Fresh seafood", "Salmon", "Duck", "Soft cheeses", "Fine dining"],
+        priceRange: "$20-$200+",
+        bestVintages: ["2014", "2016", "2018", "2020", "2021"]
       }
-    ],
-    foodPairings: ["Asian cuisine", "Spicy foods", "Fresh seafood", "Pork", "Aromatic herbs"],
-    priceRange: "$14-$150+",
-    bestVintages: ["2012", "2014", "2017", "2019", "2021"]
+    ]
   }
 ];
 
@@ -351,28 +451,35 @@ export default function WineEducation() {
             {/* Wine Regions Tab */}
             <TabsContent value="regions">
               <div className="grid lg:grid-cols-3 gap-6">
-                {/* Region List */}
+                {/* Region List by State */}
                 <div className="lg:col-span-1">
                   <h2 className="text-2xl font-bold text-slate dark:text-white mb-6">Australian Wine Regions</h2>
-                  <div className="space-y-3">
-                    {australianRegions.map((region) => (
-                      <Card
-                        key={region.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
-                          selectedRegion === region.id ? "ring-2 ring-grape" : ""
-                        }`}
-                        onClick={() => setSelectedRegion(region.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h3 className="font-semibold text-slate dark:text-white">{region.name}</h3>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">Est. {region.established}</p>
-                            </div>
-                            <MapPin className="w-5 h-5 text-grape" />
-                          </div>
-                        </CardContent>
-                      </Card>
+                  <div className="space-y-4">
+                    {australianRegionsByState.map((stateGroup) => (
+                      <div key={stateGroup.state}>
+                        <h3 className="text-lg font-semibold text-grape mb-3">{stateGroup.state}</h3>
+                        <div className="space-y-2 ml-2">
+                          {stateGroup.regions.map((region) => (
+                            <Card
+                              key={region.id}
+                              className={`cursor-pointer transition-all hover:shadow-md ${
+                                selectedRegion === region.id ? "ring-2 ring-grape" : ""
+                              }`}
+                              onClick={() => setSelectedRegion(region.id)}
+                            >
+                              <CardContent className="p-3">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <h4 className="font-medium text-slate dark:text-white text-sm">{region.name}</h4>
+                                    <p className="text-xs text-gray-600 dark:text-gray-400">Est. {region.established}</p>
+                                  </div>
+                                  <MapPin className="w-4 h-4 text-grape" />
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -381,11 +488,19 @@ export default function WineEducation() {
                 <div className="lg:col-span-2">
                   {selectedRegion ? (
                     <div>
-                      {australianRegions
+                      {australianRegionsByState
+                        .flatMap(state => state.regions)
                         .filter(region => region.id === selectedRegion)
                         .map(region => (
                           <div key={region.id}>
                             <div className="mb-6">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Badge variant="outline" className="text-grape">
+                                  {australianRegionsByState.find(state => 
+                                    state.regions.some(r => r.id === region.id)
+                                  )?.state}
+                                </Badge>
+                              </div>
                               <h2 className="text-3xl font-bold text-slate dark:text-white mb-4">{region.name}</h2>
                               <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-6">
                                 {region.description}
@@ -403,7 +518,7 @@ export default function WineEducation() {
                                     <p className="text-gray-600 dark:text-gray-300 mb-4">{region.climate}</p>
                                     <div className="space-y-2">
                                       {region.characteristics.map((char, index) => (
-                                        <Badge key={index} variant="outline" className="mr-2">
+                                        <Badge key={index} variant="outline" className="mr-2 mb-1">
                                           {char}
                                         </Badge>
                                       ))}
@@ -419,20 +534,16 @@ export default function WineEducation() {
                                     </CardTitle>
                                   </CardHeader>
                                   <CardContent>
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 mb-4">
                                       {region.signatureVarieties.map((variety, index) => (
-                                        <Badge key={index} className="bg-grape/10 text-grape mr-2">
+                                        <Badge key={index} className="bg-grape/10 text-grape mr-2 mb-1">
                                           {variety}
                                         </Badge>
                                       ))}
                                     </div>
-                                    <div className="mt-4">
-                                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        <strong>Price Range:</strong> {region.priceRange}
-                                      </p>
-                                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                                        <strong>Best Recent Vintages:</strong> {region.bestVintages.join(', ')}
-                                      </p>
+                                    <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                                      <p><strong>Price Range:</strong> {region.priceRange}</p>
+                                      <p><strong>Best Recent Vintages:</strong> {region.bestVintages.join(', ')}</p>
                                     </div>
                                   </CardContent>
                                 </Card>
@@ -444,13 +555,13 @@ export default function WineEducation() {
                               <CardHeader>
                                 <CardTitle className="flex items-center space-x-2">
                                   <Award className="w-5 h-5 text-grape" />
-                                  <span>Famous Wineries</span>
+                                  <span>Notable Wineries</span>
                                 </CardTitle>
                               </CardHeader>
                               <CardContent>
                                 <div className="grid md:grid-cols-2 gap-4">
                                   {region.famousWineries.map((winery, index) => (
-                                    <div key={index} className="border rounded-lg p-4">
+                                    <div key={index} className="border rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                       <div className="flex justify-between items-start mb-2">
                                         <h4 className="font-semibold text-slate dark:text-white">{winery.name}</h4>
                                         <Badge variant="outline" className="text-xs">
@@ -458,7 +569,7 @@ export default function WineEducation() {
                                         </Badge>
                                       </div>
                                       <p className="text-sm text-grape font-medium mb-2">{winery.specialty}</p>
-                                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                                         {winery.description}
                                       </p>
                                     </div>
@@ -470,16 +581,22 @@ export default function WineEducation() {
                             {/* Food Pairings */}
                             <Card>
                               <CardHeader>
-                                <CardTitle>Perfect Food Pairings</CardTitle>
+                                <CardTitle className="flex items-center space-x-2">
+                                  <Wine className="w-5 h-5 text-grape" />
+                                  <span>Perfect Food Pairings</span>
+                                </CardTitle>
                               </CardHeader>
                               <CardContent>
                                 <div className="flex flex-wrap gap-2">
                                   {region.foodPairings.map((food, index) => (
-                                    <Badge key={index} variant="outline">
+                                    <Badge key={index} variant="outline" className="hover:bg-grape/10 transition-colors">
                                       {food}
                                     </Badge>
                                   ))}
                                 </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                                  These pairings complement the typical wine styles from {region.name}, enhancing both the food and wine experience.
+                                </p>
                               </CardContent>
                             </Card>
                           </div>
@@ -489,11 +606,21 @@ export default function WineEducation() {
                     <div className="text-center py-12">
                       <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
-                        Select a Region
+                        Explore Australian Wine Regions
                       </h3>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        Choose a wine region from the list to learn about its characteristics, signature varieties, and famous wineries.
+                      <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                        Select a wine region from the list to discover its unique characteristics, signature grape varieties, notable wineries, and perfect food pairings.
                       </p>
+                      <div className="mt-6 text-sm text-gray-600 dark:text-gray-400">
+                        <p>Featuring regions from:</p>
+                        <div className="flex flex-wrap justify-center gap-2 mt-2">
+                          {australianRegionsByState.map((state) => (
+                            <Badge key={state.state} variant="outline" className="text-xs">
+                              {state.state}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

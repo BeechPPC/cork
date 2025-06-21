@@ -132,6 +132,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 20, 2025: Created comprehensive Contact Us page with contact form, social media links, FAQ section, and email functionality
 - June 21, 2025: Built Help Centre page with comprehensive FAQ covering app usage, data privacy, and subscription management
 - June 21, 2025: Created comprehensive Wine Education page covering Australian wine regions, grape varieties, famous wineries, and wine basics
+- June 21, 2025: Expanded Wine Education page to include all major Australian wine regions organized by state (SA, NSW, VIC, WA, TAS) with detailed information on varieties, wineries, and food pairings
 
 ## User Preferences
 
