@@ -254,7 +254,7 @@ export default function Landing() {
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
                 <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Age Verification</a></li>
+                <li><a href="/age-verification" className="hover:text-white transition-colors">Age Verification</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Responsible Drinking</a></li>
               </ul>
             </div>
