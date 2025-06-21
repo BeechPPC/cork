@@ -13,6 +13,7 @@ import Pricing from "@/pages/pricing";
 import Contact from "@/pages/contact";
 import HelpCentre from "@/pages/help-centre";
 import WineEducation from "@/pages/wine-education";
+import PrivacyPolicy from "@/pages/privacy-policy";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/help-centre" component={HelpCentre} />
       <Route path="/wine-education" component={WineEducation} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}
