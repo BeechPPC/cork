@@ -16,6 +16,7 @@ import WineEducation from "@/pages/wine-education";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms-of-service";
 import AgeVerification from "@/pages/age-verification";
+import ResponsibleDrinking from "@/pages/responsible-drinking";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/age-verification" component={AgeVerification} />
+      <Route path="/responsible-drinking" component={ResponsibleDrinking} />
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}
