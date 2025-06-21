@@ -557,6 +557,74 @@ const australianRegionsByState: RegionsByState[] = [
         foodPairings: ["Seafood", "Poultry", "Asian cuisine", "Fresh cheeses", "Light meats"],
         priceRange: "$16-$100+",
         bestVintages: ["2014", "2016", "2018", "2020", "2021"]
+      },
+      {
+        id: "swan-district",
+        name: "Swan District",
+        description: "Historic wine region near Perth, known for fortified wines and robust reds. One of Australia's oldest wine regions with Mediterranean climate and diverse soil types.",
+        climate: "Mediterranean with hot, dry summers",
+        established: "1829",
+        signatureVarieties: ["Shiraz", "Grenache", "Chenin Blanc", "Fortified wines"],
+        characteristics: ["Historic region", "Fortified wine specialist", "Hot climate", "Traditional methods"],
+        famousWineries: [
+          { name: "Sandalford Wines", specialty: "Prendiville Reserve Shiraz", established: "1840", description: "Historic estate and one of Western Australia's oldest wineries." },
+          { name: "Houghton Wine Company", specialty: "White Burgundy", established: "1836", description: "Iconic producer famous for Australia's best-selling white wine blend." },
+          { name: "Upper Reach Winery", specialty: "Shiraz", established: "1996", description: "Modern family winery focusing on premium Swan Valley expressions." }
+        ],
+        foodPairings: ["Spicy cuisine", "BBQ", "Rich meats", "Aged cheeses", "Mediterranean dishes"],
+        priceRange: "$12-$80+",
+        bestVintages: ["2010", "2014", "2016", "2018", "2020"]
+      },
+      {
+        id: "geographe",
+        name: "Geographe",
+        description: "Emerging wine region south of Perth, producing elegant wines with maritime influence. The region benefits from cooling sea breezes and diverse terroir.",
+        climate: "Mediterranean with maritime influence",
+        established: "1990s",
+        signatureVarieties: ["Chardonnay", "Shiraz", "Cabernet Sauvignon", "Merlot"],
+        characteristics: ["Maritime influence", "Emerging region", "Diverse terroir", "Cool sea breezes"],
+        famousWineries: [
+          { name: "Capel Vale", specialty: "Debut Chardonnay", established: "1974", description: "Pioneer producer working across multiple Western Australian regions." },
+          { name: "Willow Bridge Estate", specialty: "Black Dog Shiraz", established: "1997", description: "Family winery focusing on sustainable viticulture and food-friendly wines." },
+          { name: "Whicher Ridge", specialty: "Cabernet Sauvignon", established: "1989", description: "Boutique producer specialising in elegant reds and whites." }
+        ],
+        foodPairings: ["Seafood", "Poultry", "Light meats", "Fresh cheeses", "Mediterranean cuisine"],
+        priceRange: "$15-$70+",
+        bestVintages: ["2015", "2017", "2019", "2020", "2021"]
+      },
+      {
+        id: "pemberton",
+        name: "Pemberton",
+        description: "Cool-climate region among towering karri forests, producing elegant Pinot Noir and Chardonnay. The unique terroir combines maritime influence with forest microclimate.",
+        climate: "Cool maritime with forest influence",
+        established: "1970s",
+        signatureVarieties: ["Pinot Noir", "Chardonnay", "Sauvignon Blanc", "Merlot"],
+        characteristics: ["Forest terroir", "Cool climate", "Elegant wines", "Unique microclimate"],
+        famousWineries: [
+          { name: "Picardy", specialty: "Pinot Noir", established: "1993", description: "Boutique producer focusing on Burgundian varieties in cool-climate conditions." },
+          { name: "Salitage", specialty: "Chardonnay", established: "1989", description: "Family winery producing elegant wines among the karri forests." },
+          { name: "Hidden River Estate", specialty: "Pinot Noir", established: "1994", description: "Small family producer specialising in cool-climate varieties." }
+        ],
+        foodPairings: ["Duck", "Salmon", "Mushroom dishes", "Soft cheeses", "Fine dining"],
+        priceRange: "$18-$90+",
+        bestVintages: ["2014", "2016", "2018", "2020", "2021"]
+      },
+      {
+        id: "blackwood-valley",
+        name: "Blackwood Valley",
+        description: "High-altitude cool-climate region producing structured wines with excellent aging potential. The elevated vineyards benefit from significant diurnal temperature variation.",
+        climate: "Cool continental with high altitude",
+        established: "1980s",
+        signatureVarieties: ["Shiraz", "Cabernet Sauvignon", "Chardonnay", "Riesling"],
+        characteristics: ["High altitude", "Cool climate", "Structured wines", "Diurnal variation"],
+        famousWineries: [
+          { name: "Blackwood Crest", specialty: "Shiraz", established: "1985", description: "Pioneer of the region focusing on cool-climate expressions of traditional varieties." },
+          { name: "Hillbrook Estate", specialty: "Cabernet Sauvignon", established: "1998", description: "Family winery producing structured, age-worthy reds." },
+          { name: "Nannup Ridge Estate", specialty: "Chardonnay", established: "1988", description: "Boutique producer specialising in elegant cool-climate wines." }
+        ],
+        foodPairings: ["Red meat", "Game", "Rich stews", "Aged cheeses", "Hearty cuisine"],
+        priceRange: "$16-$80+",
+        bestVintages: ["2013", "2015", "2017", "2019", "2021"]
       }
     ]
   },
