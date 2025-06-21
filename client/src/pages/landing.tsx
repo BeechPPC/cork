@@ -232,11 +232,11 @@ export default function Landing() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4 text-white">ADD SOMETHING ELSE</h4>
+              <h4 className="font-semibold mb-4 text-white">Shop (Coming Soon)</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">FIX</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FIX</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FIX</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Wine</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Clothing</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Shop All</a></li>
               </ul>
             </div>
             
@@ -246,7 +246,7 @@ export default function Landing() {
                 <li><a href="/help-centre" className="hover:text-white transition-colors">Help Centre</a></li>
                 <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
                 <li><a href="/wine-education" className="hover:text-white transition-colors">Wine Education</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Referral Program</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Referral Program (Coming Soon)</a></li>
               </ul>
             </div>
 
