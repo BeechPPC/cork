@@ -262,6 +262,108 @@ const australianRegionsByState: RegionsByState[] = [
         foodPairings: ["Red meat", "Game", "Spicy cuisine", "Hard cheeses", "BBQ"],
         priceRange: "$18-$120+",
         bestVintages: ["2010", "2014", "2016", "2018", "2020"]
+      },
+      {
+        id: "goulburn-valley",
+        name: "Goulburn Valley",
+        description: "Historic wine region known for rich, full-bodied reds and exceptional Marsanne. The warm climate and deep alluvial soils produce concentrated, flavourful wines.",
+        climate: "Warm continental with hot summers",
+        established: "1860s",
+        signatureVarieties: ["Shiraz", "Cabernet Sauvignon", "Marsanne", "Viognier"],
+        characteristics: ["Rich, full-bodied reds", "Historic region", "Exceptional Marsanne", "Warm climate wines"],
+        famousWineries: [
+          { name: "Tahbilk", specialty: "Marsanne", established: "1860", description: "Historic estate famous for world-class Marsanne and traditional winemaking methods." },
+          { name: "Mitchelton", specialty: "Shiraz", established: "1969", description: "Modern winery combining innovation with respect for traditional varieties." },
+          { name: "Monichino Wines", specialty: "Sangiovese", established: "1962", description: "Family winery specialising in Italian varieties and traditional methods." }
+        ],
+        foodPairings: ["Roast meats", "Rich pasta", "Game birds", "Aged cheeses", "Mediterranean cuisine"],
+        priceRange: "$16-$100+",
+        bestVintages: ["2010", "2013", "2016", "2018", "2020"]
+      },
+      {
+        id: "pyrenees",
+        name: "Pyrenees",
+        description: "Elevated region producing elegant cool-climate wines with excellent structure. Known for Cabernet Sauvignon, Shiraz, and emerging reputation for sparkling wines.",
+        climate: "Cool continental with high elevation",
+        established: "1960s",
+        signatureVarieties: ["Cabernet Sauvignon", "Shiraz", "Chardonnay", "Sparkling wines"],
+        characteristics: ["High elevation", "Elegant structure", "Cool climate", "Emerging sparkling wines"],
+        famousWineries: [
+          { name: "Dalwhinnie", specialty: "Cabernet Sauvignon", established: "1976", description: "High-altitude producer known for elegant, structured wines." },
+          { name: "Taltarni", specialty: "Sparkling wines", established: "1969", description: "Pioneer of the region, specialising in premium sparkling wines." },
+          { name: "Blue Pyrenees Estate", specialty: "Shiraz", established: "1963", description: "Historic estate producing distinctive cool-climate reds." }
+        ],
+        foodPairings: ["Lamb", "Venison", "Mushroom dishes", "Soft cheeses", "Fine dining"],
+        priceRange: "$18-$80+",
+        bestVintages: ["2012", "2015", "2017", "2019", "2021"]
+      },
+      {
+        id: "grampians",
+        name: "Grampians",
+        description: "Rugged region with distinctive pepperiness in its Shiraz, influenced by the ancient mountain ranges. Known for robust reds and crisp cool-climate whites.",
+        climate: "Continental with altitude variation",
+        established: "1860s",
+        signatureVarieties: ["Shiraz", "Cabernet Sauvignon", "Riesling", "Chardonnay"],
+        characteristics: ["Peppery Shiraz", "Mountain influence", "Robust reds", "Distinctive terroir"],
+        famousWineries: [
+          { name: "Mount Langi Ghiran", specialty: "Shiraz", established: "1969", description: "Renowned for distinctive peppery Shiraz from high-altitude vineyards." },
+          { name: "Best's Great Western", specialty: "Thomson Family Shiraz", established: "1866", description: "Historic family winery with some of Australia's oldest vines." },
+          { name: "Seppelt Great Western", specialty: "Sparkling wines", established: "1865", description: "Historic producer famous for traditional method sparkling wines." }
+        ],
+        foodPairings: ["Peppered steaks", "Game meats", "Spicy cuisine", "Hard cheeses", "BBQ"],
+        priceRange: "$15-$120+",
+        bestVintages: ["2010", "2014", "2016", "2018", "2020"]
+      },
+      {
+        id: "alpine-valleys",
+        name: "Alpine Valleys",
+        description: "High-altitude region producing elegant wines with excellent natural acidity. The cool climate and granite soils create distinctive, mineral-driven wines.",
+        climate: "Cool continental with high altitude",
+        established: "1980s",
+        signatureVarieties: ["Chardonnay", "Pinot Noir", "Riesling", "Sangiovese"],
+        characteristics: ["High altitude", "Granite soils", "Natural acidity", "Emerging region"],
+        famousWineries: [
+          { name: "Boyntons of Bright", specialty: "Feathertop Chardonnay", established: "1987", description: "Family winery specialising in cool-climate varieties at high altitude." },
+          { name: "Ringer Reef", specialty: "Pinot Noir", established: "1988", description: "Boutique producer focusing on elegant cool-climate wines." },
+          { name: "Gapsted Wines", specialty: "Ballerina Canopy Riesling", established: "1997", description: "Modern winery known for innovative winemaking and distinctive labels." }
+        ],
+        foodPairings: ["Trout", "Poultry", "Alpine cheeses", "Light Asian dishes", "Fresh herbs"],
+        priceRange: "$16-$70+",
+        bestVintages: ["2015", "2017", "2019", "2020", "2021"]
+      },
+      {
+        id: "bendigo",
+        name: "Bendigo",
+        description: "Historic gold rush region producing powerful reds on ancient quartz soils. Known for robust Shiraz and Cabernet Sauvignon with excellent aging potential.",
+        climate: "Continental with warm days and cool nights",
+        established: "1850s (modern era 1960s)",
+        signatureVarieties: ["Shiraz", "Cabernet Sauvignon", "Merlot", "Chardonnay"],
+        characteristics: ["Quartz soils", "Powerful reds", "Historic region", "Age-worthy wines"],
+        famousWineries: [
+          { name: "Balgownie Estate", specialty: "Estate Cabernet Sauvignon", established: "1969", description: "Pioneer of modern Bendigo winemaking, known for structured, age-worthy reds." },
+          { name: "Passing Clouds", specialty: "Gravy Shiraz", established: "1974", description: "Boutique winery producing distinctive, terroir-driven wines." },
+          { name: "Harcourt Valley Vineyards", specialty: "Le Pres Cabernet", established: "1975", description: "Family estate focusing on premium single-vineyard expressions." }
+        ],
+        foodPairings: ["Red meat", "Game", "Rich stews", "Aged cheeses", "Hearty cuisine"],
+        priceRange: "$18-$100+",
+        bestVintages: ["2010", "2014", "2016", "2018", "2020"]
+      },
+      {
+        id: "king-valley",
+        name: "King Valley",
+        description: "Cool-climate region famous for Italian varieties, particularly Prosecco and Pinot Grigio. The Brown Brothers family has pioneered alternative varieties in this diverse region.",
+        climate: "Cool continental with altitude variation",
+        established: "1889",
+        signatureVarieties: ["Prosecco", "Pinot Grigio", "Sangiovese", "Barbera"],
+        characteristics: ["Italian varieties", "Cool climate", "Alternative varieties", "Family wineries"],
+        famousWineries: [
+          { name: "Brown Brothers", specialty: "Patricia Pinot Grigio", established: "1889", description: "Pioneer family winery famous for experimenting with alternative varieties." },
+          { name: "Dal Zotto Wines", specialty: "Prosecco", established: "1987", description: "Italian family winery specialising in authentic Italian varieties and methods." },
+          { name: "Pizzini Wines", specialty: "Sangiovese", established: "1978", description: "Family winery focusing on Italian varieties with traditional winemaking." }
+        ],
+        foodPairings: ["Italian cuisine", "Seafood", "Light pasta", "Fresh cheeses", "Antipasto"],
+        priceRange: "$14-$80+",
+        bestVintages: ["2015", "2017", "2019", "2020", "2021"]
       }
     ]
   },
