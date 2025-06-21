@@ -17,6 +17,7 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms-of-service";
 import AgeVerification from "@/pages/age-verification";
 import ResponsibleDrinking from "@/pages/responsible-drinking";
+import ReferralProgram from "@/pages/referral-program";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/age-verification" component={AgeVerification} />
       <Route path="/responsible-drinking" component={ResponsibleDrinking} />
+      <Route path="/referral-program" component={ReferralProgram} />
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}

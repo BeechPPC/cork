@@ -246,6 +246,7 @@ export default function Landing() {
                 <li><a href="/help-centre" className="hover:text-white transition-colors">Help Centre</a></li>
                 <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
                 <li><a href="/wine-education" className="hover:text-white transition-colors">Wine Education</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Referral Program</a></li>
               </ul>
             </div>
 

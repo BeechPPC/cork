@@ -141,6 +141,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 21, 2025: Created comprehensive Terms of Service page covering subscription terms, age verification, responsible alcohol service, intellectual property, and Australian Consumer Law compliance
 - June 21, 2025: Created Age Verification information page explaining legal requirements and responsible service commitment for Australian alcohol-related platforms
 - June 21, 2025: Created Responsible Drinking information page covering Australian alcohol guidelines, health considerations, safety information, and support resources
+- June 21, 2025: Created Referral Program page with tiered rewards system including free premium months, exclusive recommendations, and bonus tiers for multiple referrals
 
 ## User Preferences
 
