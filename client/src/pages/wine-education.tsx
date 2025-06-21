@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wine, MapPin, Star, Grape, Award, Clock, Thermometer } from "lucide-react";
+import { Wine, MapPin, Star, Grape, Award, Clock, Thermometer, ChevronDown, ChevronRight } from "lucide-react";
 import Header from "@/components/header";
 
 interface WineRegion {
@@ -731,6 +731,7 @@ const wineVarieties: WineVariety[] = [
 export default function WineEducation() {
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedVariety, setSelectedVariety] = useState<string | null>(null);
+  const [expandedStates, setExpandedStates] = useState<string[]>([]);
 
   return (
     <div className="min-h-screen bg-cream dark:bg-gray-900">
@@ -777,33 +778,56 @@ export default function WineEducation() {
                 {/* Region List by State */}
                 <div className="lg:col-span-1">
                   <h2 className="text-2xl font-bold text-slate dark:text-white mb-6">Australian Wine Regions</h2>
-                  <div className="space-y-4">
-                    {australianRegionsByState.map((stateGroup) => (
-                      <div key={stateGroup.state}>
-                        <h3 className="text-lg font-semibold text-grape mb-3">{stateGroup.state}</h3>
-                        <div className="space-y-2 ml-2">
-                          {stateGroup.regions.map((region) => (
-                            <Card
-                              key={region.id}
-                              className={`cursor-pointer transition-all hover:shadow-md ${
-                                selectedRegion === region.id ? "ring-2 ring-grape" : ""
-                              }`}
-                              onClick={() => setSelectedRegion(region.id)}
-                            >
-                              <CardContent className="p-3">
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <h4 className="font-medium text-slate dark:text-white text-sm">{region.name}</h4>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">Est. {region.established}</p>
-                                  </div>
-                                  <MapPin className="w-4 h-4 text-grape" />
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
+                  <div className="space-y-3">
+                    {australianRegionsByState.map((stateGroup) => {
+                      const isStateExpanded = expandedStates.includes(stateGroup.state);
+                      return (
+                        <div key={stateGroup.state}>
+                          {/* State Header - Clickable */}
+                          <button
+                            onClick={() => toggleStateExpanded(stateGroup.state)}
+                            className="w-full flex items-center justify-between p-3 bg-grape/10 dark:bg-grape/20 rounded-lg hover:bg-grape/20 dark:hover:bg-grape/30 transition-colors"
+                          >
+                            <h3 className="text-lg font-semibold text-grape">{stateGroup.state}</h3>
+                            <div className="flex items-center space-x-2">
+                              <Badge variant="outline" className="text-xs">
+                                {stateGroup.regions.length} regions
+                              </Badge>
+                              {isStateExpanded ? (
+                                <ChevronDown className="w-5 h-5 text-grape" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5 text-grape" />
+                              )}
+                            </div>
+                          </button>
+                          
+                          {/* Regions List - Collapsible */}
+                          {isStateExpanded && (
+                            <div className="mt-2 ml-4 space-y-2">
+                              {stateGroup.regions.map((region) => (
+                                <Card
+                                  key={region.id}
+                                  className={`cursor-pointer transition-all hover:shadow-md ${
+                                    selectedRegion === region.id ? "ring-2 ring-grape" : ""
+                                  }`}
+                                  onClick={() => setSelectedRegion(region.id)}
+                                >
+                                  <CardContent className="p-3">
+                                    <div className="flex items-center justify-between">
+                                      <div>
+                                        <h4 className="font-medium text-slate dark:text-white text-sm">{region.name}</h4>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">Est. {region.established}</p>
+                                      </div>
+                                      <MapPin className="w-4 h-4 text-grape" />
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
