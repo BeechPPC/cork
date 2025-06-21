@@ -14,6 +14,7 @@ import Contact from "@/pages/contact";
 import HelpCentre from "@/pages/help-centre";
 import WineEducation from "@/pages/wine-education";
 import PrivacyPolicy from "@/pages/privacy-policy";
+import TermsOfService from "@/pages/terms-of-service";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/help-centre" component={HelpCentre} />
       <Route path="/wine-education" component={WineEducation} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}

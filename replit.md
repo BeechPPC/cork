@@ -138,6 +138,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 21, 2025: Added 3 additional New South Wales wine regions: Canberra District, Riverina, Hilltops with comprehensive details
 - June 21, 2025: Added 4 additional Western Australia wine regions: Swan District, Geographe, Pemberton, Blackwood Valley with comprehensive details
 - June 21, 2025: Created comprehensive Privacy Policy page compliant with Australian privacy laws and alcohol regulations, including age verification requirements and data protection standards
+- June 21, 2025: Created comprehensive Terms of Service page covering subscription terms, age verification, responsible alcohol service, intellectual property, and Australian Consumer Law compliance
 
 ## User Preferences
 
