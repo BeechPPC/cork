@@ -290,6 +290,57 @@ const australianRegionsByState: RegionsByState[] = [
         foodPairings: ["Seafood", "Poultry", "Pork", "Asian cuisine", "Fresh cheeses"],
         priceRange: "$18-$100+",
         bestVintages: ["2015", "2017", "2019", "2020", "2021"]
+      },
+      {
+        id: "canberra-district",
+        name: "Canberra District",
+        description: "Cool-climate region surrounding Australia's capital, known for elegant Riesling, structured reds, and innovative winemaking. The high altitude and continental climate produce wines with excellent acidity.",
+        climate: "Cool continental with high altitude",
+        established: "1970s",
+        signatureVarieties: ["Riesling", "Shiraz", "Cabernet Sauvignon", "Pinot Noir"],
+        characteristics: ["High altitude", "Cool climate", "Government region", "Boutique producers"],
+        famousWineries: [
+          { name: "Clonakilla", specialty: "Shiraz Viognier", established: "1971", description: "Iconic producer pioneering Shiraz-Viognier blends in Australia." },
+          { name: "Helm Wines", specialty: "Classic Riesling", established: "1973", description: "Specialist Riesling producer known for traditional German-style wines." },
+          { name: "Lark Hill", specialty: "Pinot Noir", established: "1978", description: "Biodynamic pioneer focusing on cool-climate varieties." }
+        ],
+        foodPairings: ["Fine dining", "Game meats", "Asian cuisine", "Soft cheeses", "Seasonal produce"],
+        priceRange: "$20-$120+",
+        bestVintages: ["2014", "2016", "2018", "2020", "2021"]
+      },
+      {
+        id: "riverina",
+        name: "Riverina",
+        description: "Warm inland region famous for dessert wines, particularly Botrytis Semillon, and high-quality bulk wine production. The irrigation and warm climate support consistent yields.",
+        climate: "Hot continental with irrigation",
+        established: "1913",
+        signatureVarieties: ["Semillon", "Chardonnay", "Shiraz", "Botrytis wines"],
+        characteristics: ["Dessert wine specialist", "Irrigation viticulture", "Consistent production", "Noble rot wines"],
+        famousWineries: [
+          { name: "De Bortoli", specialty: "Noble One Botrytis Semillon", established: "1928", description: "World-renowned producer of premium dessert wines, particularly Noble One." },
+          { name: "McWilliam's Wines", specialty: "Hanwood Estate", established: "1877", description: "Historic family winery pioneering the region's development." },
+          { name: "Casella Family Brands", specialty: "Yellow Tail", established: "1969", description: "Large-scale producer known for accessible, fruit-driven wines." }
+        ],
+        foodPairings: ["Desserts", "Blue cheese", "Foie gras", "Fruit tarts", "Rich chocolate"],
+        priceRange: "$10-$150+",
+        bestVintages: ["2011", "2014", "2016", "2018", "2020"]
+      },
+      {
+        id: "hilltops",
+        name: "Hilltops",
+        description: "Cool-climate region at high elevation, producing elegant wines with natural acidity. Known for Shiraz, Cabernet Sauvignon, and emerging reputation for whites.",
+        climate: "Cool continental with high elevation",
+        established: "1860s (modern era 1980s)",
+        signatureVarieties: ["Shiraz", "Cabernet Sauvignon", "Riesling", "Chardonnay"],
+        characteristics: ["High elevation", "Cool climate", "Natural acidity", "Emerging region"],
+        famousWineries: [
+          { name: "Chalkers Crossing", specialty: "Shiraz", established: "1998", description: "Modern winery focusing on cool-climate expressions of classic varieties." },
+          { name: "Freeman Vineyards", specialty: "Cabernet Sauvignon", established: "1988", description: "Family winery producing elegant, structured wines." },
+          { name: "Grove Estate", specialty: "Riesling", established: "1989", description: "Boutique producer specialising in cool-climate whites and reds." }
+        ],
+        foodPairings: ["Red meat", "Game", "Rich pasta", "Aged cheeses", "Hearty stews"],
+        priceRange: "$16-$80+",
+        bestVintages: ["2015", "2017", "2019", "2020", "2021"]
       }
     ]
   },
