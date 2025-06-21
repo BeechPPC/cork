@@ -130,6 +130,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 20, 2025: Implemented email confirmation system with SendGrid for email capture signups
 - June 20, 2025: Added social media icons and links (Facebook, Instagram, Threads, LinkedIn) to landing page footer
 - June 20, 2025: Created comprehensive Contact Us page with contact form, social media links, FAQ section, and email functionality
+- June 21, 2025: Built Help Centre page with comprehensive FAQ covering app usage, data privacy, and subscription management
 
 ## User Preferences
 

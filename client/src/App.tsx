@@ -11,6 +11,7 @@ import Cellar from "@/pages/cellar";
 import Upload from "@/pages/upload";
 import Pricing from "@/pages/pricing";
 import Contact from "@/pages/contact";
+import HelpCentre from "@/pages/help-centre";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -26,6 +27,7 @@ function Router() {
       {/* Public routes */}
       <Route path="/pricing" component={Pricing} />
       <Route path="/contact" component={Contact} />
+      <Route path="/help-centre" component={HelpCentre} />
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}

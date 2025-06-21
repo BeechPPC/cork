@@ -118,7 +118,7 @@ export default function Contact() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate dark:text-white">Location</h3>
-                      <p className="text-gray-600 dark:text-gray-300">Sydney, Australia</p>
+                      <p className="text-gray-600 dark:text-gray-300">Melbourne, Australia</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Proudly Australian-made</p>
                     </div>
                   </div>
