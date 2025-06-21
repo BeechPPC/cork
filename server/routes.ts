@@ -520,6 +520,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact form submission
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      if (!name || !email || !message) {
+        return res.status(400).json({ message: "Name, email, and message are required" });
+      }
+
+      if (!email.includes('@')) {
+        return res.status(400).json({ message: "Valid email is required" });
+      }
+
+      // Send contact form email via SendGrid
+      const { sendContactFormEmail } = await import("./emailService");
+      const emailSent = await sendContactFormEmail({ 
+        name, 
+        email, 
+        subject: subject || "Contact Form Submission",
+        message 
+      });
+
+      if (emailSent) {
+        console.log(`Contact form email sent from ${email}`);
+      }
+
+      res.json({ 
+        message: "Message sent successfully",
+        emailSent
+      });
+    } catch (error: any) {
+      console.error("Error processing contact form:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
   // Email signup for pre-launch
   app.post("/api/email-signup", async (req, res) => {
     try {

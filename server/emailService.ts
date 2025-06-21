@@ -11,6 +11,158 @@ interface EmailSignupConfirmationData {
   firstName?: string;
 }
 
+interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
+export async function sendContactFormEmail({ name, email, subject, message }: ContactFormData): Promise<boolean> {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('SendGrid not configured, skipping contact email');
+    return false;
+  }
+
+  try {
+    // Send notification to cork team
+    const teamMsg = {
+      to: 'hello@cork.wine', // Your team email
+      from: {
+        email: 'hello@cork.wine',
+        name: 'cork Contact Form'
+      },
+      subject: `New Contact Form: ${subject}`,
+      text: `New contact form submission:
+
+Name: ${name}
+Email: ${email}
+Subject: ${subject}
+
+Message:
+${message}
+
+Reply to: ${email}`,
+      html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New Contact Form Submission</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #8B5A5A 0%, #6B4E71 100%); color: white; padding: 20px; text-align: center; }
+        .content { padding: 30px; background: white; }
+        .field { margin-bottom: 20px; }
+        .label { font-weight: bold; color: #8B5A5A; }
+        .message-box { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Contact Form Submission</h1>
+        </div>
+        <div class="content">
+            <div class="field">
+                <span class="label">Name:</span> ${name}
+            </div>
+            <div class="field">
+                <span class="label">Email:</span> ${email}
+            </div>
+            <div class="field">
+                <span class="label">Subject:</span> ${subject}
+            </div>
+            <div class="field">
+                <span class="label">Message:</span>
+                <div class="message-box">${message.replace(/\n/g, '<br>')}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`
+    };
+
+    // Send auto-response to user
+    const userMsg = {
+      to: email,
+      from: {
+        email: 'hello@cork.wine',
+        name: 'cork'
+      },
+      subject: 'Thanks for contacting cork!',
+      text: `G'day ${name}!
+
+Thanks for reaching out to cork. We've received your message and will get back to you within 24 hours.
+
+Your message:
+Subject: ${subject}
+${message}
+
+If you have any urgent questions, feel free to follow up at hello@cork.wine.
+
+Cheers!
+The cork team`,
+      html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Thanks for contacting cork!</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9f9f9; }
+        .container { max-width: 600px; margin: 0 auto; background-color: white; }
+        .header { background: linear-gradient(135deg, #8B5A5A 0%, #6B4E71 100%); color: white; padding: 30px; text-align: center; }
+        .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .content { padding: 30px; }
+        .message-summary { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">cork</div>
+            <p>Thanks for reaching out!</p>
+        </div>
+        <div class="content">
+            <p>G'day ${name}!</p>
+            
+            <p>Thanks for reaching out to cork. We've received your message and will get back to you within 24 hours.</p>
+            
+            <div class="message-summary">
+                <strong>Your message:</strong><br>
+                <strong>Subject:</strong> ${subject}<br><br>
+                ${message.replace(/\n/g, '<br>')}
+            </div>
+            
+            <p>If you have any urgent questions, feel free to follow up at hello@cork.wine.</p>
+            
+            <p>Cheers!<br><strong>The cork team</strong></p>
+        </div>
+        <div class="footer">
+            This is an automated response. Please do not reply to this email.
+        </div>
+    </div>
+</body>
+</html>`
+    };
+
+    // Send both emails
+    await Promise.all([
+      sgMail.send(teamMsg),
+      sgMail.send(userMsg)
+    ]);
+
+    console.log(`Contact form emails sent for ${name} (${email})`);
+    return true;
+  } catch (error) {
+    console.error('Error sending contact form emails:', error);
+    return false;
+  }
+}
+
 export async function sendEmailSignupConfirmation({ email, firstName }: EmailSignupConfirmationData): Promise<boolean> {
   if (!process.env.SENDGRID_API_KEY) {
     console.log('SendGrid not configured, skipping email');

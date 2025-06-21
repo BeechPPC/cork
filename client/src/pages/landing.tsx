@@ -230,7 +230,16 @@ export default function Landing() {
                 </a>
               </div>
             </div>
-
+            
+            <div>
+              <h4 className="font-semibold mb-4 text-white">Support</h4>
+              <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
+                <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Wine Education</a></li>
+              </ul>
+            </div>
+            
             <div>
               <h4 className="font-semibold mb-4 text-white">Support</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
