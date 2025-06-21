@@ -117,13 +117,6 @@ const faqData: FAQItem[] = [
     answer: "We offer full refunds within 7 days of purchase if you're not satisfied. For subscription cancellations, we'll refund the unused portion on a case-by-case basis. Contact us at hello@cork.wine to discuss your specific situation.",
     icon: CreditCard
   },
-  {
-    id: "15",
-    category: "Subscription",
-    question: "Do you offer student or group discounts?",
-    answer: "We're exploring student discounts and family plans for future release. Currently, the yearly plan offers the best value at $49.99 (equivalent to $4.16/month). Follow us on social media or join our email list for discount announcements.",
-    icon: User
-  },
 
   // Technical Support
   {

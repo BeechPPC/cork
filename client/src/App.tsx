@@ -12,6 +12,7 @@ import Upload from "@/pages/upload";
 import Pricing from "@/pages/pricing";
 import Contact from "@/pages/contact";
 import HelpCentre from "@/pages/help-centre";
+import WineEducation from "@/pages/wine-education";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/contact" component={Contact} />
       <Route path="/help-centre" component={HelpCentre} />
+      <Route path="/wine-education" component={WineEducation} />
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes */}
