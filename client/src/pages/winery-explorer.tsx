@@ -33,9 +33,13 @@ export default function WineryExplorer() {
     queryFn: async () => {
       if (!searchTerm) return { wineries: [] };
       const response = await apiRequest("POST", "/api/search-wineries", { query: searchTerm });
-      return response.json();
+      const data = await response.json();
+      console.log('Winery search response:', data);
+      return data;
     },
-    enabled: !!searchTerm
+    enabled: !!searchTerm,
+    retry: 1,
+    throwOnError: false
   });
 
   const handleSearch = (e: React.FormEvent) => {
@@ -210,6 +214,14 @@ export default function WineryExplorer() {
                 <p className="text-red-600 dark:text-red-400">
                   Something went wrong while searching. Please try again.
                 </p>
+                {process.env.NODE_ENV === 'development' && (
+                  <details className="mt-4 text-left">
+                    <summary className="text-sm cursor-pointer">Debug Info</summary>
+                    <pre className="text-xs mt-2 bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto">
+                      {JSON.stringify(error, null, 2)}
+                    </pre>
+                  </details>
+                )}
               </CardContent>
             </Card>
           )}

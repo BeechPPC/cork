@@ -595,22 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Winery search route
-  app.post("/api/search-wineries", async (req, res) => {
-    try {
-      const { query } = req.body;
-      
-      if (!query) {
-        return res.status(400).json({ message: "Search query is required" });
-      }
 
-      const wineries = await searchAustralianWineries(query);
-      res.json({ wineries });
-    } catch (error: any) {
-      console.error("Winery search error:", error);
-      res.status(500).json({ message: "Failed to search wineries" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;
