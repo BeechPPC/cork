@@ -35,6 +35,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
+  // Winery search route (placed early to avoid middleware conflicts)
+  app.post("/api/search-wineries", async (req, res) => {
+    try {
+      console.log('Winery search request received:', req.body);
+      res.setHeader('Content-Type', 'application/json');
+      
+      const { query } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+
+      const wineries = await searchAustralianWineries(query);
+      console.log('Winery search results:', wineries.length, 'wineries found');
+      
+      return res.status(200).json({ wineries });
+    } catch (error: any) {
+      console.error("Winery search error:", error);
+      return res.status(500).json({ message: "Failed to search wineries" });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
