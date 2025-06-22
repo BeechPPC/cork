@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import { Link } from "wouter";
 
 export default function Pricing() {
@@ -291,6 +292,8 @@ export default function Pricing() {
           </div>
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

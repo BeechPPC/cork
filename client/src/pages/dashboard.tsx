@@ -330,6 +330,8 @@ export default function Dashboard() {
         open={showProfileSetup}
         onComplete={() => setShowProfileSetup(false)}
       />
+      
+      <Footer />
     </div>
   );
 }

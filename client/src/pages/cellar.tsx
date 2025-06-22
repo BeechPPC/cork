@@ -10,6 +10,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import WineCard from "@/components/wine-card";
 import CellarAnalytics from "@/components/cellar-analytics-real";
 import { Card, CardContent } from "@/components/ui/card";
@@ -374,6 +375,8 @@ export default function Cellar() {
           </Tabs>
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

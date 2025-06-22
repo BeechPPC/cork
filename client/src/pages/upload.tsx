@@ -9,6 +9,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import UploadArea from "@/components/upload-area";
 import PlanLimitModal from "@/components/plan-limit-modal";
 
@@ -315,6 +316,8 @@ export default function Upload() {
         currentCount={uploadCount}
         maxCount={3}
       />
+      
+      <Footer />
     </div>
   );
 }

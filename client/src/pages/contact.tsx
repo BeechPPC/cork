@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mail, MessageSquare, Phone, MapPin, Clock, Send } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin, FaThreads } from "react-icons/fa6";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -339,6 +340,8 @@ export default function Contact() {
           </div>
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

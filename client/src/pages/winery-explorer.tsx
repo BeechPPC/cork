@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Search, MapPin, Phone, Mail, Globe, Calendar, Clock, Wine, Star } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import { apiRequest } from "@/lib/queryClient";
 
 interface WineryInfo {
@@ -315,6 +316,8 @@ export default function WineryExplorer() {
           )}
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }
