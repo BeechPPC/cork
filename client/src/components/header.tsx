@@ -74,6 +74,14 @@ export default function Header() {
                   Upload Wine
                 </Button>
               </Link>
+              <Link href="/winery-explorer">
+                <Button 
+                  variant="ghost" 
+                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/winery-explorer') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                >
+                  Winery Explorer
+                </Button>
+              </Link>
               <Link href="/pricing">
                 <Button 
                   variant="ghost" 

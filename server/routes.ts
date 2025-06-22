@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { getWineRecommendations, analyseWineImage } from "./openai";
+import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
 import { sendEmailSignupConfirmation } from "./emailService";
 import Stripe from "stripe";
@@ -592,6 +592,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error saving email signup:", error);
       res.status(500).json({ message: "Failed to save email" });
+    }
+  });
+
+  // Winery search route
+  app.post("/api/search-wineries", async (req, res) => {
+    try {
+      const { query } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+
+      const wineries = await searchAustralianWineries(query);
+      res.json({ wineries });
+    } catch (error: any) {
+      console.error("Winery search error:", error);
+      res.status(500).json({ message: "Failed to search wineries" });
     }
   });
 
