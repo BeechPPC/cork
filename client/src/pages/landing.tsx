@@ -235,7 +235,7 @@ export default function Landing() {
               <h4 className="font-semibold mb-4 text-white">Shop (Coming Soon)</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Wine</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Clothing</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Apparel</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Shop All</a></li>
               </ul>
             </div>

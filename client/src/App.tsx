@@ -18,6 +18,7 @@ import TermsOfService from "@/pages/terms-of-service";
 import AgeVerification from "@/pages/age-verification";
 import ResponsibleDrinking from "@/pages/responsible-drinking";
 import ReferralProgram from "@/pages/referral-program";
+import WineryExplorer from "@/pages/winery-explorer";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
 
@@ -48,6 +49,7 @@ function Router() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/cellar" component={Cellar} />
           <Route path="/upload" component={Upload} />
+          <Route path="/winery-explorer" component={WineryExplorer} />
           <Route path="/subscribe" component={Subscribe} />
         </>
       )}
