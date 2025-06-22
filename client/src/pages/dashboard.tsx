@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import WineCard from "@/components/wine-card";
 import WinePairingSuggestions from "@/components/wine-pairing-suggestions";
 import MealPairing from "@/components/meal-pairing";
@@ -215,7 +216,7 @@ export default function Dashboard() {
                       <Textarea 
                         className="w-full resize-none focus:ring-grape focus:border-grape" 
                         rows={4} 
-                        placeholder="I'm having a romantic dinner with my partner and we're serving grilled lamb with rosemary. Looking for something bold but not too heavy..."
+                        placeholder="Suggest a wine for steak around $30..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                       />
