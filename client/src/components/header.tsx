@@ -79,7 +79,7 @@ export default function Header() {
                   variant="ghost" 
                   className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/winery-explorer') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
                 >
-                  Winery Explorer
+                  Wine Resources
                 </Button>
               </Link>
               <Link href="/pricing">
