@@ -371,6 +371,140 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get billing information for subscription management
+  app.get("/api/billing-info", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    if (!user.stripeCustomerId || !stripe) {
+      return res.json({ 
+        hasStripeData: false,
+        invoices: [],
+        paymentMethod: null,
+        subscription: null
+      });
+    }
+
+    try {
+      // Get customer billing information
+      const customer = await stripe.customers.retrieve(user.stripeCustomerId);
+      
+      // Get invoices
+      const invoices = await stripe.invoices.list({
+        customer: user.stripeCustomerId,
+        limit: 10,
+      });
+
+      // Get subscription details
+      let subscription = null;
+      if (user.stripeSubscriptionId) {
+        subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      }
+
+      // Get payment methods
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: user.stripeCustomerId,
+        type: 'card',
+      });
+
+      res.json({
+        hasStripeData: true,
+        customer: {
+          email: customer.email,
+          name: customer.name,
+          address: customer.address,
+        },
+        invoices: invoices.data.map(invoice => ({
+          id: invoice.id,
+          amount: invoice.amount_paid,
+          currency: invoice.currency,
+          status: invoice.status,
+          created: invoice.created,
+          invoice_pdf: invoice.invoice_pdf,
+          hosted_invoice_url: invoice.hosted_invoice_url,
+          period_start: invoice.period_start,
+          period_end: invoice.period_end,
+        })),
+        paymentMethod: paymentMethods.data.length > 0 ? {
+          id: paymentMethods.data[0].id,
+          brand: paymentMethods.data[0].card?.brand,
+          last4: paymentMethods.data[0].card?.last4,
+          exp_month: paymentMethods.data[0].card?.exp_month,
+          exp_year: paymentMethods.data[0].card?.exp_year,
+        } : null,
+        subscription: subscription ? {
+          id: subscription.id,
+          status: subscription.status,
+          current_period_start: subscription.current_period_start,
+          current_period_end: subscription.current_period_end,
+          cancel_at_period_end: subscription.cancel_at_period_end,
+          plan: subscription.items.data[0]?.price.recurring?.interval,
+        } : null,
+      });
+    } catch (error: any) {
+      console.error("Billing info fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch billing information: " + error.message });
+    }
+  });
+
+  // Update billing address
+  app.post("/api/update-billing-address", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    if (!user.stripeCustomerId || !stripe) {
+      return res.status(400).json({ message: "No billing account found" });
+    }
+
+    try {
+      const { address } = req.body;
+      
+      const customer = await stripe.customers.update(user.stripeCustomerId, {
+        address: {
+          line1: address.line1,
+          line2: address.line2 || null,
+          city: address.city,
+          state: address.state,
+          postal_code: address.postal_code,
+          country: address.country,
+        },
+      });
+
+      res.json({ success: true, address: customer.address });
+    } catch (error: any) {
+      console.error("Billing address update error:", error);
+      res.status(500).json({ message: "Failed to update billing address: " + error.message });
+    }
+  });
+
+  // Create customer portal session for payment method management
+  app.post("/api/create-portal-session", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    if (!user.stripeCustomerId || !stripe) {
+      return res.status(400).json({ message: "No billing account found" });
+    }
+
+    try {
+      const session = await stripe.billingPortal.sessions.create({
+        customer: user.stripeCustomerId,
+        return_url: `${req.headers.origin}/subscription`,
+      });
+
+      res.json({ url: session.url });
+    } catch (error: any) {
+      console.error("Portal session creation error:", error);
+      res.status(500).json({ message: "Failed to create portal session: " + error.message });
+    }
+  });
+
   // Stripe webhook handler
   app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     if (!stripe) {

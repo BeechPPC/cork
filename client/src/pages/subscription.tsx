@@ -1,19 +1,160 @@
 import { useState } from 'react';
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Check, CreditCard, Calendar, User, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Crown, 
+  Check, 
+  CreditCard, 
+  Calendar, 
+  User, 
+  ArrowRight, 
+  Download, 
+  ExternalLink,
+  MapPin,
+  Edit,
+  Save,
+  X
+} from "lucide-react";
 import Header from "@/components/header";
 import { Link } from "wouter";
+
+interface BillingInfo {
+  hasStripeData: boolean;
+  customer?: {
+    email: string;
+    name: string;
+    address: any;
+  };
+  invoices: Array<{
+    id: string;
+    amount: number;
+    currency: string;
+    status: string;
+    created: number;
+    invoice_pdf: string;
+    hosted_invoice_url: string;
+    period_start: number;
+    period_end: number;
+  }>;
+  paymentMethod?: {
+    id: string;
+    brand: string;
+    last4: string;
+    exp_month: number;
+    exp_year: number;
+  } | null;
+  subscription?: {
+    id: string;
+    status: string;
+    current_period_start: number;
+    current_period_end: number;
+    cancel_at_period_end: boolean;
+    plan: string;
+  } | null;
+}
 
 export default function Subscription() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    country: 'AU'
+  });
 
   const isPremium = user?.subscriptionPlan === 'premium';
+
+  // Fetch billing information
+  const { data: billingInfo, isLoading: billingLoading } = useQuery<BillingInfo>({
+    queryKey: ['/api/billing-info'],
+    enabled: isPremium,
+  });
+
+  // Update billing address mutation
+  const updateAddressMutation = useMutation({
+    mutationFn: async (address: any) => {
+      const response = await apiRequest("POST", "/api/update-billing-address", { address });
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Billing address updated successfully",
+      });
+      setIsEditingAddress(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update billing address",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditAddress = () => {
+    if (billingInfo?.customer?.address) {
+      setAddressForm({
+        line1: billingInfo.customer.address.line1 || '',
+        line2: billingInfo.customer.address.line2 || '',
+        city: billingInfo.customer.address.city || '',
+        state: billingInfo.customer.address.state || '',
+        postal_code: billingInfo.customer.address.postal_code || '',
+        country: billingInfo.customer.address.country || 'AU'
+      });
+    }
+    setIsEditingAddress(true);
+  };
+
+  const handleSaveAddress = () => {
+    updateAddressMutation.mutate(addressForm);
+  };
+
+  const handleManagePayment = async () => {
+    try {
+      const response = await apiRequest("POST", "/api/create-portal-session");
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to open payment management",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleDateString('en-AU', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatAmount = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: currency.toUpperCase()
+    }).format(amount / 100);
+  };
 
   const handleUpgrade = async (plan: 'monthly' | 'yearly') => {
     setIsLoading(true);
@@ -107,10 +248,20 @@ export default function Subscription() {
                     : "You're currently on the free plan with limited features"
                   }
                 </p>
-                {isPremium && (
-                  <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    <Calendar className="mr-1 h-4 w-4" />
-                    <span>Billing managed through Stripe</span>
+                {isPremium && billingInfo?.subscription && (
+                  <div className="space-y-1 mt-3">
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                      <Calendar className="mr-1 h-4 w-4" />
+                      <span>
+                        Next billing: {formatDate(billingInfo.subscription.current_period_end)} 
+                        ({billingInfo.subscription.plan === 'month' ? 'Monthly' : 'Yearly'})
+                      </span>
+                    </div>
+                    {billingInfo.subscription.cancel_at_period_end && (
+                      <Badge variant="outline" className="text-orange-600 border-orange-600">
+                        Cancels at period end
+                      </Badge>
+                    )}
                   </div>
                 )}
               </div>
@@ -120,6 +271,252 @@ export default function Subscription() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Billing & Account Management - Only show for Premium users */}
+        {isPremium && (
+          <>
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              {/* Payment Method */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center text-slate dark:text-white">
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    Payment Method
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {billingLoading ? (
+                    <p className="text-gray-500">Loading payment information...</p>
+                  ) : billingInfo?.paymentMethod ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
+                            {billingInfo.paymentMethod.brand?.toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate dark:text-white">
+                              •••• •••• •••• {billingInfo.paymentMethod.last4}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Expires {billingInfo.paymentMethod.exp_month.toString().padStart(2, '0')}/{billingInfo.paymentMethod.exp_year}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleManagePayment}
+                        className="w-full"
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        Update Payment Method
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-gray-500 dark:text-gray-400 mb-3">No payment method on file</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleManagePayment}
+                      >
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Add Payment Method
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Billing Address */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between text-slate dark:text-white">
+                    <div className="flex items-center">
+                      <MapPin className="mr-2 h-5 w-5" />
+                      Billing Address
+                    </div>
+                    {!isEditingAddress && billingInfo?.customer?.address && (
+                      <Button variant="ghost" size="sm" onClick={handleEditAddress}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {billingLoading ? (
+                    <p className="text-gray-500">Loading address information...</p>
+                  ) : isEditingAddress ? (
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="line1">Address Line 1</Label>
+                        <Input
+                          id="line1"
+                          value={addressForm.line1}
+                          onChange={(e) => setAddressForm(prev => ({ ...prev, line1: e.target.value }))}
+                          placeholder="Street address"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="line2">Address Line 2 (Optional)</Label>
+                        <Input
+                          id="line2"
+                          value={addressForm.line2}
+                          onChange={(e) => setAddressForm(prev => ({ ...prev, line2: e.target.value }))}
+                          placeholder="Apartment, suite, unit, etc."
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            id="city"
+                            value={addressForm.city}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, city: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="state">State</Label>
+                          <Input
+                            id="state"
+                            value={addressForm.state}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, state: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="postal_code">Postcode</Label>
+                          <Input
+                            id="postal_code"
+                            value={addressForm.postal_code}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, postal_code: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="country">Country</Label>
+                          <Input
+                            id="country"
+                            value={addressForm.country}
+                            onChange={(e) => setAddressForm(prev => ({ ...prev, country: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button 
+                          size="sm" 
+                          onClick={handleSaveAddress}
+                          disabled={updateAddressMutation.isPending}
+                        >
+                          <Save className="mr-2 h-4 w-4" />
+                          {updateAddressMutation.isPending ? 'Saving...' : 'Save'}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setIsEditingAddress(false)}
+                        >
+                          <X className="mr-2 h-4 w-4" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : billingInfo?.customer?.address ? (
+                    <div className="space-y-2">
+                      <p className="text-slate dark:text-white">{billingInfo.customer.address.line1}</p>
+                      {billingInfo.customer.address.line2 && (
+                        <p className="text-slate dark:text-white">{billingInfo.customer.address.line2}</p>
+                      )}
+                      <p className="text-slate dark:text-white">
+                        {billingInfo.customer.address.city}, {billingInfo.customer.address.state} {billingInfo.customer.address.postal_code}
+                      </p>
+                      <p className="text-slate dark:text-white">{billingInfo.customer.address.country}</p>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-gray-500 dark:text-gray-400 mb-3">No billing address on file</p>
+                      <Button variant="outline" size="sm" onClick={handleEditAddress}>
+                        <MapPin className="mr-2 h-4 w-4" />
+                        Add Billing Address
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Billing History */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center text-slate dark:text-white">
+                  <Download className="mr-2 h-5 w-5" />
+                  Billing History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {billingLoading ? (
+                  <p className="text-gray-500">Loading billing history...</p>
+                ) : billingInfo?.invoices && billingInfo.invoices.length > 0 ? (
+                  <div className="space-y-4">
+                    {billingInfo.invoices.map((invoice) => (
+                      <div key={invoice.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-4">
+                            <div>
+                              <p className="font-medium text-slate dark:text-white">
+                                {formatAmount(invoice.amount, invoice.currency)}
+                              </p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                                {formatDate(invoice.created)}
+                              </p>
+                            </div>
+                            <div>
+                              <Badge 
+                                variant={invoice.status === 'paid' ? 'default' : 'secondary'}
+                                className={invoice.status === 'paid' ? 'bg-green-500' : ''}
+                              >
+                                {invoice.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Billing period: {formatDate(invoice.period_start)} - {formatDate(invoice.period_end)}
+                          </p>
+                        </div>
+                        <div className="flex space-x-2">
+                          {invoice.hosted_invoice_url && (
+                            <Button variant="outline" size="sm" asChild>
+                              <a href={invoice.hosted_invoice_url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="mr-2 h-4 w-4" />
+                                View
+                              </a>
+                            </Button>
+                          )}
+                          {invoice.invoice_pdf && (
+                            <Button variant="outline" size="sm" asChild>
+                              <a href={invoice.invoice_pdf} target="_blank" rel="noopener noreferrer">
+                                <Download className="mr-2 h-4 w-4" />
+                                PDF
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400">No billing history available</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Separator className="my-8" />
+          </>
+        )}
 
         {/* Plan Comparison */}
         <div className="grid md:grid-cols-2 gap-8">
