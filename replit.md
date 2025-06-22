@@ -143,6 +143,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 21, 2025: Created Responsible Drinking information page covering Australian alcohol guidelines, health considerations, safety information, and support resources
 - June 21, 2025: Created Referral Program page with tiered rewards system including free premium months, exclusive recommendations, and bonus tiers for multiple referrals
 - June 22, 2025: Implemented Winery Explorer feature using OpenAI for searching Australian wineries with comprehensive information including contact details, cellar door hours, and specialty wines
+- June 22, 2025: Converted Wine Resources navigation to dropdown menu with Wine Education and Winery Explorer options, including hover functionality for desktop and mobile menu integration
 
 ## User Preferences
 

@@ -132,7 +132,7 @@ export default function Upload() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-poppins font-bold text-slate mb-4">
-              Analyze Your Wine Collection
+              Analyse Your Wine Collection
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Upload photos of wines from your cellar and let AI determine their optimal drinking window
@@ -205,7 +205,7 @@ export default function Upload() {
                       <span className="text-grape font-bold">2</span>
                     </div>
                     <h4 className="font-semibold text-slate mb-2">AI Analysis</h4>
-                    <p className="text-sm text-gray-600">Our AI identifies the wine and analyzes aging potential</p>
+                    <p className="text-sm text-gray-600">Our AI identifies the wine and analyses aging potential</p>
                   </div>
                   <div className="text-center">
                     <div className="w-12 h-12 bg-grape bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">

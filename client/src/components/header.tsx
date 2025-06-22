@@ -162,7 +162,7 @@ export default function Header() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/pricing" className="flex items-center">
+                      <Link href="/subscription" className="flex items-center">
                         <User className="mr-2 h-4 w-4" />
                         <span>Subscription</span>
                       </Link>

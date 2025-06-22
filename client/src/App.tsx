@@ -21,6 +21,7 @@ import ReferralProgram from "@/pages/referral-program";
 import WineryExplorer from "@/pages/winery-explorer";
 import Checkout from "@/pages/checkout";
 import Subscribe from "@/pages/subscribe";
+import Subscription from "@/pages/subscription";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -51,6 +52,7 @@ function Router() {
           <Route path="/upload" component={Upload} />
           <Route path="/winery-explorer" component={WineryExplorer} />
           <Route path="/subscribe" component={Subscribe} />
+          <Route path="/subscription" component={Subscription} />
         </>
       )}
       
