@@ -198,6 +198,65 @@ export async function analyseMealPairing(base64Image: string, analysisType: 'mea
   }
 }
 
+export interface WineryInfo {
+  wineryName: string;
+  address: string;
+  region: string;
+  websiteUrl: string;
+  description: string;
+  establishedYear: string;
+  contactPhone: string;
+  contactEmail: string;
+  specialtyWines: string[];
+  cellarDoorHours: string;
+  tastingFees: string;
+  bookingRequired: boolean;
+}
+
+export async function searchAustralianWineries(searchQuery: string): Promise<WineryInfo[]> {
+  // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "system",
+        content: `You are an expert on Australian wineries with comprehensive knowledge of wineries across all Australian wine regions. When given a search query, provide information about relevant Australian wineries.
+
+        Return your response in JSON format as an array of wineries with these exact fields:
+        {
+          "wineries": [
+            {
+              "wineryName": "Full winery name",
+              "address": "Complete address including suburb, state, postcode",
+              "region": "Wine region (e.g., Barossa Valley, Hunter Valley)",
+              "websiteUrl": "Website URL if known, otherwise 'Not available'",
+              "description": "Brief description of the winery, history, and what makes it special",
+              "establishedYear": "Year established or 'Unknown'",
+              "contactPhone": "Phone number if known, otherwise 'Not available'",
+              "contactEmail": "Email if known, otherwise 'Not available'",
+              "specialtyWines": ["Array of their signature or specialty wines"],
+              "cellarDoorHours": "Cellar door operating hours or 'Contact for hours'",
+              "tastingFees": "Tasting fee information or 'Contact for pricing'",
+              "bookingRequired": true/false for whether booking is required
+            }
+          ]
+        }
+
+        Focus on providing accurate, well-known Australian wineries. If searching by region, include multiple wineries from that region. If searching by name, try to find the specific winery plus similar ones.`
+      },
+      {
+        role: "user",
+        content: `Search for Australian wineries: ${searchQuery}`
+      }
+    ],
+    response_format: { type: "json_object" },
+    max_tokens: 2000,
+  });
+
+  const result = JSON.parse(response.choices[0].message.content || '{"wineries": []}');
+  return result.wineries || [];
+}
+
 export async function analyseWineImage(base64Image: string): Promise<WineAnalysis> {
   try {
     const prompt = `You are an expert wine analyst. Analyse this wine bottle image and provide detailed information about the wine.
