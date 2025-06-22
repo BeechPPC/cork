@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Menu, Wine, User, LogOut } from "lucide-react";
+import { Menu, Wine, User, LogOut, ChevronDown, BookOpen, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useLocation } from "wouter";
 import {
@@ -74,14 +74,31 @@ export default function Header() {
                   Upload Wine
                 </Button>
               </Link>
-              <Link href="/winery-explorer">
-                <Button 
-                  variant="ghost" 
-                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/winery-explorer') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-                >
-                  Wine Resources
-                </Button>
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${(isActive('/winery-explorer') || isActive('/wine-education')) ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                  >
+                    Wine Resources
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700" align="center">
+                  <DropdownMenuItem asChild>
+                    <Link href="/wine-education" className="flex items-center">
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      <span>Wine Education</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/winery-explorer" className="flex items-center">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      <span>Winery Explorer</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Link href="/pricing">
                 <Button 
                   variant="ghost" 
@@ -191,6 +208,18 @@ export default function Header() {
               <Link href="/upload">
                 <Button variant="ghost" className="w-full justify-start">
                   Upload Wine
+                </Button>
+              </Link>
+              <Link href="/wine-education">
+                <Button variant="ghost" className="w-full justify-start">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Wine Education
+                </Button>
+              </Link>
+              <Link href="/winery-explorer">
+                <Button variant="ghost" className="w-full justify-start">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  Winery Explorer
                 </Button>
               </Link>
               <Link href="/pricing">
