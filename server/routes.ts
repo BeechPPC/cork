@@ -441,6 +441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           current_period_end: subscription.current_period_end,
           cancel_at_period_end: subscription.cancel_at_period_end,
           plan: subscription.items.data[0]?.price.recurring?.interval,
+          pause_collection: subscription.pause_collection,
         } : null,
       });
     } catch (error: any) {
@@ -502,6 +503,205 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Portal session creation error:", error);
       res.status(500).json({ message: "Failed to create portal session: " + error.message });
+    }
+  });
+
+  // Pause subscription
+  app.post("/api/pause-subscription", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    if (!user.stripeSubscriptionId || !stripe) {
+      return res.status(400).json({ message: "No active subscription found" });
+    }
+
+    try {
+      const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        pause_collection: {
+          behavior: 'mark_uncollectible',
+        },
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Subscription paused successfully",
+        subscription: {
+          id: subscription.id,
+          status: subscription.status,
+          pause_collection: subscription.pause_collection,
+        }
+      });
+    } catch (error: any) {
+      console.error("Subscription pause error:", error);
+      res.status(500).json({ message: "Failed to pause subscription: " + error.message });
+    }
+  });
+
+  // Resume subscription
+  app.post("/api/resume-subscription", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    if (!user.stripeSubscriptionId || !stripe) {
+      return res.status(400).json({ message: "No subscription found" });
+    }
+
+    try {
+      const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        pause_collection: '',
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Subscription resumed successfully",
+        subscription: {
+          id: subscription.id,
+          status: subscription.status,
+          pause_collection: subscription.pause_collection,
+        }
+      });
+    } catch (error: any) {
+      console.error("Subscription resume error:", error);
+      res.status(500).json({ message: "Failed to resume subscription: " + error.message });
+    }
+  });
+
+  // Change subscription plan (monthly/yearly)
+  app.post("/api/change-plan", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    const { newPlan } = req.body; // 'monthly' or 'yearly'
+    
+    if (!user.stripeSubscriptionId || !stripe) {
+      return res.status(400).json({ message: "No active subscription found" });
+    }
+
+    try {
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      const currentPriceId = subscription.items.data[0].price.id;
+      
+      // Get new price ID
+      const newPriceId = newPlan === 'yearly' 
+        ? process.env.STRIPE_YEARLY_PRICE_ID 
+        : process.env.STRIPE_MONTHLY_PRICE_ID;
+
+      if (!newPriceId) {
+        return res.status(500).json({ message: `Price ID not configured for ${newPlan} plan` });
+      }
+
+      if (currentPriceId === newPriceId) {
+        return res.status(400).json({ message: "Already on the requested plan" });
+      }
+
+      const updatedSubscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        items: [{
+          id: subscription.items.data[0].id,
+          price: newPriceId,
+        }],
+        proration_behavior: 'create_prorations',
+      });
+
+      res.json({ 
+        success: true, 
+        message: `Plan changed to ${newPlan} successfully`,
+        subscription: {
+          id: updatedSubscription.id,
+          status: updatedSubscription.status,
+          plan: newPlan,
+        }
+      });
+    } catch (error: any) {
+      console.error("Plan change error:", error);
+      res.status(500).json({ message: "Failed to change plan: " + error.message });
+    }
+  });
+
+  // Cancel subscription with retention offer
+  app.post("/api/cancel-subscription", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    const { cancelImmediately = false, reason } = req.body;
+    
+    if (!user.stripeSubscriptionId || !stripe) {
+      return res.status(400).json({ message: "No active subscription found" });
+    }
+
+    try {
+      let subscription;
+      
+      if (cancelImmediately) {
+        // Cancel immediately
+        subscription = await stripe.subscriptions.cancel(user.stripeSubscriptionId);
+        await storage.updateUserSubscriptionPlan(user.id, 'free');
+      } else {
+        // Cancel at period end
+        subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+          cancel_at_period_end: true,
+          metadata: {
+            cancellation_reason: reason || 'user_requested',
+          }
+        });
+      }
+
+      res.json({ 
+        success: true, 
+        message: cancelImmediately 
+          ? "Subscription canceled immediately" 
+          : "Subscription will cancel at the end of the billing period",
+        subscription: {
+          id: subscription.id,
+          status: subscription.status,
+          cancel_at_period_end: subscription.cancel_at_period_end,
+          current_period_end: subscription.current_period_end,
+        }
+      });
+    } catch (error: any) {
+      console.error("Subscription cancellation error:", error);
+      res.status(500).json({ message: "Failed to cancel subscription: " + error.message });
+    }
+  });
+
+  // Reactivate canceled subscription
+  app.post("/api/reactivate-subscription", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    const user = req.user;
+    
+    if (!user.stripeSubscriptionId || !stripe) {
+      return res.status(400).json({ message: "No subscription found" });
+    }
+
+    try {
+      const subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: false,
+      });
+
+      await storage.updateUserSubscriptionPlan(user.id, 'premium');
+
+      res.json({ 
+        success: true, 
+        message: "Subscription reactivated successfully",
+        subscription: {
+          id: subscription.id,
+          status: subscription.status,
+          cancel_at_period_end: subscription.cancel_at_period_end,
+        }
+      });
+    } catch (error: any) {
+      console.error("Subscription reactivation error:", error);
+      res.status(500).json({ message: "Failed to reactivate subscription: " + error.message });
     }
   });
 

@@ -9,6 +9,22 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Crown, 
   Check, 
@@ -21,7 +37,12 @@ import {
   MapPin,
   Edit,
   Save,
-  X
+  X,
+  Pause,
+  Play,
+  RefreshCw,
+  AlertTriangle,
+  Shield
 } from "lucide-react";
 import Header from "@/components/header";
 import { Link } from "wouter";
@@ -58,6 +79,7 @@ interface BillingInfo {
     current_period_end: number;
     cancel_at_period_end: boolean;
     plan: string;
+    pause_collection?: any;
   } | null;
 }
 
@@ -67,6 +89,9 @@ export default function Subscription() {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRetentionOffer, setShowRetentionOffer] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
   const [addressForm, setAddressForm] = useState({
     line1: '',
     line2: '',
@@ -155,6 +180,134 @@ export default function Subscription() {
       currency: currency.toUpperCase()
     }).format(amount / 100);
   };
+
+  // Subscription control mutations
+  const pauseSubscriptionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/pause-subscription");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Subscription Paused",
+        description: "Your subscription has been paused. You can resume it anytime.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to pause subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resumeSubscriptionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/resume-subscription");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Subscription Resumed",
+        description: "Your subscription has been resumed successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to resume subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const changePlanMutation = useMutation({
+    mutationFn: async (newPlan: string) => {
+      const response = await apiRequest("POST", "/api/change-plan", { newPlan });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Plan Changed",
+        description: data.message,
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to change plan",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const cancelSubscriptionMutation = useMutation({
+    mutationFn: async ({ cancelImmediately, reason }: { cancelImmediately: boolean; reason: string }) => {
+      const response = await apiRequest("POST", "/api/cancel-subscription", { cancelImmediately, reason });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Subscription Canceled",
+        description: data.message,
+      });
+      setShowCancelModal(false);
+      setShowRetentionOffer(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to cancel subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const reactivateSubscriptionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/reactivate-subscription");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Subscription Reactivated",
+        description: "Welcome back! Your subscription has been reactivated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to reactivate subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCancelClick = () => {
+    setShowCancelModal(true);
+  };
+
+  const handleCancelConfirm = () => {
+    if (!cancellationReason) {
+      setShowRetentionOffer(true);
+      return;
+    }
+    cancelSubscriptionMutation.mutate({ cancelImmediately: false, reason: cancellationReason });
+  };
+
+  const handleCancelImmediate = () => {
+    cancelSubscriptionMutation.mutate({ cancelImmediately: true, reason: cancellationReason });
+  };
+
+  const isPaused = billingInfo?.subscription?.pause_collection !== null;
+  const isCanceled = billingInfo?.subscription?.cancel_at_period_end;
+  const currentPlan = billingInfo?.subscription?.plan;
 
   const handleUpgrade = async (plan: 'monthly' | 'yearly') => {
     setIsLoading(true);
@@ -514,9 +667,247 @@ export default function Subscription() {
               </CardContent>
             </Card>
 
+            {/* Subscription Controls */}
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center text-slate dark:text-white">
+                  <Shield className="mr-2 h-5 w-5" />
+                  Subscription Controls
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Plan Change */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-slate dark:text-white">Change Plan</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Switch between monthly and yearly billing. Prorated amounts will be applied.
+                    </p>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant={currentPlan === 'month' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => changePlanMutation.mutate('monthly')}
+                        disabled={currentPlan === 'month' || changePlanMutation.isPending || isPaused}
+                        className={currentPlan === 'month' ? 'bg-grape' : ''}
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        {currentPlan === 'month' ? 'Current: Monthly' : 'Switch to Monthly'}
+                      </Button>
+                      <Button
+                        variant={currentPlan === 'year' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => changePlanMutation.mutate('yearly')}
+                        disabled={currentPlan === 'year' || changePlanMutation.isPending || isPaused}
+                        className={currentPlan === 'year' ? 'bg-grape' : ''}
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        {currentPlan === 'year' ? 'Current: Yearly' : 'Switch to Yearly (Save 17%)'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Pause/Resume */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-slate dark:text-white">Pause Subscription</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      {isPaused ? 'Your subscription is currently paused. Resume to regain access.' : 'Temporarily pause your subscription without losing your account.'}
+                    </p>
+                    {isPaused ? (
+                      <Button
+                        size="sm"
+                        onClick={() => resumeSubscriptionMutation.mutate()}
+                        disabled={resumeSubscriptionMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <Play className="mr-2 h-4 w-4" />
+                        {resumeSubscriptionMutation.isPending ? 'Resuming...' : 'Resume Subscription'}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => pauseSubscriptionMutation.mutate()}
+                        disabled={pauseSubscriptionMutation.isPending || isCanceled}
+                      >
+                        <Pause className="mr-2 h-4 w-4" />
+                        {pauseSubscriptionMutation.isPending ? 'Pausing...' : 'Pause Subscription'}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* Cancel/Reactivate */}
+                <div className="space-y-4">
+                  <h4 className="font-medium text-slate dark:text-white">
+                    {isCanceled ? 'Reactivate Subscription' : 'Cancel Subscription'}
+                  </h4>
+                  
+                  {isCanceled ? (
+                    <div className="space-y-4">
+                      <div className="p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                        <div className="flex items-center">
+                          <AlertTriangle className="h-5 w-5 text-orange-600 mr-2" />
+                          <p className="text-sm text-orange-800 dark:text-orange-200">
+                            Your subscription is set to cancel on {formatDate(billingInfo?.subscription?.current_period_end || 0)}. 
+                            You can reactivate it before then to continue your service.
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => reactivateSubscriptionMutation.mutate()}
+                        disabled={reactivateSubscriptionMutation.isPending}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        {reactivateSubscriptionMutation.isPending ? 'Reactivating...' : 'Reactivate Subscription'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Cancel your subscription with options to retain access until your billing period ends.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelClick}
+                        disabled={isPaused}
+                        className="text-red-600 border-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <X className="mr-2 h-4 w-4" />
+                        Cancel Subscription
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <Separator className="my-8" />
           </>
         )}
+
+        {/* Cancellation Modal */}
+        <Dialog open={showCancelModal} onOpenChange={setShowCancelModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Cancel Subscription</DialogTitle>
+              <DialogDescription>
+                We're sorry to see you go. Please let us know why you're canceling to help us improve.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="reason">Reason for canceling (optional)</Label>
+                <Select value={cancellationReason} onValueChange={setCancellationReason}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a reason..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="too_expensive">Too expensive</SelectItem>
+                    <SelectItem value="not_using">Not using enough</SelectItem>
+                    <SelectItem value="missing_features">Missing features</SelectItem>
+                    <SelectItem value="found_alternative">Found alternative</SelectItem>
+                    <SelectItem value="temporary">Temporary break</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowCancelModal(false)}
+                className="w-full sm:w-auto"
+              >
+                Keep Subscription
+              </Button>
+              <Button
+                onClick={handleCancelConfirm}
+                disabled={cancelSubscriptionMutation.isPending}
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+              >
+                {cancelSubscriptionMutation.isPending ? 'Processing...' : 'Cancel at Period End'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Retention Offer Modal */}
+        <Dialog open={showRetentionOffer} onOpenChange={setShowRetentionOffer}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Wait! We'd love to keep you</DialogTitle>
+              <DialogDescription>
+                Before you go, here are some options that might help:
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid gap-4">
+                <Card className="p-4 border-grape/20">
+                  <div className="flex items-center space-x-3">
+                    <Pause className="h-5 w-5 text-grape" />
+                    <div>
+                      <h4 className="font-medium">Pause instead of cancel</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Take a break and resume when you're ready
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="p-4 border-grape/20">
+                  <div className="flex items-center space-x-3">
+                    <RefreshCw className="h-5 w-5 text-grape" />
+                    <div>
+                      <h4 className="font-medium">Switch to yearly and save 17%</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Lower monthly cost with annual billing
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+            <DialogFooter className="flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  pauseSubscriptionMutation.mutate();
+                  setShowRetentionOffer(false);
+                }}
+                disabled={pauseSubscriptionMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                <Pause className="mr-2 h-4 w-4" />
+                Pause Instead
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  changePlanMutation.mutate('yearly');
+                  setShowRetentionOffer(false);
+                }}
+                disabled={changePlanMutation.isPending || currentPlan === 'year'}
+                className="w-full sm:w-auto"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Switch to Yearly
+              </Button>
+              <Button
+                onClick={handleCancelImmediate}
+                disabled={cancelSubscriptionMutation.isPending}
+                className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+              >
+                {cancelSubscriptionMutation.isPending ? 'Canceling...' : 'Still Cancel'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Plan Comparison */}
         <div className="grid md:grid-cols-2 gap-8">
