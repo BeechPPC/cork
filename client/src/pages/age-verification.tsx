@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { UserCheck, Shield, Scale, AlertTriangle, Heart, FileText, Users } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 export default function AgeVerification() {
   return (
@@ -261,6 +262,8 @@ export default function AgeVerification() {
 
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

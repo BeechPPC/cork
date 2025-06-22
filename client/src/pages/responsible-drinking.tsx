@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Heart, AlertTriangle, Clock, Car, Users, Phone, Shield, Activity } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 export default function ResponsibleDrinking() {
   return (
@@ -316,6 +317,8 @@ export default function ResponsibleDrinking() {
 
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

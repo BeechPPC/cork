@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ChevronDown, ChevronUp, Search, HelpCircle, Shield, CreditCard, User, Wine, Database } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 interface FAQItem {
   id: string;
@@ -319,6 +320,8 @@ export default function HelpCentre() {
           </div>
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

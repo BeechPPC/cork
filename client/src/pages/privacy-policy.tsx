@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Shield, Eye, Database, Lock, UserCheck, AlertTriangle, Mail, Phone } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 export default function PrivacyPolicy() {
   return (
@@ -279,6 +280,8 @@ export default function PrivacyPolicy() {
 
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

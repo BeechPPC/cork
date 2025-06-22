@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Gift, Users, Star, Crown, Share2, Trophy, Calendar, Sparkles } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 export default function ReferralProgram() {
   return (
@@ -311,6 +312,8 @@ export default function ReferralProgram() {
 
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

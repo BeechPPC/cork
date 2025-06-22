@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Wine, MapPin, Star, Grape, Award, Clock, Thermometer, ChevronDown, ChevronRight } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 interface WineRegion {
   id: string;
@@ -1229,6 +1230,8 @@ export default function WineEducation() {
           </Tabs>
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }

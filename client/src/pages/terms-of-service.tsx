@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Scale, AlertTriangle, CreditCard, Shield, Users, Mail, FileText } from "lucide-react";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 export default function TermsOfService() {
   return (
@@ -421,6 +422,8 @@ export default function TermsOfService() {
 
         </div>
       </section>
+      
+      <Footer />
     </div>
   );
 }
