@@ -814,23 +814,138 @@ export default function WineEducation() {
                           {isStateExpanded && (
                             <div className="mt-2 ml-4 space-y-2">
                               {stateGroup.regions.map((region) => (
-                                <Card
-                                  key={region.id}
-                                  className={`cursor-pointer transition-all hover:shadow-md ${
-                                    selectedRegion === region.id ? "ring-2 ring-grape" : ""
-                                  }`}
-                                  onClick={() => setSelectedRegion(region.id)}
-                                >
-                                  <CardContent className="p-3">
-                                    <div className="flex items-center justify-between">
-                                      <div>
-                                        <h4 className="font-medium text-slate dark:text-white text-sm">{region.name}</h4>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">Est. {region.established}</p>
+                                <div key={region.id}>
+                                  <Card
+                                    className={`cursor-pointer transition-all hover:shadow-md ${
+                                      selectedRegion === region.id ? "ring-2 ring-grape" : ""
+                                    }`}
+                                    onClick={() => setSelectedRegion(region.id)}
+                                  >
+                                    <CardContent className="p-3">
+                                      <div className="flex items-center justify-between">
+                                        <div>
+                                          <h4 className="font-medium text-slate dark:text-white text-sm">{region.name}</h4>
+                                          <p className="text-xs text-gray-600 dark:text-gray-400">Est. {region.established}</p>
+                                        </div>
+                                        <MapPin className="w-4 h-4 text-grape" />
                                       </div>
-                                      <MapPin className="w-4 h-4 text-grape" />
+                                    </CardContent>
+                                  </Card>
+                                  
+                                  {/* Mobile Inline Details for Region */}
+                                  {selectedRegion === region.id && (
+                                    <div className="lg:hidden mt-3 mb-6 ml-0">
+                                      <div className="mb-6">
+                                        <div className="flex items-center space-x-4 mb-4">
+                                          <h2 className="text-2xl font-bold text-slate dark:text-white">{region.name}</h2>
+                                          <Badge className="bg-grape/10 text-grape">
+                                            {stateGroup.state}
+                                          </Badge>
+                                        </div>
+                                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                                          {region.description}
+                                        </p>
+                                      </div>
+
+                                      <div className="space-y-4 mb-6">
+                                        <Card>
+                                          <CardHeader>
+                                            <CardTitle>Region Overview</CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <div className="space-y-2 text-sm">
+                                              <p><strong>Climate:</strong> {region.climate}</p>
+                                              <p><strong>Established:</strong> {region.established}</p>
+                                              <p><strong>Price Range:</strong> {region.priceRange}</p>
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                          <CardHeader>
+                                            <CardTitle>Signature Varieties</CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <div className="flex flex-wrap gap-2">
+                                              {region.signatureVarieties.map((variety, index) => (
+                                                <Badge key={index} className="bg-grape/10 text-grape">
+                                                  {variety}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                          <CardHeader>
+                                            <CardTitle>Regional Characteristics</CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <div className="flex flex-wrap gap-2">
+                                              {region.characteristics.map((char, index) => (
+                                                <Badge key={index} variant="outline">
+                                                  {char}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                          <CardHeader>
+                                            <CardTitle>Famous Wineries</CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <div className="space-y-3">
+                                              {region.famousWineries.map((winery, index) => (
+                                                <div key={index} className="border-l-4 border-grape/30 pl-3">
+                                                  <div className="flex items-center space-x-2 mb-1">
+                                                    <h4 className="font-semibold text-slate dark:text-white text-sm">{winery.name}</h4>
+                                                    <Badge variant="outline" className="text-xs">
+                                                      Est. {winery.established}
+                                                    </Badge>
+                                                  </div>
+                                                  <p className="text-xs text-grape mb-1">{winery.specialty}</p>
+                                                  <p className="text-xs text-gray-600 dark:text-gray-400">{winery.description}</p>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                          <CardHeader>
+                                            <CardTitle>Food Pairings</CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <div className="flex flex-wrap gap-2">
+                                              {region.foodPairings.map((pairing, index) => (
+                                                <Badge key={index} variant="outline">
+                                                  {pairing}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                          <CardHeader>
+                                            <CardTitle>Best Vintages</CardTitle>
+                                          </CardHeader>
+                                          <CardContent>
+                                            <div className="flex flex-wrap gap-2">
+                                              {region.bestVintages.map((vintage, index) => (
+                                                <Badge key={index} className="bg-amber-100 text-amber-800">
+                                                  {vintage}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          </CardContent>
+                                        </Card>
+                                      </div>
                                     </div>
-                                  </CardContent>
-                                </Card>
+                                  )}
+                                </div>
                               ))}
                             </div>
                           )}
@@ -991,32 +1106,122 @@ export default function WineEducation() {
                   <h2 className="text-2xl font-bold text-slate dark:text-white mb-6">Grape Varieties</h2>
                   <div className="space-y-3">
                     {wineVarieties.map((variety) => (
-                      <Card
-                        key={variety.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
-                          selectedVariety === variety.id ? "ring-2 ring-grape" : ""
-                        }`}
-                        onClick={() => setSelectedVariety(variety.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h3 className="font-semibold text-slate dark:text-white">{variety.name}</h3>
-                              <Badge
-                                variant="outline"
-                                className={`text-xs ${
-                                  variety.type === "red" ? "border-red-300 text-red-600" :
-                                  variety.type === "white" ? "border-yellow-300 text-yellow-600" :
-                                  "border-pink-300 text-pink-600"
-                                }`}
-                              >
-                                {variety.type}
-                              </Badge>
+                      <div key={variety.id}>
+                        <Card
+                          className={`cursor-pointer transition-all hover:shadow-md ${
+                            selectedVariety === variety.id ? "ring-2 ring-grape" : ""
+                          }`}
+                          onClick={() => setSelectedVariety(variety.id)}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h3 className="font-semibold text-slate dark:text-white">{variety.name}</h3>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${
+                                    variety.type === "red" ? "border-red-300 text-red-600" :
+                                    variety.type === "white" ? "border-yellow-300 text-yellow-600" :
+                                    "border-pink-300 text-pink-600"
+                                  }`}
+                                >
+                                  {variety.type}
+                                </Badge>
+                              </div>
+                              <Grape className="w-5 h-5 text-grape" />
                             </div>
-                            <Grape className="w-5 h-5 text-grape" />
+                          </CardContent>
+                        </Card>
+                        
+                        {/* Mobile Inline Details */}
+                        {selectedVariety === variety.id && (
+                          <div className="lg:hidden mt-3 mb-6">
+                            <div className="mb-6">
+                              <div className="flex items-center space-x-4 mb-4">
+                                <h2 className="text-2xl font-bold text-slate dark:text-white">{variety.name}</h2>
+                                <Badge
+                                  className={`${
+                                    variety.type === "red" ? "bg-red-100 text-red-800" :
+                                    variety.type === "white" ? "bg-yellow-100 text-yellow-800" :
+                                    "bg-pink-100 text-pink-800"
+                                  }`}
+                                >
+                                  {variety.type} wine
+                                </Badge>
+                              </div>
+                              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                                {variety.description}
+                              </p>
+                            </div>
+
+                            <div className="space-y-4 mb-6">
+                              <Card>
+                                <CardHeader>
+                                  <CardTitle>Flavour Profile</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="flex flex-wrap gap-2">
+                                    {variety.flavourProfile.map((flavour, index) => (
+                                      <Badge key={index} variant="outline">
+                                        {flavour}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              <Card>
+                                <CardHeader>
+                                  <CardTitle>Wine Characteristics</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="space-y-2 text-sm">
+                                    <p><strong>Serving Temperature:</strong> {variety.servingTemp}</p>
+                                    <p><strong>Aging Potential:</strong> {variety.agingPotential}</p>
+                                    <div className="mt-3">
+                                      {variety.characteristics.map((char, index) => (
+                                        <Badge key={index} variant="outline" className="mr-2 mb-1">
+                                          {char}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              <Card>
+                                <CardHeader>
+                                  <CardTitle>Best Australian Regions</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="space-y-2">
+                                    {variety.bestRegions.map((region, index) => (
+                                      <Badge key={index} className="bg-grape/10 text-grape mr-2">
+                                        {region}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              <Card>
+                                <CardHeader>
+                                  <CardTitle>Food Pairings</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                  <div className="flex flex-wrap gap-2">
+                                    {variety.foodPairings.map((pairing, index) => (
+                                      <Badge key={index} variant="outline">
+                                        {pairing}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
