@@ -3,6 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupClerkAuth, requireAuth } from "./clerkAuth";
+import { setupClerkWebhooks } from "./clerkWebhooks";
 import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
 import { sendEmailSignupConfirmation } from "./emailService";
@@ -34,6 +35,9 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   setupClerkAuth(app);
+  
+  // Clerk webhooks (must be before body parser middleware)
+  setupClerkWebhooks(app);
 
   // Winery search route (placed early to avoid middleware conflicts)
   app.post("/api/search-wineries", async (req, res) => {
