@@ -33,7 +33,7 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  setupClerkAuth(app);
 
   // Winery search route (placed early to avoid middleware conflicts)
   app.post("/api/search-wineries", async (req, res) => {
@@ -58,37 +58,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Auth routes
-  app.get('/api/auth/user', async (req: any, res) => {
-    // Check if we're in Replit environment first
-    if (!process.env.REPLIT_DOMAINS) {
-      return res.status(401).json({ message: "Authentication not available in this environment" });
-    }
-    
-    // Apply authentication middleware for Replit environment
-    isAuthenticated(req, res, async () => {
-      try {
-        const userId = req.user.claims.sub;
-        const user = await storage.getUser(userId);
-        if (!user) {
-          return res.status(404).json({ message: "User not found" });
-        }
-        
-        // Get usage counts for plan limits
-        const savedWineCount = await storage.getSavedWineCount(userId);
-        const uploadedWineCount = await storage.getUploadedWineCount(userId);
-        
-        res.json({
-          ...user,
-          usage: {
-            savedWines: savedWineCount,
-            uploadedWines: uploadedWineCount,
-          },
-        });
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        res.status(500).json({ message: "Failed to fetch user" });
+  app.get('/api/auth/user', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.userId;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
-    });
+      
+      // Get usage counts for plan limits
+      const savedWineCount = await storage.getSavedWineCount(userId);
+      const uploadedWineCount = await storage.getUploadedWineCount(userId);
+      
+      res.json({
+        ...user,
+        usage: {
+          savedWines: savedWineCount,
+          uploadedWines: uploadedWineCount,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
   });
 
   // Meal pairing analysis endpoint (Premium feature)

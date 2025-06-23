@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
 import { useState } from "react";
 
 export default function Header() {
@@ -18,13 +19,7 @@ export default function Header() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleLogin = () => {
-    window.location.href = "/api/login";
-  };
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
-  };
 
   const getInitials = (firstName?: string, lastName?: string) => {
     const first = firstName?.charAt(0) || '';
@@ -113,19 +108,21 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {!isAuthenticated ? (
               <div className="flex items-center space-x-3">
-                <Button 
-                  variant="ghost" 
-                  onClick={handleLogin}
-                  className="text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors font-medium"
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  onClick={handleLogin}
-                  className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-                >
-                  Get Started
-                </Button>
+                <SignInButton mode="modal">
+                  <Button 
+                    variant="ghost" 
+                    className="text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors font-medium"
+                  >
+                    Sign In
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button 
+                    className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                  >
+                    Get Started
+                  </Button>
+                </SignUpButton>
               </div>
             ) : (
               /* User Menu */
