@@ -124,6 +124,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Wine menu analysis
+  app.post("/api/analyze-wine-menu", upload.single('image'), isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Check if user is premium for this feature
+      if (user.subscriptionPlan !== 'premium') {
+        return res.status(403).json({ 
+          message: "Premium feature required",
+          upgrade: true 
+        });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "Menu image is required" });
+      }
+
+      const { question } = req.body;
+      if (!question || typeof question !== 'string' || !question.trim()) {
+        return res.status(400).json({ message: "Question about the menu is required" });
+      }
+
+      const base64Image = req.file.buffer.toString('base64');
+      const analysis = await analyzeWineMenu(base64Image, question.trim());
+      
+      res.json({ analysis });
+    } catch (error) {
+      console.error("Wine menu analysis error:", error);
+      res.status(500).json({ message: "Analysis failed" });
+    }
+  });
+
   // Wine recommendations
   app.post("/api/recommendations", isAuthenticated, async (req: any, res) => {
     try {
