@@ -289,7 +289,7 @@ export default function Dashboard() {
             <Card className="bg-cream border border-gray-200">
               <CardContent className="p-8">
                 <Tabs defaultValue="text" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6">
                     <TabsTrigger value="text" className="flex items-center space-x-2">
                       <MessageSquare className="w-4 h-4" />
                       <span>Text Search</span>
@@ -300,11 +300,11 @@ export default function Dashboard() {
                     </TabsTrigger>
                     <TabsTrigger value="photo" className="flex items-center space-x-2">
                       <Camera className="w-4 h-4" />
-                      <span>Meal Photos</span>
+                      <span>Meal Pairing</span>
                     </TabsTrigger>
                     <TabsTrigger value="menu" className="flex items-center space-x-2">
                       <FileText className="w-4 h-4" />
-                      <span>Wine Menu</span>
+                      <span>Wine Menu Help</span>
                     </TabsTrigger>
                   </TabsList>
 
@@ -447,12 +447,12 @@ export default function Dashboard() {
                           {isAnalyzingMenu ? (
                             <>
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Analyzing Menu...
+                              Analysing Menu...
                             </>
                           ) : (
                             <>
                               <Sparkles className="w-4 h-4 mr-2" />
-                              Analyze Menu
+                              Analyse Menu
                             </>
                           )}
                         </Button>
@@ -467,7 +467,7 @@ export default function Dashboard() {
                             </span>
                           </div>
                           <p className="text-sm text-amber-700 mt-1">
-                            Upgrade to Premium to analyze wine menus and get expert recommendations.
+                            Upgrade to Premium to analyse wine menus and get expert recommendations.
                           </p>
                           <Button
                             size="sm"
