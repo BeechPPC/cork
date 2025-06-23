@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Upload as UploadIcon, Loader2, Camera, CheckCircle, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { Upload as UploadIcon, Loader2, Camera, CheckCircle, AlertCircle, Edit3, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -34,6 +38,8 @@ export default function Upload() {
   const { toast } = useToast();
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedWine, setEditedWine] = useState<AnalysisResult | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -70,6 +76,7 @@ export default function Upload() {
     },
     onSuccess: (data) => {
       setAnalysisResult(data);
+      setEditedWine(data);
       toast({
         title: "Analysis Complete!",
         description: "Your wine has been analyzed successfully.",
@@ -110,6 +117,49 @@ export default function Upload() {
 
   const handleNewAnalysis = () => {
     setAnalysisResult(null);
+    setEditedWine(null);
+    setIsEditing(false);
+  };
+
+  const handleEditToggle = () => {
+    setIsEditing(!isEditing);
+    if (!isEditing && analysisResult) {
+      setEditedWine({ ...analysisResult });
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    if (!editedWine) return;
+
+    try {
+      const response = await apiRequest("PUT", `/api/uploads/${editedWine.id}`, editedWine);
+      const updatedWine = await response.json();
+      
+      setAnalysisResult(updatedWine);
+      setEditedWine(updatedWine);
+      setIsEditing(false);
+      
+      toast({
+        title: "Changes Saved",
+        description: "Wine details have been updated successfully.",
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Failed to save changes. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleInputChange = (field: keyof AnalysisResult, value: string) => {
+    if (!editedWine) return;
+    setEditedWine({
+      ...editedWine,
+      [field]: value
+    });
   };
 
   if (isLoading) {
@@ -223,86 +273,304 @@ export default function Upload() {
               <CardContent className="p-8">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-poppins font-bold text-slate">Analysis Results</h3>
-                  <div className="flex items-center space-x-2 text-green-600">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">Analysis Complete</span>
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 text-green-600">
+                      <CheckCircle className="w-5 h-5" />
+                      <span className="text-sm font-medium">Analysis Complete</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleEditToggle}
+                      className="border-grape text-grape hover:bg-grape hover:text-white"
+                    >
+                      <Edit3 className="w-4 h-4 mr-2" />
+                      {isEditing ? 'Cancel Edit' : 'Edit Details'}
+                    </Button>
                   </div>
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <img 
-                      src={analysisResult.originalImageUrl} 
-                      alt="User uploaded wine bottle" 
-                      className="w-full h-64 object-cover rounded-xl" 
-                    />
-                  </div>
-                  
-                  <div>
-                    <div className="mb-4">
-                      <Badge variant="secondary" className="text-wine bg-red-50 mb-2">
-                        {analysisResult.wineType}
-                      </Badge>
-                      <h4 className="text-lg font-poppins font-semibold text-slate mt-2 mb-1">
-                        {analysisResult.wineName || "Wine Analysis Complete"}
-                      </h4>
-                      <p className="text-sm text-gray-600">{analysisResult.region}</p>
-                      {analysisResult.vintage && (
-                        <p className="text-sm text-gray-600">Vintage: {analysisResult.vintage}</p>
-                      )}
+                {!isEditing ? (
+                  /* Display Mode */
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                      <img 
+                        src={analysisResult.originalImageUrl} 
+                        alt="User uploaded wine bottle" 
+                        className="w-full h-64 object-cover rounded-xl" 
+                      />
                     </div>
-
-                    <div className="space-y-4">
-                      {analysisResult.optimalDrinkingStart && analysisResult.optimalDrinkingEnd && (
-                        <div className="p-4 bg-green-50 rounded-lg">
-                          <h5 className="font-semibold text-green-800 mb-1">Optimal Drinking Window</h5>
-                          <p className="text-sm text-green-700">
-                            {analysisResult.optimalDrinkingStart} - {analysisResult.optimalDrinkingEnd}
-                          </p>
-                          {analysisResult.peakYearsStart && analysisResult.peakYearsEnd && (
-                            <p className="text-xs text-green-600 mt-1">
-                              Peak years: {analysisResult.peakYearsStart}-{analysisResult.peakYearsEnd}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      {analysisResult.analysis && (
-                        <div className="p-4 bg-blue-50 rounded-lg">
-                          <h5 className="font-semibold text-blue-800 mb-1">AI Analysis</h5>
-                          <p className="text-sm text-blue-700">{analysisResult.analysis}</p>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between text-sm">
-                        {analysisResult.estimatedValue && (
-                          <span className="font-medium text-slate">
-                            Estimated Value: {analysisResult.estimatedValue}
-                          </span>
-                        )}
-                        {analysisResult.abv && (
-                          <span className="text-gray-600">{analysisResult.abv}</span>
+                    
+                    <div>
+                      <div className="mb-4">
+                        <Badge variant="secondary" className="text-wine bg-red-50 mb-2">
+                          {analysisResult.wineType}
+                        </Badge>
+                        <h4 className="text-lg font-poppins font-semibold text-slate mt-2 mb-1">
+                          {analysisResult.wineName || "Wine Analysis Complete"}
+                        </h4>
+                        <p className="text-sm text-gray-600">{analysisResult.region}</p>
+                        {analysisResult.vintage && (
+                          <p className="text-sm text-gray-600">Vintage: {analysisResult.vintage}</p>
                         )}
                       </div>
-                    </div>
 
-                    <div className="mt-6 flex gap-3">
-                      <Button 
-                        onClick={handleNewAnalysis}
-                        className="flex-1 bg-grape text-white hover:bg-purple-800"
-                      >
-                        Analyse Another Wine
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        className="border-grape text-grape hover:bg-grape hover:text-white"
-                        onClick={() => window.location.href = '/cellar'}
-                      >
-                        View Cellar
-                      </Button>
+                      <div className="space-y-4">
+                        {analysisResult.optimalDrinkingStart && analysisResult.optimalDrinkingEnd && (
+                          <div className="p-4 bg-green-50 rounded-lg">
+                            <h5 className="font-semibold text-green-800 mb-1">Optimal Drinking Window</h5>
+                            <p className="text-sm text-green-700">
+                              {analysisResult.optimalDrinkingStart} - {analysisResult.optimalDrinkingEnd}
+                            </p>
+                            {analysisResult.peakYearsStart && analysisResult.peakYearsEnd && (
+                              <p className="text-xs text-green-600 mt-1">
+                                Peak years: {analysisResult.peakYearsStart}-{analysisResult.peakYearsEnd}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {analysisResult.analysis && (
+                          <div className="p-4 bg-blue-50 rounded-lg">
+                            <h5 className="font-semibold text-blue-800 mb-1">AI Analysis</h5>
+                            <p className="text-sm text-blue-700">{analysisResult.analysis}</p>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between text-sm">
+                          {analysisResult.estimatedValue && (
+                            <span className="font-medium text-slate">
+                              Estimated Value: {analysisResult.estimatedValue}
+                            </span>
+                          )}
+                          {analysisResult.abv && (
+                            <span className="text-gray-600">{analysisResult.abv}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex gap-3">
+                        <Button 
+                          onClick={handleNewAnalysis}
+                          className="flex-1 bg-grape text-white hover:bg-purple-800"
+                        >
+                          Analyse Another Wine
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          className="border-grape text-grape hover:bg-grape hover:text-white"
+                          onClick={() => window.location.href = '/cellar'}
+                        >
+                          View Cellar
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  /* Edit Mode */
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                      <img 
+                        src={analysisResult.originalImageUrl} 
+                        alt="User uploaded wine bottle" 
+                        className="w-full h-64 object-cover rounded-xl" 
+                      />
+                      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <p className="text-sm text-blue-800 font-medium">
+                          Editing Wine Details
+                        </p>
+                        <p className="text-xs text-blue-600 mt-1">
+                          Correct any details that weren't recognized properly by the AI analysis.
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Basic Information */}
+                      <div className="space-y-3">
+                        <div>
+                          <Label htmlFor="wineName" className="text-sm font-medium text-slate">
+                            Wine Name *
+                          </Label>
+                          <Input
+                            id="wineName"
+                            value={editedWine?.wineName || ''}
+                            onChange={(e) => handleInputChange('wineName', e.target.value)}
+                            placeholder="Enter wine name"
+                            className="mt-1"
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="wineType" className="text-sm font-medium text-slate">
+                              Wine Type *
+                            </Label>
+                            <Input
+                              id="wineType"
+                              value={editedWine?.wineType || ''}
+                              onChange={(e) => handleInputChange('wineType', e.target.value)}
+                              placeholder="Red, White, Sparkling..."
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="vintage" className="text-sm font-medium text-slate">
+                              Vintage
+                            </Label>
+                            <Input
+                              id="vintage"
+                              value={editedWine?.vintage || ''}
+                              onChange={(e) => handleInputChange('vintage', e.target.value)}
+                              placeholder="2018"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="region" className="text-sm font-medium text-slate">
+                            Region *
+                          </Label>
+                          <Input
+                            id="region"
+                            value={editedWine?.region || ''}
+                            onChange={(e) => handleInputChange('region', e.target.value)}
+                            placeholder="Barossa Valley, Hunter Valley..."
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Drinking Windows */}
+                      <div className="space-y-3">
+                        <h5 className="font-medium text-slate">Drinking Windows</h5>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="optimalStart" className="text-sm font-medium text-slate">
+                              Optimal Start
+                            </Label>
+                            <Input
+                              id="optimalStart"
+                              value={editedWine?.optimalDrinkingStart || ''}
+                              onChange={(e) => handleInputChange('optimalDrinkingStart', e.target.value)}
+                              placeholder="2024"
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="optimalEnd" className="text-sm font-medium text-slate">
+                              Optimal End
+                            </Label>
+                            <Input
+                              id="optimalEnd"
+                              value={editedWine?.optimalDrinkingEnd || ''}
+                              onChange={(e) => handleInputChange('optimalDrinkingEnd', e.target.value)}
+                              placeholder="2030"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="peakStart" className="text-sm font-medium text-slate">
+                              Peak Start
+                            </Label>
+                            <Input
+                              id="peakStart"
+                              value={editedWine?.peakYearsStart || ''}
+                              onChange={(e) => handleInputChange('peakYearsStart', e.target.value)}
+                              placeholder="2026"
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="peakEnd" className="text-sm font-medium text-slate">
+                              Peak End
+                            </Label>
+                            <Input
+                              id="peakEnd"
+                              value={editedWine?.peakYearsEnd || ''}
+                              onChange={(e) => handleInputChange('peakYearsEnd', e.target.value)}
+                              placeholder="2028"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      {/* Additional Details */}
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <Label htmlFor="abv" className="text-sm font-medium text-slate">
+                              ABV
+                            </Label>
+                            <Input
+                              id="abv"
+                              value={editedWine?.abv || ''}
+                              onChange={(e) => handleInputChange('abv', e.target.value)}
+                              placeholder="14.5%"
+                              className="mt-1"
+                            />
+                          </div>
+                          
+                          <div>
+                            <Label htmlFor="estimatedValue" className="text-sm font-medium text-slate">
+                              Estimated Value
+                            </Label>
+                            <Input
+                              id="estimatedValue"
+                              value={editedWine?.estimatedValue || ''}
+                              onChange={(e) => handleInputChange('estimatedValue', e.target.value)}
+                              placeholder="$45-65 AUD"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="analysis" className="text-sm font-medium text-slate">
+                            Analysis & Tasting Notes
+                          </Label>
+                          <Textarea
+                            id="analysis"
+                            value={editedWine?.analysis || ''}
+                            onChange={(e) => handleInputChange('analysis', e.target.value)}
+                            placeholder="Describe the wine's characteristics, tasting notes, and aging potential..."
+                            className="mt-1 min-h-[100px]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-3 pt-4">
+                        <Button 
+                          onClick={handleSaveChanges}
+                          className="flex-1 bg-grape text-white hover:bg-purple-800"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={handleEditToggle}
+                          className="border-gray-300 hover:bg-gray-50"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

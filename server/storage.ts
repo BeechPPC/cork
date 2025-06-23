@@ -43,6 +43,7 @@ export interface IStorage {
   getUploadedWines(userId: string): Promise<UploadedWine[]>;
   getUploadedWineCount(userId: string): Promise<number>;
   saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine>;
+  updateUploadedWine(userId: string, wineId: number, updates: Partial<UploadedWine>): Promise<UploadedWine>;
   
   // Recommendation history operations
   saveRecommendationHistory(history: InsertRecommendationHistory): Promise<RecommendationHistory>;
