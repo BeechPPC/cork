@@ -149,6 +149,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 22, 2025: Added camera functionality to upload area for mobile users with automatic device and camera capability detection, rear camera preference, and seamless integration with existing upload workflow
 - June 22, 2025: Implemented manual text fields on upload page allowing users to edit wine details when image recognition fails, including comprehensive form with all wine attributes, real-time editing, and backend API endpoints for updating wine data
 - June 22, 2025: Added wine menu analysis feature to dashboard allowing premium users to upload wine menu photos and ask specific questions, integrated with OpenAI GPT-4 Vision for intelligent menu analysis and sommelier recommendations
+- June 23, 2025: Replaced Replit Auth with Clerk authentication system for better Vercel deployment compatibility, added Clerk React components, backend middleware, and webhook handlers for user synchronization
 
 ## User Preferences
 
