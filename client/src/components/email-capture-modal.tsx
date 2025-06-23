@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Mail, CheckCircle } from "lucide-react";
@@ -70,6 +70,11 @@ export default function EmailCaptureModal({ open, onOpenChange }: EmailCaptureMo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-white border-2 border-grape/20">
+        <DialogTitle className="sr-only">Email Signup</DialogTitle>
+        <DialogDescription className="sr-only">
+          Sign up to be notified when cork launches with our AI wine sommelier.
+        </DialogDescription>
+        
         <div className="absolute right-4 top-4">
           <Button
             variant="ghost"
