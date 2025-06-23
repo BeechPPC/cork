@@ -90,6 +90,42 @@ export interface MealPairingAnalysis {
   recommendations: PairingRecommendation[];
 }
 
+export async function analyzeWineMenu(base64Image: string, question: string): Promise<string> {
+  const prompt = `You are an expert sommelier analyzing a wine menu photo. The user has uploaded a wine menu and asked: "${question}"
+
+Please analyze the wine menu in the image and provide a detailed, helpful response to their question. Focus on:
+- Identifying specific wines from the menu that match their request
+- Explaining why these wines are good choices
+- Including price information if visible
+- Providing professional sommelier advice
+- Considering food pairing principles if relevant
+
+Be conversational and helpful, as if you're a knowledgeable sommelier assisting a customer in person.`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:image/jpeg;base64,${base64Image}`,
+              detail: "high"
+            }
+          }
+        ]
+      }
+    ],
+    max_tokens: 1000,
+    temperature: 0.7,
+  });
+
+  return response.choices[0]?.message?.content || "Unable to analyze the wine menu. Please try again with a clearer image.";
+}
+
 export async function analyseMealPairing(base64Image: string, analysisType: 'meal' | 'menu'): Promise<MealPairingAnalysis> {
   // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
   const isMenuAnalysis = analysisType === 'menu';

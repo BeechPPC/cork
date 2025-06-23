@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Wine, Sparkles, Camera, MessageSquare, Mic } from "lucide-react";
+import { Loader2, Wine, Sparkles, Camera, MessageSquare, Mic, Upload, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -38,6 +40,10 @@ export default function Dashboard() {
   const [recommendations, setRecommendations] = useState<WineRecommendation[]>([]);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [menuImage, setMenuImage] = useState<File | null>(null);
+  const [menuQuestion, setMenuQuestion] = useState("");
+  const [menuAnalysisResult, setMenuAnalysisResult] = useState("");
+  const [isAnalyzingMenu, setIsAnalyzingMenu] = useState(false);
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading } = useAuth();
 
@@ -166,6 +172,94 @@ export default function Dashboard() {
     saveWineMutation.mutate(wine);
   };
 
+  const handleMenuUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file",
+          description: "Please upload an image file (JPG, PNG, or WebP).",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please upload an image smaller than 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setMenuImage(file);
+      setMenuAnalysisResult("");
+    }
+  };
+
+  const handleMenuAnalysis = async () => {
+    if (!menuImage || !menuQuestion.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please upload a menu image and enter your question.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (user?.subscriptionPlan !== 'premium') {
+      toast({
+        title: "Premium Feature Required",
+        description: "Upgrade to Premium to analyze wine menus",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnalyzingMenu(true);
+    setMenuAnalysisResult("");
+
+    try {
+      const formData = new FormData();
+      formData.append('image', menuImage);
+      formData.append('question', menuQuestion);
+
+      const response = await fetch('/api/analyze-wine-menu', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Analysis failed');
+      }
+
+      const result = await response.json();
+      setMenuAnalysisResult(result.analysis);
+      
+      toast({
+        title: "Analysis complete!",
+        description: "Your wine menu analysis is ready",
+      });
+    } catch (error) {
+      console.error('Menu analysis failed:', error);
+      toast({
+        title: "Analysis failed",
+        description: "Please try again with a clearer image.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzingMenu(false);
+    }
+  };
+
+  const removeMenuImage = () => {
+    setMenuImage(null);
+    setMenuAnalysisResult("");
+    setMenuQuestion("");
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream">
@@ -207,6 +301,10 @@ export default function Dashboard() {
                     <TabsTrigger value="photo" className="flex items-center space-x-2">
                       <Camera className="w-4 h-4" />
                       <span>Meal Photos</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="menu" className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4" />
+                      <span>Wine Menu</span>
                     </TabsTrigger>
                   </TabsList>
 
@@ -268,6 +366,128 @@ export default function Dashboard() {
                       isPremium={user?.subscriptionPlan === 'premium'}
                       onUpgrade={() => window.location.href = '/pricing'}
                     />
+                  </TabsContent>
+
+                  <TabsContent value="menu" className="space-y-6">
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="block text-sm font-medium text-slate mb-3">
+                          Upload Wine Menu Photo
+                        </Label>
+                        
+                        {!menuImage ? (
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-grape transition-colors">
+                            <input
+                              type="file"
+                              id="menu-upload"
+                              accept="image/*"
+                              onChange={handleMenuUpload}
+                              className="hidden"
+                            />
+                            <label
+                              htmlFor="menu-upload"
+                              className="cursor-pointer flex flex-col items-center"
+                            >
+                              <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                              <span className="text-sm font-medium text-gray-700">
+                                Click to upload wine menu
+                              </span>
+                              <span className="text-xs text-gray-500 mt-1">
+                                JPG, PNG or WebP up to 10MB
+                              </span>
+                            </label>
+                          </div>
+                        ) : (
+                          <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <FileText className="w-5 h-5 text-grape" />
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {menuImage.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {(menuImage.size / 1024 / 1024).toFixed(2)} MB
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={removeMenuImage}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label htmlFor="menu-question" className="block text-sm font-medium text-slate mb-3">
+                          Ask a Question About the Menu
+                        </Label>
+                        <Textarea
+                          id="menu-question"
+                          value={menuQuestion}
+                          onChange={(e) => setMenuQuestion(e.target.value)}
+                          placeholder="What wine on this menu would pair well with steak?"
+                          className="w-full resize-none focus:ring-grape focus:border-grape"
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={handleMenuAnalysis}
+                          disabled={!menuImage || !menuQuestion.trim() || isAnalyzingMenu}
+                          className="bg-grape hover:bg-purple-700 text-white px-6 py-2"
+                        >
+                          {isAnalyzingMenu ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Analyzing Menu...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="w-4 h-4 mr-2" />
+                              Analyze Menu
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      {user?.subscriptionPlan !== 'premium' && (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            <Sparkles className="w-5 h-5 text-amber-600" />
+                            <span className="text-sm font-medium text-amber-800">
+                              Premium Feature
+                            </span>
+                          </div>
+                          <p className="text-sm text-amber-700 mt-1">
+                            Upgrade to Premium to analyze wine menus and get expert recommendations.
+                          </p>
+                          <Button
+                            size="sm"
+                            className="mt-2 bg-amber-600 hover:bg-amber-700 text-white"
+                            onClick={() => window.location.href = '/pricing'}
+                          >
+                            Upgrade Now
+                          </Button>
+                        </div>
+                      )}
+
+                      {menuAnalysisResult && (
+                        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <h4 className="font-medium text-blue-900 mb-2">Wine Menu Analysis</h4>
+                          <p className="text-sm text-blue-800 whitespace-pre-wrap">
+                            {menuAnalysisResult}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </TabsContent>
                 </Tabs>
               </CardContent>

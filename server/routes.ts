@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries } from "./openai";
+import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
 import { sendEmailSignupConfirmation } from "./emailService";
 import Stripe from "stripe";
