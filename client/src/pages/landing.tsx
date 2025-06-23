@@ -269,7 +269,7 @@ export default function Landing() {
                 <li><Link href="/help-centre"><span className="hover:text-white transition-colors cursor-pointer">Help Centre</span></Link></li>
                 <li><Link href="/contact"><span className="hover:text-white transition-colors cursor-pointer">Contact Us</span></Link></li>
                 <li><Link href="/wine-education"><span className="hover:text-white transition-colors cursor-pointer">Wine Education</span></Link></li>
-                <li><Link href="/referral-program"><span className="hover:text-white transition-colors cursor-pointer">Referral Program</span></Link></li>
+                <li><Link href="/referral-program"><span className="hover:text-white transition-colors cursor-pointer">Referral Program(Coming Soon)</span></Link></li>
               </ul>
             </div>
 
