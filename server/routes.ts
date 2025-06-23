@@ -261,6 +261,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update uploaded wine details
+  app.put("/api/uploads/:wineId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const wineId = parseInt(req.params.wineId);
+      
+      if (isNaN(wineId)) {
+        return res.status(400).json({ message: "Invalid wine ID" });
+      }
+
+      // Validate the updates - only allow certain fields to be updated
+      const allowedFields = [
+        'wineName', 'wineType', 'region', 'vintage', 'optimalDrinkingStart', 
+        'optimalDrinkingEnd', 'peakYearsStart', 'peakYearsEnd', 'analysis', 
+        'estimatedValue', 'abv'
+      ];
+      
+      const updates: any = {};
+      for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+          updates[field] = req.body[field];
+        }
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: "No valid fields to update" });
+      }
+
+      const updatedWine = await storage.updateUploadedWine(userId, wineId, updates);
+      res.json(updatedWine);
+    } catch (error) {
+      console.error("Error updating wine:", error);
+      res.status(500).json({ message: "Failed to update wine details" });
+    }
+  });
+
   // Subscription management endpoint
   app.post('/api/create-checkout-session', isAuthenticated, async (req: any, res) => {
     try {

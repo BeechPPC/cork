@@ -195,6 +195,15 @@ export class DatabaseStorage implements IStorage {
     return uploadedWine;
   }
 
+  async updateUploadedWine(userId: string, wineId: number, updates: Partial<UploadedWine>): Promise<UploadedWine> {
+    const [updatedWine] = await db
+      .update(uploadedWines)
+      .set(updates)
+      .where(eq(uploadedWines.id, wineId))
+      .returning();
+    return updatedWine;
+  }
+
   // Recommendation history operations
   async saveRecommendationHistory(history: InsertRecommendationHistory): Promise<RecommendationHistory> {
     const [savedHistory] = await db
