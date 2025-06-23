@@ -1,4 +1,4 @@
-import { clerkMiddleware, getAuth } from '@clerk/backend'
+import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
 import type { Express, RequestHandler } from "express";
 
 // Check if Clerk is configured
@@ -10,10 +10,7 @@ if (!isClerkConfigured) {
 }
 
 export function setupClerkAuth(app: Express) {
-  if (isClerkConfigured) {
-    // Apply Clerk middleware to all routes
-    app.use(clerkMiddleware());
-  }
+  // Clerk setup is handled per-route basis with ClerkExpressRequireAuth
 }
 
 export const requireAuth: RequestHandler = (req, res, next) => {
@@ -21,16 +18,16 @@ export const requireAuth: RequestHandler = (req, res, next) => {
     return res.status(503).json({ message: "Authentication not configured" });
   }
 
-  const auth = getAuth(req);
-  const { userId } = auth;
-  
-  if (!userId) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  
-  // Add userId to request for easy access
-  req.userId = userId;
-  next();
+  // Use Clerk's Express middleware
+  ClerkExpressRequireAuth()(req, res, (err) => {
+    if (err) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
+    // Add userId to request for easy access
+    req.userId = req.auth?.userId;
+    next();
+  });
 };
 
 // Extend Express Request interface
@@ -38,6 +35,9 @@ declare global {
   namespace Express {
     interface Request {
       userId?: string;
+      auth?: {
+        userId?: string;
+      };
     }
   }
 }

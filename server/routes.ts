@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupClerkAuth, requireAuth } from "./clerkAuth";
 import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
 import { sendEmailSignupConfirmation } from "./emailService";
@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Meal pairing analysis endpoint (Premium feature)
   app.post("/api/analyze-meal-pairing", upload.single("image"), requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -125,9 +125,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wine menu analysis
-  app.post("/api/analyze-wine-menu", upload.single('image'), isAuthenticated, async (req: any, res) => {
+  app.post("/api/analyze-wine-menu", upload.single('image'), requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -162,14 +162,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wine recommendations
-  app.post("/api/recommendations", isAuthenticated, async (req: any, res) => {
+  app.post("/api/recommendations", requireAuth, async (req: any, res) => {
     try {
       const { query } = req.body;
       if (!query || typeof query !== 'string') {
         return res.status(400).json({ message: "Query is required" });
       }
 
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const recommendations = await getWineRecommendations(query);
 
       // Save to history
@@ -187,9 +187,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save wine to cellar
-  app.post("/api/cellar/save", isAuthenticated, async (req: any, res) => {
+  app.post("/api/cellar/save", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -217,9 +217,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get saved wines
-  app.get("/api/cellar", isAuthenticated, async (req: any, res) => {
+  app.get("/api/cellar", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const savedWines = await storage.getSavedWines(userId);
       res.json(savedWines);
     } catch (error) {
@@ -229,9 +229,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Remove wine from cellar
-  app.delete("/api/cellar/:wineId", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/cellar/:wineId", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const wineId = parseInt(req.params.wineId);
       await storage.removeSavedWine(userId, wineId);
       res.json({ success: true });
@@ -242,9 +242,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wine upload and analysis
-  app.post("/api/upload/analyze", isAuthenticated, upload.single('wine_image'), async (req: any, res) => {
+  app.post("/api/upload/analyze", requireAuth, upload.single('wine_image'), async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -287,9 +287,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get uploaded wines
-  app.get("/api/uploads", isAuthenticated, async (req: any, res) => {
+  app.get("/api/uploads", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const uploadedWines = await storage.getUploadedWines(userId);
       res.json(uploadedWines);
     } catch (error) {
@@ -299,9 +299,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update uploaded wine details
-  app.put("/api/uploads/:wineId", isAuthenticated, async (req: any, res) => {
+  app.put("/api/uploads/:wineId", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const wineId = parseInt(req.params.wineId);
       
       if (isNaN(wineId)) {
@@ -335,9 +335,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Subscription management endpoint
-  app.post('/api/create-checkout-session', isAuthenticated, async (req: any, res) => {
+  app.post('/api/create-checkout-session', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -446,7 +446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get billing information for subscription management
   app.get("/api/billing-info", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -525,7 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Update billing address
   app.post("/api/update-billing-address", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -557,7 +557,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create customer portal session for payment method management
   app.post("/api/create-portal-session", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -581,7 +581,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Pause subscription
   app.post("/api/pause-subscription", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -614,7 +614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Resume subscription
   app.post("/api/resume-subscription", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -645,7 +645,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Change subscription plan (monthly/yearly)
   app.post("/api/change-plan", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -698,7 +698,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Cancel subscription with retention offer
   app.post("/api/cancel-subscription", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -746,7 +746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Reactivate canceled subscription
   app.post("/api/reactivate-subscription", async (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.requireAuth()) {
       return res.sendStatus(401);
     }
 
@@ -840,9 +840,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update subscription status after successful payment
-  app.post('/api/update-subscription-status', isAuthenticated, async (req: any, res) => {
+  app.post('/api/update-subscription-status', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const { status } = req.body;
       
       if (status === 'premium') {
@@ -858,9 +858,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile setup endpoint
-  app.post('/api/profile/setup', isAuthenticated, async (req: any, res) => {
+  app.post('/api/profile/setup', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body;
       
       // Validate age (must be 18+)
@@ -897,9 +897,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Downgrade to free plan endpoint
-  app.post('/api/downgrade-to-free', isAuthenticated, async (req: any, res) => {
+  app.post('/api/downgrade-to-free', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -932,9 +932,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Test endpoint to reset subscription for testing
-  app.post('/api/reset-subscription-test', isAuthenticated, async (req: any, res) => {
+  app.post('/api/reset-subscription-test', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.userId;
       
       // Reset user subscription status for testing
       await storage.updateUserSubscriptionPlan(userId, 'free');
