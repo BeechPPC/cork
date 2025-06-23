@@ -44,67 +44,89 @@ export default function Header() {
           </div>
           
           {/* Desktop Navigation */}
-          {isAuthenticated && (
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/dashboard">
-                <Button 
-                  variant="ghost" 
-                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/dashboard') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-                >
-                  Recommendations
-                </Button>
-              </Link>
-              <Link href="/cellar">
-                <Button 
-                  variant="ghost" 
-                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/cellar') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-                >
-                  My Cellar
-                </Button>
-              </Link>
-              <Link href="/upload">
-                <Button 
-                  variant="ghost" 
-                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/upload') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-                >
-                  Upload Wine
-                </Button>
-              </Link>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+          <div className="hidden md:flex items-center space-x-8">
+            <Link href="/wine-education">
+              <Button 
+                variant="ghost" 
+                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/wine-education') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+              >
+                Wine Education
+              </Button>
+            </Link>
+            <Link href="/pricing">
+              <Button 
+                variant="ghost" 
+                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/pricing') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+              >
+                Pricing
+              </Button>
+            </Link>
+            <Link href="/contact">
+              <Button 
+                variant="ghost" 
+                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/contact') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+              >
+                Contact
+              </Button>
+            </Link>
+            <Link href="/help-centre">
+              <Button 
+                variant="ghost" 
+                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/help-centre') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+              >
+                Help
+              </Button>
+            </Link>
+            
+            {/* Authenticated user navigation */}
+            {isAuthenticated && (
+              <>
+                <Link href="/dashboard">
                   <Button 
                     variant="ghost" 
-                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${(isActive('/winery-explorer') || isActive('/wine-education')) ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/dashboard') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
                   >
-                    Wine Resources
-                    <ChevronDown className="ml-1 h-4 w-4" />
+                    Recommendations
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700" align="center">
-                  <DropdownMenuItem asChild>
-                    <Link href="/wine-education" className="flex items-center">
-                      <BookOpen className="mr-2 h-4 w-4" />
-                      <span>Wine Education</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/winery-explorer" className="flex items-center">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      <span>Winery Explorer</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Link href="/pricing">
-                <Button 
-                  variant="ghost" 
-                  className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/pricing') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-                >
-                  Pricing
-                </Button>
-              </Link>
-            </div>
-          )}
+                </Link>
+                <Link href="/cellar">
+                  <Button 
+                    variant="ghost" 
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/cellar') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                  >
+                    My Cellar
+                  </Button>
+                </Link>
+                <Link href="/upload">
+                  <Button 
+                    variant="ghost" 
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/upload') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                  >
+                    Upload Wine
+                  </Button>
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/winery-explorer') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                    >
+                      Winery Explorer
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700" align="center">
+                    <DropdownMenuItem asChild>
+                      <Link href="/winery-explorer" className="flex items-center">
+                        <MapPin className="mr-2 h-4 w-4" />
+                        <span>Winery Explorer</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+          </div>
 
           <div className="flex items-center space-x-4">
             {!isAuthenticated ? (

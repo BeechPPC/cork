@@ -265,20 +265,20 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4 text-white">Support</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><a href="/help-centre" className="hover:text-white transition-colors">Help Centre</a></li>
-                <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="/wine-education" className="hover:text-white transition-colors">Wine Education</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Referral Program (Coming Soon)</a></li>
+                <li><Link href="/help-centre" className="hover:text-white transition-colors">Help Centre</Link></li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+                <li><Link href="/wine-education" className="hover:text-white transition-colors">Wine Education</Link></li>
+                <li><Link href="/referral-program" className="hover:text-white transition-colors">Referral Program</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4 text-white">Legal</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="/age-verification" className="hover:text-white transition-colors">Age Verification</a></li>
-                <li><a href="/responsible-drinking" className="hover:text-white transition-colors">Responsible Drinking</a></li>
+                <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/age-verification" className="hover:text-white transition-colors">Age Verification</Link></li>
+                <li><Link href="/responsible-drinking" className="hover:text-white transition-colors">Responsible Drinking</Link></li>
               </ul>
             </div>
           </div>
