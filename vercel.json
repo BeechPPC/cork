@@ -1,14 +1,19 @@
 {
   "version": 2,
-  "framework": "vite",
-  "buildCommand": "vite build",
-  "outputDirectory": "dist/public",
-  "installCommand": "npm install",
-  "functions": {
-    "server/index.ts": {
-      "runtime": "nodejs18.x"
+  "builds": [
+    {
+      "src": "server/index.ts",
+      "use": "@vercel/node@3.0.0"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build@2.0.0",
+      "config": {
+        "buildCommand": "vite build",
+        "outputDirectory": "dist/public"
+      }
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
