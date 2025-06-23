@@ -819,7 +819,7 @@ export default function WineEducation() {
                                     className={`cursor-pointer transition-all hover:shadow-md ${
                                       selectedRegion === region.id ? "ring-2 ring-grape" : ""
                                     }`}
-                                    onClick={() => setSelectedRegion(region.id)}
+                                    onClick={() => setSelectedRegion(selectedRegion === region.id ? null : region.id)}
                                   >
                                     <CardContent className="p-3">
                                       <div className="flex items-center justify-between">
@@ -1111,7 +1111,7 @@ export default function WineEducation() {
                           className={`cursor-pointer transition-all hover:shadow-md ${
                             selectedVariety === variety.id ? "ring-2 ring-grape" : ""
                           }`}
-                          onClick={() => setSelectedVariety(variety.id)}
+                          onClick={() => setSelectedVariety(selectedVariety === variety.id ? null : variety.id)}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
