@@ -266,20 +266,20 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold mb-4 text-white">Support</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><Link href="/help-centre" className="hover:text-white transition-colors">Help Centre</Link></li>
-                <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
-                <li><Link href="/wine-education" className="hover:text-white transition-colors">Wine Education</Link></li>
-                <li><Link href="/referral-program" className="hover:text-white transition-colors">Referral Program</Link></li>
+                <li><Link href="/help-centre"><span className="hover:text-white transition-colors cursor-pointer">Help Centre</span></Link></li>
+                <li><Link href="/contact"><span className="hover:text-white transition-colors cursor-pointer">Contact Us</span></Link></li>
+                <li><Link href="/wine-education"><span className="hover:text-white transition-colors cursor-pointer">Wine Education</span></Link></li>
+                <li><Link href="/referral-program"><span className="hover:text-white transition-colors cursor-pointer">Referral Program</span></Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4 text-white">Legal</h4>
               <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-                <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                <li><Link href="/age-verification" className="hover:text-white transition-colors">Age Verification</Link></li>
-                <li><Link href="/responsible-drinking" className="hover:text-white transition-colors">Responsible Drinking</Link></li>
+                <li><Link href="/privacy-policy"><span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span></Link></li>
+                <li><Link href="/terms-of-service"><span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span></Link></li>
+                <li><Link href="/age-verification"><span className="hover:text-white transition-colors cursor-pointer">Age Verification</span></Link></li>
+                <li><Link href="/responsible-drinking"><span className="hover:text-white transition-colors cursor-pointer">Responsible Drinking</span></Link></li>
               </ul>
             </div>
           </div>
