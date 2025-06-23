@@ -1,32 +1,28 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/backend'
+import { clerkMiddleware, getAuth } from '@clerk/backend'
 import type { Express, RequestHandler } from "express";
 
-if (!process.env.CLERK_SECRET_KEY) {
-  throw new Error("Environment variable CLERK_SECRET_KEY not provided");
+// Check if Clerk is configured
+const isClerkConfigured = process.env.CLERK_SECRET_KEY && 
+  process.env.CLERK_SECRET_KEY !== 'sk_test_placeholder_clerk_secret_key_for_development';
+
+if (!isClerkConfigured) {
+  console.warn('Clerk not configured - authentication will be limited');
 }
 
-// Define which routes require authentication
-const isProtectedRoute = createRouteMatcher([
-  '/api/auth/user',
-  '/api/save-wine',
-  '/api/remove-saved-wine',
-  '/api/upload-wine',
-  '/api/analyze-meal-pairing',
-  '/api/profile/setup',
-  '/api/create-subscription',
-  '/api/get-or-create-subscription',
-  '/api/saved-wines',
-  '/api/uploaded-wines',
-  '/api/wine-menu-analysis'
-]);
-
 export function setupClerkAuth(app: Express) {
-  // Apply Clerk middleware to all routes
-  app.use(clerkMiddleware());
+  if (isClerkConfigured) {
+    // Apply Clerk middleware to all routes
+    app.use(clerkMiddleware());
+  }
 }
 
 export const requireAuth: RequestHandler = (req, res, next) => {
-  const { userId } = req.auth || {};
+  if (!isClerkConfigured) {
+    return res.status(503).json({ message: "Authentication not configured" });
+  }
+
+  const auth = getAuth(req);
+  const { userId } = auth;
   
   if (!userId) {
     return res.status(401).json({ message: "Unauthorized" });

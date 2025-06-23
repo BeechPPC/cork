@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/clerk-react";
+import { isClerkConfigured } from "@/lib/clerk";
 import { useState } from "react";
 
 export default function Header() {
@@ -108,21 +109,41 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {!isAuthenticated ? (
               <div className="flex items-center space-x-3">
-                <SignInButton mode="modal">
-                  <Button 
-                    variant="ghost" 
-                    className="text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors font-medium"
-                  >
-                    Sign In
-                  </Button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <Button 
-                    className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-                  >
-                    Get Started
-                  </Button>
-                </SignUpButton>
+                {isClerkConfigured ? (
+                  <>
+                    <SignInButton mode="modal">
+                      <Button 
+                        variant="ghost" 
+                        className="text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors font-medium"
+                      >
+                        Sign In
+                      </Button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <Button 
+                        className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
+                      >
+                        Get Started
+                      </Button>
+                    </SignUpButton>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      disabled
+                      className="text-slate dark:text-gray-200 opacity-50"
+                    >
+                      Sign In
+                    </Button>
+                    <Button 
+                      disabled
+                      className="bg-grape opacity-50 text-white px-4 py-2 rounded-lg"
+                    >
+                      Get Started
+                    </Button>
+                  </>
+                )}
               </div>
             ) : (
               /* User Menu */
@@ -165,10 +186,9 @@ export default function Header() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
+                    <div className="px-2 py-1">
+                      <UserButton afterSignOutUrl="/" showName={false} />
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

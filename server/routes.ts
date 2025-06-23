@@ -84,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Meal pairing analysis endpoint (Premium feature)
-  app.post("/api/analyze-meal-pairing", upload.single("image"), isAuthenticated, async (req: any, res) => {
+  app.post("/api/analyze-meal-pairing", upload.single("image"), requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
