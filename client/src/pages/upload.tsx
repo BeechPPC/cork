@@ -132,7 +132,22 @@ export default function Upload() {
     if (!editedWine) return;
 
     try {
-      const response = await apiRequest("PUT", `/api/uploads/${editedWine.id}`, editedWine);
+      // Extract only the fields we want to update, excluding large data like originalImageUrl
+      const updateData = {
+        wineName: editedWine.wineName,
+        wineType: editedWine.wineType,
+        region: editedWine.region,
+        vintage: editedWine.vintage,
+        optimalDrinkingStart: editedWine.optimalDrinkingStart,
+        optimalDrinkingEnd: editedWine.optimalDrinkingEnd,
+        peakYearsStart: editedWine.peakYearsStart,
+        peakYearsEnd: editedWine.peakYearsEnd,
+        analysis: editedWine.analysis,
+        estimatedValue: editedWine.estimatedValue,
+        abv: editedWine.abv,
+      };
+
+      const response = await apiRequest("PUT", `/api/uploads/${editedWine.id}`, updateData);
       const updatedWine = await response.json();
       
       setAnalysisResult(updatedWine);
@@ -146,6 +161,7 @@ export default function Upload() {
       
       queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
     } catch (error) {
+      console.error("Save error:", error);
       toast({
         title: "Save Failed",
         description: "Failed to save changes. Please try again.",
