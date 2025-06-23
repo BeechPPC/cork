@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Image, X, FileImage, AlertCircle } from "lucide-react";
+import { Upload, Image, X, FileImage, AlertCircle, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UploadAreaProps {
   onFileUpload: (file: File) => void;
@@ -14,7 +15,24 @@ export default function UploadArea({ onFileUpload, isLoading = false, disabled =
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [hasCamera, setHasCamera] = useState(false);
+
+  // Check if device has camera capabilities
+  useEffect(() => {
+    if (isMobile && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+          const hasVideoInput = devices.some(device => device.kind === 'videoinput');
+          setHasCamera(hasVideoInput);
+        })
+        .catch(() => {
+          setHasCamera(false);
+        });
+    }
+  }, [isMobile]);
 
   const validateFile = (file: File): boolean => {
     // Check file type
@@ -94,6 +112,18 @@ export default function UploadArea({ onFileUpload, isLoading = false, disabled =
       return;
     }
     fileInputRef.current?.click();
+  };
+
+  const handleCameraClick = () => {
+    if (disabled) {
+      toast({
+        title: "Upload Disabled",
+        description: "You've reached your upload limit for this month.",
+        variant: "destructive",
+      });
+      return;
+    }
+    cameraInputRef.current?.click();
   };
 
   const handleAnalyze = () => {
@@ -223,6 +253,17 @@ export default function UploadArea({ onFileUpload, isLoading = false, disabled =
           className="hidden"
           disabled={disabled}
         />
+        
+        {/* Camera input for mobile */}
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileInput}
+          className="hidden"
+          disabled={disabled}
+        />
 
         {disabled ? (
           <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -237,14 +278,33 @@ export default function UploadArea({ onFileUpload, isLoading = false, disabled =
         <p className={`mb-4 ${disabled ? 'text-gray-400' : 'text-gray-600'}`}>
           {disabled 
             ? 'Upgrade to Premium for unlimited uploads' 
-            : 'Drag and drop wine bottle images or click to browse'
+            : isMobile && hasCamera
+              ? 'Drag and drop images, choose files, or take a photo'
+              : 'Drag and drop wine bottle images or click to browse'
           }
         </p>
         
         {!disabled && (
-          <Button className="bg-grape text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-800 transition-colors">
-            Choose Files
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button 
+              onClick={handleUploadClick}
+              className="bg-grape text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-800 transition-colors"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Choose Files
+            </Button>
+            
+            {isMobile && hasCamera && (
+              <Button 
+                onClick={handleCameraClick}
+                variant="outline"
+                className="border-grape text-grape px-6 py-3 rounded-lg font-medium hover:bg-grape hover:text-white transition-colors"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Take Photo
+              </Button>
+            )}
+          </div>
         )}
         
         <p className={`text-xs mt-2 ${disabled ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -263,6 +323,9 @@ export default function UploadArea({ onFileUpload, isLoading = false, disabled =
               <li>• Avoid shadows or reflections on the bottle</li>
               <li>• Include the full bottle in the frame</li>
               <li>• For vintage wines, capture any vintage year markings</li>
+              {isMobile && hasCamera && (
+                <li>• When using camera, hold steady and tap to focus on the label</li>
+              )}
             </ul>
           </div>
         </div>

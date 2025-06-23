@@ -146,6 +146,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 22, 2025: Converted Wine Resources navigation to dropdown menu with Wine Education and Winery Explorer options, including hover functionality for desktop and mobile menu integration
 - June 22, 2025: Implemented comprehensive billing & account management for subscription page including billing history with invoice downloads, payment method management with Stripe customer portal integration, billing address editing, and next billing date display for premium users
 - June 22, 2025: Implemented subscription controls including pause/resume functionality, plan change between monthly/yearly with prorations, self-service cancellation with retention offers, and easy reactivation for previously canceled users
+- June 22, 2025: Added camera functionality to upload area for mobile users with automatic device and camera capability detection, rear camera preference, and seamless integration with existing upload workflow
 
 ## User Preferences
 
