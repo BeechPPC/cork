@@ -1,4 +1,5 @@
 import { FaFacebook, FaInstagram, FaLinkedin, FaThreads } from 'react-icons/fa6';
+import { Link } from 'wouter';
 
 export default function Footer() {
   return (
@@ -50,28 +51,28 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-white">Company</h4>
             <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-              <li><a href="/referral-program" className="hover:text-white transition-colors">Referral Program</a></li>
+              <li><Link href="/contact"><span className="hover:text-white transition-colors cursor-pointer">About Us</span></Link></li>
+              <li><Link href="/contact"><span className="hover:text-white transition-colors cursor-pointer">Careers</span></Link></li>
+              <li><Link href="/referral-program"><span className="hover:text-white transition-colors cursor-pointer">Referral Program</span></Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-4 text-white">Support</h4>
             <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-              <li><a href="/help-centre" className="hover:text-white transition-colors">Help Centre</a></li>
-              <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
-              <li><a href="/wine-education" className="hover:text-white transition-colors">Wine Education</a></li>
+              <li><Link href="/help-centre"><span className="hover:text-white transition-colors cursor-pointer">Help Centre</span></Link></li>
+              <li><Link href="/contact"><span className="hover:text-white transition-colors cursor-pointer">Contact Us</span></Link></li>
+              <li><Link href="/wine-education"><span className="hover:text-white transition-colors cursor-pointer">Wine Education</span></Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold mb-4 text-white">Legal</h4>
             <ul className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
-              <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="/age-verification" className="hover:text-white transition-colors">Age Verification</a></li>
-              <li><a href="/responsible-drinking" className="hover:text-white transition-colors">Responsible Drinking</a></li>
+              <li><Link href="/privacy-policy"><span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span></Link></li>
+              <li><Link href="/terms-of-service"><span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span></Link></li>
+              <li><Link href="/age-verification"><span className="hover:text-white transition-colors cursor-pointer">Age Verification</span></Link></li>
+              <li><Link href="/responsible-drinking"><span className="hover:text-white transition-colors cursor-pointer">Responsible Drinking</span></Link></li>
             </ul>
           </div>
         </div>
