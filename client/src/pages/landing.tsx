@@ -6,6 +6,7 @@ import { Wine, Sparkles, Upload, Shield } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin, FaThreads } from "react-icons/fa6";
 import { SignUpButton } from "@clerk/clerk-react";
 import { isClerkConfigured } from "@/lib/clerk";
+import { Link } from "wouter";
 import Header from "@/components/header";
 import EmailCaptureModal from "@/components/email-capture-modal";
 
