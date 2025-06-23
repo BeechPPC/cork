@@ -289,7 +289,7 @@ export default function Dashboard() {
             <Card className="bg-cream border border-gray-200">
               <CardContent className="p-8">
                 <Tabs defaultValue="text" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6">
+                  <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
                     <TabsTrigger value="text" className="flex items-center space-x-2">
                       <MessageSquare className="w-4 h-4" />
                       <span>Text Search</span>
