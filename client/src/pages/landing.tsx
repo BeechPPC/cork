@@ -216,7 +216,7 @@ export default function Landing() {
               {/* Social Media Links */}
               <div className="flex space-x-4">
                 <a 
-                  href="https://facebook.com/corkwine" 
+                  href="https://facebook.com/cork.ai" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-white transition-colors"
@@ -225,7 +225,7 @@ export default function Landing() {
                   <FaFacebook className="h-6 w-6" />
                 </a>
                 <a 
-                  href="https://instagram.com/corkwine" 
+                  href="https://instagram.com/getcork.app" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-white transition-colors"
@@ -234,7 +234,7 @@ export default function Landing() {
                   <FaInstagram className="h-6 w-6" />
                 </a>
                 <a 
-                  href="https://threads.net/@corkwine" 
+                  href="https://threads.net/@getcork.app" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-white transition-colors"
@@ -243,7 +243,7 @@ export default function Landing() {
                   <FaThreads className="h-6 w-6" />
                 </a>
                 <a 
-                  href="https://linkedin.com/company/corkwine" 
+                  href="https://linkedin.com/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-white transition-colors"
