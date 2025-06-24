@@ -170,6 +170,12 @@ export async function sendEmailSignupConfirmation({ email, firstName }: EmailSig
   }
 
   try {
+    console.log(`Attempting to send confirmation email to: ${email}`);
+    
+    // Validate email format before sending
+    if (!email || !email.includes('@')) {
+      throw new Error('Invalid email format');
+    }
     const msg = {
       to: email,
       from: {

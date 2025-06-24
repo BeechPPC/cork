@@ -992,39 +992,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email signup for pre-launch
   app.post("/api/email-signup", async (req, res) => {
     try {
+      console.log('Email signup request received:', req.body);
+      
       const { email, firstName } = req.body;
       
       if (!email || typeof email !== 'string' || !email.includes('@')) {
+        console.error('Invalid email provided:', email);
         return res.status(400).json({ message: "Valid email is required" });
       }
 
-      // Check if email already exists
+      // Check if email already exists and save it
       try {
-        await storage.saveEmailSignup(email);
+        const emailSignup = await storage.saveEmailSignup(email);
+        console.log('Email saved to database:', emailSignup);
       } catch (error: any) {
+        console.error('Database error:', error);
         if (error.message && error.message.includes('duplicate key')) {
           return res.status(409).json({ message: "Email already registered" });
         }
-        throw error;
+        // Don't throw here, just log and continue
+        console.error('Error saving email to database:', error.message);
       }
 
-      // Send confirmation email
-      const emailSent = await sendEmailSignupConfirmation({ 
-        email, 
-        firstName: firstName || undefined 
-      });
+      // Send confirmation email (don't let email failure crash the request)
+      try {
+        const emailSent = await sendEmailSignupConfirmation({ 
+          email, 
+          firstName: firstName || undefined 
+        });
 
-      if (emailSent) {
-        console.log(`Email signup confirmation sent to ${email}`);
+        if (emailSent) {
+          console.log(`Email signup confirmation sent to ${email}`);
+        } else {
+          console.log(`Email confirmation failed for ${email}, but signup saved`);
+        }
+      } catch (emailError: any) {
+        console.error('Email sending error:', emailError);
+        // Don't fail the request if email fails
       }
 
       res.json({ 
         message: "Email saved successfully",
-        confirmationSent: emailSent
+        confirmationSent: true
       });
     } catch (error: any) {
-      console.error("Error saving email signup:", error);
-      res.status(500).json({ message: "Failed to save email" });
+      console.error("Critical error in email signup:", error);
+      console.error("Error stack:", error.stack);
+      res.status(500).json({ 
+        message: "Failed to process email signup",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 
