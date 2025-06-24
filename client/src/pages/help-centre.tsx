@@ -115,7 +115,7 @@ const faqData: FAQItem[] = [
     id: "14",
     category: "Subscription",
     question: "Can I get a refund?",
-    answer: "We offer full refunds within 7 days of purchase if you're not satisfied. For subscription cancellations, we'll refund the unused portion on a case-by-case basis. Contact us at hello@cork.wine to discuss your specific situation.",
+    answer: "We offer full refunds within 7 days of purchase if you're not satisfied. For subscription cancellations, we'll refund the unused portion on a case-by-case basis. Contact us at hello@getcork.app to discuss your specific situation.",
     icon: CreditCard
   },
 
@@ -138,7 +138,7 @@ const faqData: FAQItem[] = [
     id: "18",
     category: "Support",
     question: "How do I contact cork support?",
-    answer: "Visit our Contact page or email hello@cork.wine. We respond to all enquiries within 24 hours during business days (Monday-Friday, Australian Eastern Time). For urgent payment issues, please mention 'urgent' in your subject line.",
+    answer: "Visit our Contact page or email hello@getcork.app. We respond to all enquiries within 24 hours during business days (Monday-Friday, Australian Eastern Time). For urgent payment issues, please mention 'urgent' in your subject line.",
     icon: HelpCircle
   }
 ];
@@ -312,7 +312,7 @@ export default function HelpCentre() {
               Contact Support
             </a>
             <a
-              href="mailto:hello@cork.wine"
+              href="mailto:hello@getcork.app"
               className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               Email Us Directly

@@ -152,6 +152,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 23, 2025: Replaced Replit Auth with Clerk authentication system for better Vercel deployment compatibility, added Clerk React components, backend middleware, and webhook handlers for user synchronization
 - June 23, 2025: Fixed Vercel deployment configuration and resolved navigation issues for getcork.app production deployment - removed ClerkProvider conflicts, made public pages accessible without authentication, updated vercel.json for Node.js compatibility, and implemented working navigation from landing page to all public sections
 - June 23, 2025: Fixed footer navigation by converting all anchor tags to wouter Link components, resolved React accessibility warnings with proper DialogTitle/DialogDescription components, and added comprehensive favicon system with custom wine bottle SVG design in multiple formats (16x16, 32x32, 180x180) plus proper HTML meta tags
+- June 23, 2025: Updated all email addresses from hello@cork.wine to hello@getcork.app across email service, contact forms, and help centre pages for consistent branding with production domain
 
 ## User Preferences
 
