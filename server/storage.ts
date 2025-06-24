@@ -224,25 +224,15 @@ export class DatabaseStorage implements IStorage {
 
   async saveEmailSignup(email: string): Promise<EmailSignup> {
     try {
+      // Use onConflictDoUpdate to handle duplicates gracefully
       const [emailSignup] = await db
         .insert(emailSignups)
         .values({ email })
-        .onConflictDoNothing()
+        .onConflictDoUpdate({
+          target: emailSignups.email,
+          set: { email: email }
+        })
         .returning();
-      
-      if (!emailSignup) {
-        // Email already exists, fetch it
-        const [existingEmail] = await db
-          .select()
-          .from(emailSignups)
-          .where(eq(emailSignups.email, email))
-          .limit(1);
-        
-        if (existingEmail) {
-          throw new Error('duplicate key error');
-        }
-        throw new Error('Failed to save email signup');
-      }
       
       return emailSignup;
     } catch (error: any) {
