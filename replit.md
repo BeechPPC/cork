@@ -154,6 +154,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 23, 2025: Fixed footer navigation by converting all anchor tags to wouter Link components, resolved React accessibility warnings with proper DialogTitle/DialogDescription components, and added comprehensive favicon system with custom wine bottle SVG design in multiple formats (16x16, 32x32, 180x180) plus proper HTML meta tags
 - June 23, 2025: Updated all email addresses from hello@cork.wine to hello@getcork.app across email service, contact forms, and help centre pages for consistent branding with production domain
 - June 24, 2025: Implemented comprehensive serverless-compatible email capture system with robust error handling, database initialization checks, and graceful fallbacks for Vercel deployment reliability
+- June 24, 2025: Fixed database initialization syntax errors and created standalone serverless function for email capture to resolve Vercel FUNCTION_INVOCATION_FAILED errors
 
 ## User Preferences
 

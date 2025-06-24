@@ -34,11 +34,11 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize database connection (don't block startup)
-  initializeDatabase().then(success => {
-    console.log('Database initialization:', success ? 'success' : 'failed');
-  }).catch(err => {
-    console.warn('Database init error:', err.message);
+  console.log('Starting server routes registration');
+  
+  // Add simple health check first
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
   
   // Auth middleware
@@ -997,69 +997,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Email signup for pre-launch - simplified for serverless reliability
+  // Email signup endpoint
   app.post("/api/email-signup", async (req, res) => {
-    // Set headers immediately to prevent timeout issues
-    res.setHeader('Content-Type', 'application/json');
-    
     try {
-      // Basic request validation
-      if (!req.body) {
-        return res.status(400).json({ message: "Request body is required" });
-      }
-
-      const { email, firstName } = req.body;
+      const { email, firstName } = req.body || {};
       
-      // Email validation
-      if (!email || typeof email !== 'string') {
-        return res.status(400).json({ message: "Valid email is required" });
+      if (!email || typeof email !== 'string' || !email.includes('@')) {
+        return res.status(400).json({ message: "Valid email required" });
       }
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ message: "Please enter a valid email address" });
+      console.log('EMAIL_SIGNUP:', email, new Date().toISOString());
+      
+      // Try to save to database if available
+      try {
+        if (process.env.DATABASE_URL && db) {
+          await storage.saveEmailSignup(email);
+          console.log(`Email saved to database: ${email}`);
+        }
+      } catch (dbError: any) {
+        console.log(`Database save failed for ${email}:`, dbError.message);
       }
 
-      // Immediate success response - don't wait for database or email operations
-      res.status(200).json({ 
+      // Try to send confirmation email
+      try {
+        await sendEmailSignupConfirmation({ email, firstName });
+        console.log(`Confirmation email sent to: ${email}`);
+      } catch (emailError: any) {
+        console.log(`Email send failed for ${email}:`, emailError.message);
+      }
+      
+      res.json({ 
         message: "Thank you for signing up! You'll be notified when cork launches.",
         success: true
       });
 
-      // Handle database and email operations asynchronously after response
-      setImmediate(async () => {
-        try {
-          // Try database save
-          if (process.env.DATABASE_URL) {
-            try {
-              await storage.saveEmailSignup(email);
-              console.log(`Email saved to database: ${email}`);
-            } catch (dbError: any) {
-              console.log(`Database save failed for ${email}:`, dbError.message);
-            }
-          }
-
-          // Try email confirmation
-          try {
-            await sendEmailSignupConfirmation({ email, firstName });
-            console.log(`Confirmation email sent to: ${email}`);
-          } catch (emailError: any) {
-            console.log(`Email send failed for ${email}:`, emailError.message);
-          }
-        } catch (asyncError: any) {
-          console.log('Async operations error:', asyncError.message);
-        }
-      });
-      
     } catch (error: any) {
-      console.error("Email signup error:", error.message);
-      
-      if (!res.headersSent) {
-        res.status(500).json({ 
-          message: "Technical issue occurred. Please try again.",
-          success: false
-        });
-      }
+      console.error('Email signup error:', error.message);
+      res.status(500).json({ message: "Please try again" });
     }
   });
 

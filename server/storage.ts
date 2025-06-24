@@ -58,11 +58,13 @@ export class DatabaseStorage implements IStorage {
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
 
   async getUser(id: string): Promise<User | undefined> {
+    if (!db) return undefined;
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
+    if (!db) throw new Error('Database not available');
     const [user] = await db
       .insert(users)
       .values(userData)
@@ -223,6 +225,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveEmailSignup(email: string): Promise<EmailSignup> {
+    if (!db) {
+      throw new Error('Database not available');
+    }
+    
     try {
       // Use onConflictDoUpdate to handle duplicates gracefully
       const [emailSignup] = await db
