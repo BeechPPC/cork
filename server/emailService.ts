@@ -27,9 +27,9 @@ export async function sendContactFormEmail({ name, email, subject, message }: Co
   try {
     // Send notification to cork team
     const teamMsg = {
-      to: 'hello@cork.wine', // Your team email
+      to: 'hello@getcork.app', // Your team email
       from: {
-        email: 'hello@cork.wine',
+        email: 'hello@getcork.app',
         name: 'cork Contact Form'
       },
       subject: `New Contact Form: ${subject}`,
@@ -88,7 +88,7 @@ Reply to: ${email}`,
     const userMsg = {
       to: email,
       from: {
-        email: 'hello@cork.wine',
+        email: 'hello@getcork.app',
         name: 'cork'
       },
       subject: 'Thanks for contacting cork!',
@@ -100,7 +100,7 @@ Your message:
 Subject: ${subject}
 ${message}
 
-If you have any urgent questions, feel free to follow up at hello@cork.wine.
+If you have any urgent questions, feel free to follow up at hello@getcork.app.
 
 Cheers!
 The cork team`,
@@ -173,7 +173,7 @@ export async function sendEmailSignupConfirmation({ email, firstName }: EmailSig
     const msg = {
       to: email,
       from: {
-        email: 'hello@cork.wine', // You'll need to verify this domain in SendGrid
+        email: 'hello@getcork.app', // You'll need to verify this domain in SendGrid
         name: 'cork'
       },
       subject: "You're on the list! cork is launching soon 🍷",
