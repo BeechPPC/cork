@@ -223,11 +223,32 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveEmailSignup(email: string): Promise<EmailSignup> {
-    const [emailSignup] = await db
-      .insert(emailSignups)
-      .values({ email })
-      .returning();
-    return emailSignup;
+    try {
+      const [emailSignup] = await db
+        .insert(emailSignups)
+        .values({ email })
+        .onConflictDoNothing()
+        .returning();
+      
+      if (!emailSignup) {
+        // Email already exists, fetch it
+        const [existingEmail] = await db
+          .select()
+          .from(emailSignups)
+          .where(eq(emailSignups.email, email))
+          .limit(1);
+        
+        if (existingEmail) {
+          throw new Error('duplicate key error');
+        }
+        throw new Error('Failed to save email signup');
+      }
+      
+      return emailSignup;
+    } catch (error: any) {
+      console.error('Database error in saveEmailSignup:', error.message);
+      throw error;
+    }
   }
 }
 

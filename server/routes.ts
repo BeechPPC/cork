@@ -7,6 +7,7 @@ import { setupClerkWebhooks } from "./clerkWebhooks";
 import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
 import { sendEmailSignupConfirmation } from "./emailService";
+import { initializeDatabase } from "./initDb";
 import Stripe from "stripe";
 import multer from "multer";
 
@@ -33,6 +34,12 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize database connection
+  const dbInitialized = await initializeDatabase();
+  if (!dbInitialized) {
+    console.warn('Database initialization failed - some features may not work');
+  }
+  
   // Auth middleware
   setupClerkAuth(app);
   
@@ -996,51 +1003,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { email, firstName } = req.body;
       
-      if (!email || typeof email !== 'string' || !email.includes('@')) {
-        console.error('Invalid email provided:', email);
+      // Basic validation
+      if (!email || typeof email !== 'string') {
+        console.error('Invalid email type:', typeof email, email);
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        console.error('Invalid email format:', email);
         return res.status(400).json({ message: "Valid email is required" });
       }
 
-      // Check if email already exists and save it
+      // In serverless environment, database might not be initialized
+      // Try to save email, but don't crash if database fails
+      let databaseSaved = false;
       try {
+        // Ensure database connection
+        if (!process.env.DATABASE_URL) {
+          throw new Error('Database not configured');
+        }
+
         const emailSignup = await storage.saveEmailSignup(email);
         console.log('Email saved to database:', emailSignup);
-      } catch (error: any) {
-        console.error('Database error:', error);
-        if (error.message && error.message.includes('duplicate key')) {
+        databaseSaved = true;
+      } catch (dbError: any) {
+        console.error('Database operation failed:', dbError.message);
+        
+        // Handle specific database errors
+        if (dbError.message && (dbError.message.includes('duplicate key') || dbError.message.includes('duplicate key error'))) {
           return res.status(409).json({ message: "Email already registered" });
         }
-        // Don't throw here, just log and continue
-        console.error('Error saving email to database:', error.message);
+        
+        // For other database errors in production, continue without failing
+        if (dbError.message.includes('relation "email_signups" does not exist')) {
+          console.error('Email signups table does not exist - database not initialized');
+        }
+        
+        // In production, don't fail the request for database issues
+        console.log('Continuing without database save due to error:', dbError.message);
       }
 
-      // Send confirmation email (don't let email failure crash the request)
+      // Send confirmation email
+      let emailSent = false;
       try {
-        const emailSent = await sendEmailSignupConfirmation({ 
+        emailSent = await sendEmailSignupConfirmation({ 
           email, 
           firstName: firstName || undefined 
         });
 
         if (emailSent) {
-          console.log(`Email signup confirmation sent to ${email}`);
+          console.log(`Email confirmation sent to ${email}`);
         } else {
-          console.log(`Email confirmation failed for ${email}, but signup saved`);
+          console.log(`Email confirmation failed for ${email}`);
         }
       } catch (emailError: any) {
-        console.error('Email sending error:', emailError);
-        // Don't fail the request if email fails
+        console.error('Email sending error:', emailError.message);
+        // Don't fail the request if email service fails
       }
 
+      // Always return success if we at least validated the email
       res.json({ 
-        message: "Email saved successfully",
-        confirmationSent: true
+        message: "Thank you for signing up! You'll be notified when cork launches.",
+        databaseSaved,
+        emailSent
       });
+      
     } catch (error: any) {
       console.error("Critical error in email signup:", error);
       console.error("Error stack:", error.stack);
+      
+      // Return a user-friendly error
       res.status(500).json({ 
-        message: "Failed to process email signup",
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        message: "We're experiencing technical difficulties. Please try again later.",
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
       });
     }
   });
