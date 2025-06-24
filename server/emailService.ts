@@ -137,7 +137,7 @@ The cork team`,
                 ${message.replace(/\n/g, '<br>')}
             </div>
             
-            <p>If you have any urgent questions, feel free to follow up at hello@cork.wine.</p>
+            <p>If you have any urgent questions, feel free to follow up at hello@getcork.app.</p>
             
             <p>Cheers!<br><strong>The cork team</strong></p>
         </div>
@@ -173,7 +173,7 @@ export async function sendEmailSignupConfirmation({ email, firstName }: EmailSig
     const msg = {
       to: email,
       from: {
-        email: 'hello@getcork.app', // You'll need to verify this domain in SendGrid
+        email: 'hello@getcork.app',
         name: 'cork'
       },
       subject: "You're on the list! cork is launching soon 🍷",
@@ -195,7 +195,7 @@ Cheers!
 The cork team
 
 --
-This email was sent because you signed up for launch notifications at cork.wine
+This email was sent because you signed up for launch notifications at getcork.app
 If you didn't sign up, please ignore this email.`,
       html: `
 <!DOCTYPE html>
@@ -259,7 +259,7 @@ If you didn't sign up, please ignore this email.`,
         </div>
         
         <div class="footer">
-            This email was sent because you signed up for launch notifications at cork.wine<br>
+            This email was sent because you signed up for launch notifications at getcork.app<br>
             If you didn't sign up, please ignore this email.
         </div>
     </div>

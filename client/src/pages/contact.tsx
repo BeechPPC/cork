@@ -97,7 +97,7 @@ export default function Contact() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate dark:text-white">Email</h3>
-                      <p className="text-gray-600 dark:text-gray-300">hello@cork.wine</p>
+                      <p className="text-gray-600 dark:text-gray-300">hello@getcork.app</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">We respond within 24 hours</p>
                     </div>
                   </div>
