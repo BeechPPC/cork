@@ -136,7 +136,6 @@ export class DatabaseStorage implements IStorage {
           preferredWineTypes: profileData.preferredWineTypes,
           budgetRange: profileData.budgetRange,
           location: profileData.location,
-          profileCompleted: true,
           updatedAt: new Date()
         })
         .where(eq(users.id, userId))

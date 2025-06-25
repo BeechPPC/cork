@@ -1090,6 +1090,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      console.log("Calling storage.updateUserProfile with userId:", userId);
       const updatedUser = await storage.updateUserProfile(userId, {
         dateOfBirth,
         wineExperienceLevel,
@@ -1105,10 +1106,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user: updatedUser
       });
     } catch (error) {
-      console.error("Error setting up profile:", error);
-      console.error("Error details:", error?.message);
+      console.error("=== PROFILE SETUP ERROR DETAILS ===");
+      console.error("Error:", error);
+      console.error("Error name:", error?.name);
+      console.error("Error message:", error?.message);
       console.error("Error stack:", error?.stack);
-      res.status(500).json({ message: "Failed to set up profile", error: error?.message || "Unknown error" });
+      console.error("Error constructor:", error?.constructor?.name);
+      console.error("=====================================");
+      
+      res.status(500).json({ 
+        message: "Failed to set up profile", 
+        error: error?.message || "Unknown error",
+        errorType: error?.constructor?.name || "UnknownError",
+        details: error?.stack?.split('\n')[0] || "No additional details"
+      });
     }
   });
 
