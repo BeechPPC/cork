@@ -25,7 +25,9 @@ import Subscribe from "@/pages/subscribe";
 import Subscription from "@/pages/subscription";
 
 function Router() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, user } = useAuth();
+
+  console.log("Router Auth State:", { isSignedIn, isLoaded, hasUser: !!user });
 
   // Show loading while authentication state is being determined
   if (!isLoaded) {

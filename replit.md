@@ -187,6 +187,8 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Fixed React hooks violation by implementing proper Clerk patterns - resolved "Cannot call hooks conditionally" error, simplified authentication wrapper to follow React Rules of Hooks
 - June 25, 2025: Completed authentication system stabilization - eliminated conditional hook usage, fixed button nesting warnings, restored stable auth context pattern for both Clerk and fallback states
 - June 25, 2025: Final authentication fix - resolved ES6 module require() error, simplified to use standard Button components with proper click handlers, eliminated complex conditional component patterns
+- June 25, 2025: Implementing post-login redirect fix - added authentication state logging and automatic redirect from landing page to dashboard when user is authenticated, addressing issue where users stay on landing page after successful login
+- June 25, 2025: Fixed require() ES6 module error by switching to direct Clerk hook imports, simplified auth wrapper to use direct hook exports instead of dynamic imports
 
 ## Authentication Status
 

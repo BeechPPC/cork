@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Wine, Sparkles, Upload, Shield } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin, FaThreads } from "react-icons/fa6";
 import { isClerkConfigured } from "@/lib/clerk";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import Header from "@/components/header";
 import EmailCaptureModal from "@/components/email-capture-modal";
+import { useAuth } from "@/components/auth-wrapper";
 
 // Simple button component for all cases
 function ActionButton({ children, onClick, className }: { 
@@ -24,15 +25,27 @@ function ActionButton({ children, onClick, className }: {
 
 export default function Landing() {
   const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const { isSignedIn, isLoaded } = useAuth();
+  const [, setLocation] = useLocation();
 
-  // Show email capture popup after 3 seconds
+  // Redirect authenticated users to dashboard
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowEmailCapture(true);
-    }, 3000);
+    if (isLoaded && isSignedIn) {
+      console.log("Landing: Redirecting authenticated user to dashboard");
+      setLocation("/dashboard");
+    }
+  }, [isLoaded, isSignedIn, setLocation]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  // Show email capture popup after 3 seconds (only for non-authenticated users)
+  useEffect(() => {
+    if (!isSignedIn) {
+      const timer = setTimeout(() => {
+        setShowEmailCapture(true);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isSignedIn]);
 
   const handleGetStarted = () => {
     if (isClerkConfigured) {

@@ -1,30 +1,15 @@
-import { ReactNode, createContext, useContext } from 'react';
+import { ReactNode } from 'react';
+import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-react';
 import { isClerkConfigured } from "@/lib/clerk";
-
-interface AuthContextType {
-  user: any;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  isSignedIn: boolean;
-  isLoaded: boolean;
-  getToken?: () => Promise<string | null>;
-}
-
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: false,
-  isAuthenticated: false,
-  isSignedIn: false,
-  isLoaded: true,
-});
 
 interface AuthWrapperProps {
   children: ReactNode;
 }
 
-function ClerkAuthContent({ children }: AuthWrapperProps) {
+// Export auth hook that conditionally uses Clerk
+export function useAuth() {
   if (!isClerkConfigured) {
-    const authValue: AuthContextType = {
+    return {
       user: null,
       isLoading: false,
       isAuthenticated: false,
@@ -32,15 +17,21 @@ function ClerkAuthContent({ children }: AuthWrapperProps) {
       isLoaded: true,
       getToken: async () => null,
     };
-    return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>;
   }
 
   try {
-    const { useAuth: useClerkAuth, useUser } = require("@clerk/clerk-react");
+    // Use Clerk hooks when configured and inside ClerkProvider
     const clerkAuth = useClerkAuth();
     const { user } = useUser();
     
-    const authValue: AuthContextType = {
+    console.log("Clerk Auth State:", {
+      isSignedIn: clerkAuth.isSignedIn,
+      isLoaded: clerkAuth.isLoaded,
+      hasUser: !!user,
+      userId: user?.id
+    });
+    
+    return {
       user,
       isLoading: !clerkAuth.isLoaded,
       isAuthenticated: clerkAuth.isSignedIn || false,
@@ -48,10 +39,9 @@ function ClerkAuthContent({ children }: AuthWrapperProps) {
       isLoaded: clerkAuth.isLoaded || false,
       getToken: clerkAuth.getToken,
     };
-
-    return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>;
   } catch (error) {
-    const authValue: AuthContextType = {
+    console.error("Clerk auth error:", error);
+    return {
       user: null,
       isLoading: false,
       isAuthenticated: false,
@@ -59,14 +49,10 @@ function ClerkAuthContent({ children }: AuthWrapperProps) {
       isLoaded: true,
       getToken: async () => null,
     };
-    return <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>;
   }
 }
 
+// Simple wrapper that just renders children
 export function AuthWrapper({ children }: AuthWrapperProps) {
-  return <ClerkAuthContent>{children}</ClerkAuthContent>;
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
+  return <>{children}</>;
 }
