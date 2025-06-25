@@ -24,25 +24,31 @@ interface AuthWrapperProps {
 }
 
 function ClerkAuthWrapper({ children }: AuthWrapperProps) {
-  // Only import and use Clerk hooks when we know ClerkProvider exists
-  const { useAuth: useClerkAuth, useUser } = require("@clerk/clerk-react");
-  const clerkAuth = useClerkAuth();
-  const { user } = useUser();
-  
-  const authValue: AuthContextType = {
-    user,
-    isLoading: !clerkAuth.isLoaded,
-    isAuthenticated: clerkAuth.isSignedIn || false,
-    isSignedIn: clerkAuth.isSignedIn || false,
-    isLoaded: clerkAuth.isLoaded || false,
-    getToken: clerkAuth.getToken,
-  };
+  try {
+    // Only import and use Clerk hooks when we know ClerkProvider exists
+    const { useAuth: useClerkAuth, useUser } = require("@clerk/clerk-react");
+    const clerkAuth = useClerkAuth();
+    const { user } = useUser();
+    
+    const authValue: AuthContextType = {
+      user,
+      isLoading: !clerkAuth.isLoaded,
+      isAuthenticated: clerkAuth.isSignedIn || false,
+      isSignedIn: clerkAuth.isSignedIn || false,
+      isLoaded: clerkAuth.isLoaded || false,
+      getToken: clerkAuth.getToken,
+    };
 
-  return (
-    <AuthContext.Provider value={authValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+      <AuthContext.Provider value={authValue}>
+        {children}
+      </AuthContext.Provider>
+    );
+  } catch (error) {
+    console.error("ClerkAuthWrapper error:", error);
+    // Fallback to disabled auth if Clerk hooks fail
+    return <DisabledAuthWrapper>{children}</DisabledAuthWrapper>;
+  }
 }
 
 function DisabledAuthWrapper({ children }: AuthWrapperProps) {

@@ -4,12 +4,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Wine, Sparkles, Upload, Shield } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin, FaThreads } from "react-icons/fa6";
-import { SignUpButton } from "@clerk/clerk-react";
 import { isClerkConfigured } from "@/lib/clerk";
 import { Link } from "wouter";
 import Header from "@/components/header";
 import EmailCaptureModal from "@/components/email-capture-modal";
 
+// Conditional SignUpButton component
+function ConditionalSignUpButton({ children, mode }: { children: React.ReactNode; mode?: string }) {
+  if (!isClerkConfigured) {
+    return <>{children}</>;
+  }
+  
+  try {
+    const { SignUpButton } = require("@clerk/clerk-react");
+    return <SignUpButton mode={mode}>{children}</SignUpButton>;
+  } catch (error) {
+    console.error("Failed to load SignUpButton:", error);
+    return <>{children}</>;
+  }
+}
 
 export default function Landing() {
   const [showEmailCapture, setShowEmailCapture] = useState(false);
@@ -72,23 +85,14 @@ export default function Landing() {
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-              {isClerkConfigured ? (
-                <SignUpButton mode="modal">
-                  <Button 
-                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg shadow-2xl hover:shadow-red-500/25 transition-all transform hover:scale-105 border-0"
-
-                  >
-                    Get Started Free
-                  </Button>
-                </SignUpButton>
-              ) : (
+              <ConditionalSignUpButton mode="modal">
                 <Button 
-                  onClick={handleGetStarted}
+                  onClick={!isClerkConfigured ? handleGetStarted : undefined}
                   className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg shadow-2xl hover:shadow-red-500/25 transition-all transform hover:scale-105 border-0"
                 >
-                  Get Started Free (Setup Required)
+                  {isClerkConfigured ? "Get Started Free" : "Join Waitlist"}
                 </Button>
-              )}
+              </ConditionalSignUpButton>
               <Button 
                 variant="outline"
                 className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg hover:bg-white/20 transition-all hover:border-white/50"
