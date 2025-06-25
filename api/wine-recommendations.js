@@ -1,0 +1,52 @@
+// Ultra-minimal recommendations endpoint
+exports.default = (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: "No valid authorization token" });
+  }
+
+  const { query } = req.body || {};
+  
+  const recommendations = [
+    {
+      name: "Penfolds Bin 389",
+      type: "Red Wine",
+      region: "Barossa Valley, South Australia",
+      vintage: "2020",
+      description: "A classic Cabernet Shiraz blend with rich berry flavours and oak integration",
+      priceRange: "$60-80 AUD",
+      abv: "14.5%",
+      rating: "4.5/5",
+      matchReason: "Perfect for your preference - full-bodied Australian red with excellent aging potential"
+    },
+    {
+      name: "Wynns Coonawarra Estate Black Label",
+      type: "Red Wine", 
+      region: "Coonawarra, South Australia",
+      vintage: "2019",
+      description: "Premium Cabernet Sauvignon showcasing the terroir of Coonawarra's terra rossa soil",
+      priceRange: "$40-55 AUD",
+      abv: "14.0%",
+      rating: "4.4/5",
+      matchReason: "Exceptional value from one of Australia's most respected wine regions"
+    }
+  ];
+
+  return res.status(200).json({ 
+    recommendations,
+    query: query || 'Australian wine recommendations',
+    timestamp: new Date().toISOString()
+  });
+};

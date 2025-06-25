@@ -21,6 +21,14 @@
       "src": "api/auth-test.js",
       "use": "@vercel/node"
     },
+    {
+      "src": "api/profile-complete.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/wine-recommendations.js",
+      "use": "@vercel/node"
+    },
 
 
     {
@@ -47,11 +55,11 @@
     },
     {
       "src": "/api/profile/setup",
-      "dest": "/api/profile-setup.js"
+      "dest": "/api/profile-complete.js"
     },
     {
       "src": "/api/recommendations",
-      "dest": "/api/recommendations-basic.js"
+      "dest": "/api/wine-recommendations.js"
     },
     {
       "src": "/api/auth-test",
