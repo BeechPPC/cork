@@ -2,25 +2,12 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-// Import auth conditionally to avoid crashes
-let setupClerkAuth: any, requireAuth: any, setupClerkWebhooks: any;
-
-try {
-  const clerkAuth = require("./clerkAuth");
-  const clerkWebhooks = require("./clerkWebhooks");
-  setupClerkAuth = clerkAuth.setupClerkAuth;
-  requireAuth = clerkAuth.requireAuth;
-  setupClerkWebhooks = clerkWebhooks.setupClerkWebhooks;
-} catch (error) {
-  console.warn('Clerk auth modules failed to load:', error);
-  setupClerkAuth = (app: any) => console.log('Clerk auth disabled');
-  requireAuth = (req: any, res: any, next: any) => next();
-  setupClerkWebhooks = (app: any) => console.log('Clerk webhooks disabled');
-}
+import { setupClerkAuth, requireAuth } from "./clerkAuth";
+import { setupClerkWebhooks } from "./clerkWebhooks";
 import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
 import { sendEmailSignupConfirmation } from "./emailService";
-import { initializeDatabase } from "./initDb";
+import { db } from "./db";
 import Stripe from "stripe";
 import multer from "multer";
 

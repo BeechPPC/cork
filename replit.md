@@ -17,7 +17,8 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 ### Backend Architecture
 - **Express.js**: Node.js web framework for API endpoints
 - **TypeScript**: Full type safety across the backend
-- **Replit Auth**: Authentication system with session management
+- **Clerk Auth**: Authentication system with session management (replaced Replit Auth for Vercel compatibility)
+- **Standalone Serverless Functions**: Critical endpoints (email capture) deployed as independent functions for reliability
 - **OpenAI API**: AI-powered wine recommendations and image analysis
 - **Stripe**: Payment processing for premium subscriptions
 - **Multer**: File upload handling for wine images
@@ -26,6 +27,11 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - **PostgreSQL**: Primary database using Neon serverless
 - **Drizzle ORM**: Type-safe database queries and schema management
 - **Session Storage**: PostgreSQL-based session management for authentication
+
+### Deployment Architecture
+- **Vercel**: Primary hosting platform for production deployment
+- **Hybrid Serverless**: Main Express server + standalone serverless functions for critical operations
+- **Domain**: Custom domain getcork.app with SSL/TLS
 
 ## Key Components
 
@@ -155,6 +161,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 23, 2025: Updated all email addresses from hello@cork.wine to hello@getcork.app across email service, contact forms, and help centre pages for consistent branding with production domain
 - June 24, 2025: Implemented comprehensive serverless-compatible email capture system with robust error handling, database initialization checks, and graceful fallbacks for Vercel deployment reliability
 - June 24, 2025: Fixed database initialization syntax errors and created standalone serverless function for email capture to resolve Vercel FUNCTION_INVOCATION_FAILED errors
+- June 24, 2025: Successfully deployed email capture fix to production - confirmed working on getcork.app with standalone serverless function approach
 
 ## User Preferences
 
