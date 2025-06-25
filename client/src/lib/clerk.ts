@@ -6,7 +6,8 @@ export const isClerkConfigured = !!clerkPubKey && clerkPubKey.startsWith('pk_')
 console.log('Clerk Configuration:', {
   hasKey: !!clerkPubKey,
   keyPrefix: clerkPubKey.substring(0, 6),
-  isConfigured: isClerkConfigured
+  isConfigured: isClerkConfigured,
+  domain: window.location.hostname
 });
 
 // Show helpful message for setup

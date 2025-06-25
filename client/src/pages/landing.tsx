@@ -76,6 +76,7 @@ export default function Landing() {
                 <SignUpButton mode="modal">
                   <Button 
                     className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg shadow-2xl hover:shadow-red-500/25 transition-all transform hover:scale-105 border-0"
+                    onClick={() => console.log('Get Started button clicked')}
                   >
                     Get Started Free
                   </Button>
