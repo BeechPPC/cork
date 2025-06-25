@@ -1,0 +1,55 @@
+# Clerk Authentication Profile Setup - Critical Issue Resolution
+
+## Issue Summary
+Users successfully sign up with Clerk but cannot complete profile setup, blocking account creation entirely. All profile setup attempts result in FUNCTION_INVOCATION_FAILED errors.
+
+## Root Cause Analysis
+TypeScript compilation errors in protected `server/vite.ts` configuration file prevent ALL Vercel serverless functions from deploying:
+
+```
+server/vite.ts:1:8 - error TS1259: Module 'express' can only be default-imported using 'esModuleInterop' flag
+server/vite.ts:2:8 - error TS1192: Module "fs" has no default export  
+server/vite.ts:52:9 - error TS1343: 'import.meta' meta-property only allowed with ES2020+ modules
+```
+
+## Production Status Verification
+✅ Frontend: HTTP 200 - Working correctly
+✅ Health API: HTTP 200 - Express server functional
+✅ Email signup: HTTP 200 - Standalone function works
+❌ Profile setup: HTTP 500 - FUNCTION_INVOCATION_FAILED
+❌ Wine recommendations: HTTP 500 - FUNCTION_INVOCATION_FAILED
+
+## Critical Finding
+The TypeScript compilation failures affect ALL serverless functions, including both standalone functions and Express server routes. Only the health endpoint works because it uses a simple route without complex dependencies.
+
+## Solutions Attempted
+1. Created standalone serverless functions (profile-setup.js, wine-recommendations.js) - Failed
+2. Simplified function syntax to minimal CommonJS - Failed  
+3. Routed through Express server instead of standalone functions - Failed
+4. Created ultra-minimal profile.js without dependencies - Failed
+
+## Technical Analysis
+The protected configuration files cannot be modified, and all serverless function approaches fail due to the same compilation issues. The email signup function works because it was created earlier before the compilation issues manifested.
+
+## Authentication Flow Impact
+1. User signs up with Clerk successfully ✅
+2. User redirected to dashboard ✅
+3. Profile setup modal appears ✅
+4. User completes profile form ✅
+5. **Profile submission fails with FUNCTION_INVOCATION_FAILED** ❌
+6. User cannot proceed to main application features ❌
+
+## Required Resolution
+The TypeScript configuration errors in protected files must be resolved by someone with access to modify:
+- `server/vite.ts` - Fix import syntax and module configuration
+- `tsconfig.json` - Add proper ES module interop settings
+- `vite.config.ts` - Update path resolution
+
+## Immediate Workaround Options
+1. Fix TypeScript configuration to enable serverless compilation
+2. Deploy entire application as single serverless function
+3. Use external authentication service for profile completion
+4. Implement client-side profile storage until server fix is deployed
+
+## User Impact
+Critical blocking issue preventing new user onboarding and account creation completion on getcork.app production environment.
