@@ -54,13 +54,19 @@ Rerouted critical endpoints through working Express server by removing standalon
 ## Testing Verification
 ```bash
 # Working endpoints
-curl https://getcork.app/api/health
-curl -X POST https://getcork.app/api/email-signup
+curl https://getcork.app/api/health                           # ✅ HTTP 200
+curl -X POST https://getcork.app/api/email-signup             # ✅ HTTP 200
 
-# Failing endpoints (FUNCTION_INVOCATION_FAILED)
-curl -X POST https://getcork.app/api/profile/setup
-curl -X POST https://getcork.app/api/recommendations
+# Failing endpoints (FUNCTION_INVOCATION_FAILED)  
+curl -X POST https://getcork.app/api/profile/setup            # ❌ HTTP 500
+curl -X POST https://getcork.app/api/recommendations          # ❌ HTTP 500
 ```
+
+## Root Cause Confirmed
+TypeScript compilation errors in protected server/vite.ts file prevent ALL Vercel serverless functions from deploying. The Express server routes exist but cannot be accessed due to compilation failures blocking the main server deployment.
+
+## Critical Finding
+Even after removing standalone function routing, the main Express server still fails to handle these endpoints due to the same TypeScript compilation issues affecting the entire server deployment.
 
 ## Next Steps
 Fix the TypeScript configuration issues to enable proper serverless function compilation and deployment.
