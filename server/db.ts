@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import * as ws from "ws";
 import * as schema from "../shared/schema.js";
 
-neonConfig.webSocketConstructor = ws;
+neonConfig.webSocketConstructor = ws.default || ws;
 
 let pool: Pool | null = null;
 let db: any = null;

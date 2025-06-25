@@ -192,6 +192,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Fixed require() ES6 module error by switching to direct Clerk hook imports, simplified auth wrapper to use direct hook exports instead of dynamic imports
 - June 25, 2025: Enhanced post-login redirect mechanism with dual authentication detection (isSignedIn + user presence), added loading state during redirect, improved authentication state synchronization for reliable dashboard access after login
 - June 25, 2025: Fixed critical useMutation import errors causing white screen on landing page, corrected useAuth import paths, reduced console logging noise, improved redirect loading state with branded styling
+- June 25, 2025: Fixed Vercel deployment TypeScript errors - resolved multer import conflicts, updated module import patterns for better ESM compatibility, configured TypeScript moduleResolution for production builds
 
 ## Authentication Status
 
