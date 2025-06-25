@@ -1,13 +1,13 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { setupClerkAuth, requireAuth, isClerkConfigured } from "./clerkAuth";
-import { setupClerkWebhooks } from "./clerkWebhooks";
-import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai";
+import { storage } from "./storage.js";
+import { setupClerkAuth, requireAuth, isClerkConfigured } from "./clerkAuth.js";
+import { setupClerkWebhooks } from "./clerkWebhooks.js";
+import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai.js";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
-import { sendEmailSignupConfirmation } from "./emailService";
-import { db } from "./db";
+import { sendEmailSignupConfirmation } from "./emailService.js";
+import { db } from "./db.js";
 import Stripe from "stripe";
 import multer from "multer";
 

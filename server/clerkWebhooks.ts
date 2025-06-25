@@ -1,7 +1,7 @@
 import { Webhook } from 'svix'
 import express from 'express'
 import type { Express } from "express";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 
 export function setupClerkWebhooks(app: Express) {
   // Webhook endpoint for Clerk user events

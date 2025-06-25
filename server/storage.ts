@@ -14,7 +14,7 @@ import {
   type InsertRecommendationHistory,
   type EmailSignup,
 } from "@shared/schema";
-import { db } from "./db";
+import { db } from "./db.js";
 import { eq, desc, count } from "drizzle-orm";
 
 // Interface for storage operations
