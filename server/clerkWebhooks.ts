@@ -123,16 +123,16 @@ async function handleUserUpsert(userData: any) {
 
   } catch (error) {
     console.error('❌ CRITICAL ERROR in handleUserUpsert:');
-    console.error('❌ Error message:', error.message);
-    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error message:', (error as Error).message);
+    console.error('❌ Error stack:', (error as Error).stack);
     console.error('❌ Storage available:', !!storage);
 
     // Log additional debugging info
-    if (error.message) {
-      console.error('❌ Detailed error:', error.message);
+    if ((error as Error).message) {
+      console.error('❌ Detailed error:', (error as Error).message);
     }
 
     // Re-throw to ensure webhook returns 500 status
-    throw new Error(`User upsert failed: ${error.message}`);
+    throw new Error(`User upsert failed: ${(error as Error).message}`);
   }
 }

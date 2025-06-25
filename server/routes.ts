@@ -744,13 +744,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Pause subscription
-  app.post("/api/pause-subscription", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.post("/api/pause-subscription", requireAuth, async (req: any, res) => {
     const user = req.user;
-    if (!user.stripeSubscriptionId || !stripe) {
+    if (!user?.stripeSubscriptionId || !stripe) {
       return res.status(400).json({ message: "No active subscription found" });
     }
 
@@ -777,13 +773,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Resume subscription
-  app.post("/api/resume-subscription", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.post("/api/resume-subscription", requireAuth, async (req: any, res) => {
     const user = req.user;
-    if (!user.stripeSubscriptionId || !stripe) {
+    if (!user?.stripeSubscriptionId || !stripe) {
       return res.status(400).json({ message: "No subscription found" });
     }
 
@@ -808,15 +800,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Change subscription plan (monthly/yearly)
-  app.post("/api/change-plan", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.post("/api/change-plan", requireAuth, async (req: any, res) => {
     const user = req.user;
     const { newPlan } = req.body; // 'monthly' or 'yearly'
     
-    if (!user.stripeSubscriptionId || !stripe) {
+    if (!user?.stripeSubscriptionId || !stripe) {
       return res.status(400).json({ message: "No active subscription found" });
     }
 
@@ -861,15 +849,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cancel subscription with retention offer
-  app.post("/api/cancel-subscription", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.post("/api/cancel-subscription", requireAuth, async (req: any, res) => {
     const user = req.user;
     const { cancelImmediately = false, reason } = req.body;
     
-    if (!user.stripeSubscriptionId || !stripe) {
+    if (!user?.stripeSubscriptionId || !stripe) {
       return res.status(400).json({ message: "No active subscription found" });
     }
 
@@ -1100,9 +1084,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(500).json({ 
         message: "Failed to set up profile", 
-        error: error?.message || "Unknown error",
-        errorType: error?.constructor?.name || "UnknownError",
-        details: error?.stack?.split('\n')[0] || "No additional details"
+        error: (error as any)?.message || "Unknown error",
+        errorType: (error as any)?.constructor?.name || "UnknownError",
+        details: (error as any)?.stack?.split('\n')[0] || "No additional details"
       });
     }
   });
