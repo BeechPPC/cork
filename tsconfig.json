@@ -11,6 +11,7 @@
     "jsx": "preserve",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",

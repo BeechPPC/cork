@@ -9,9 +9,7 @@ import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHi
 import { sendEmailSignupConfirmation } from "./emailService.js";
 import { db } from "./db.js";
 import Stripe from "stripe";
-import type multer from "multer";
-import multerPkg from "multer";
-const multer = multerPkg;
+import multer from "multer";
 
 // Stripe setup
 if (!process.env.STRIPE_SECRET_KEY) {
