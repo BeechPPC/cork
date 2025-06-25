@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, User, MapPin, DollarSign, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest, queryClient } from '@/lib/queryClient';
+import { useAuth } from '@clerk/clerk-react';
 
 interface ProfileSetupModalProps {
   open: boolean;
@@ -41,6 +41,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { getToken } = useAuth();
   
   // Required fields
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -94,10 +95,8 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
         location: location || null,
       });
 
-      // Get Clerk auth token directly
-      const { useAuth } = await import("@clerk/clerk-react");
-      const auth = useAuth();
-      const token = await auth.getToken();
+      // Get Clerk auth token
+      const token = await getToken();
 
       if (!token) {
         throw new Error("Authentication token not available");
