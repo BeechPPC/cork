@@ -1,7 +1,6 @@
 import { ReactNode, createContext, useContext } from 'react';
 import { isClerkConfigured } from "@/lib/clerk";
 
-// Create a consistent auth context
 interface AuthContextType {
   user: any;
   isLoading: boolean;
@@ -23,7 +22,7 @@ interface AuthWrapperProps {
   children: ReactNode;
 }
 
-function ClerkAuthContent({ children }: AuthWrapperProps) {
+function ClerkAuthProvider({ children }: AuthWrapperProps) {
   const { useAuth: useClerkAuth, useUser } = require("@clerk/clerk-react");
   const clerkAuth = useClerkAuth();
   const { user } = useUser();
@@ -44,7 +43,7 @@ function ClerkAuthContent({ children }: AuthWrapperProps) {
   );
 }
 
-function DisabledAuthContent({ children }: AuthWrapperProps) {
+function DisabledAuthProvider({ children }: AuthWrapperProps) {
   const authValue: AuthContextType = {
     user: null,
     isLoading: false,
@@ -63,9 +62,9 @@ function DisabledAuthContent({ children }: AuthWrapperProps) {
 
 export function AuthWrapper({ children }: AuthWrapperProps) {
   if (isClerkConfigured) {
-    return <ClerkAuthContent>{children}</ClerkAuthContent>;
+    return <ClerkAuthProvider>{children}</ClerkAuthProvider>;
   } else {
-    return <DisabledAuthContent>{children}</DisabledAuthContent>;
+    return <DisabledAuthProvider>{children}</DisabledAuthProvider>;
   }
 }
 
