@@ -12,6 +12,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuthenticatedQuery } from "@/hooks/useAuthenticatedQuery";
 import { useAuthenticatedMutation } from "@/hooks/useAuthenticatedMutation";
+import { useMutation } from "@tanstack/react-query";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import WineCard from "@/components/wine-card";
@@ -22,7 +23,7 @@ import VoiceSearch from "@/components/voice-search";
 import PlanLimitModal from "@/components/plan-limit-modal";
 import ProfileSetupModal from "@/components/profile-setup-modal";
 import { useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth-wrapper";
 
 interface WineRecommendation {
   name: string;

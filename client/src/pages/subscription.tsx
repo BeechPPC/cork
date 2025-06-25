@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth-wrapper";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";

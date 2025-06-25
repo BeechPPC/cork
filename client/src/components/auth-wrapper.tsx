@@ -24,12 +24,15 @@ export function useAuth() {
     const clerkAuth = useClerkAuth();
     const { user } = useUser();
     
-    console.log("Clerk Auth State:", {
-      isSignedIn: clerkAuth.isSignedIn,
-      isLoaded: clerkAuth.isLoaded,
-      hasUser: !!user,
-      userId: user?.id
-    });
+    // Only log when state changes to reduce console noise
+    if (clerkAuth.isLoaded) {
+      console.log("Clerk Auth State:", {
+        isSignedIn: clerkAuth.isSignedIn,
+        isLoaded: clerkAuth.isLoaded,
+        hasUser: !!user,
+        userId: user?.id
+      });
+    }
     
     return {
       user,

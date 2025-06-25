@@ -11,7 +11,7 @@ import { Upload as UploadIcon, Loader2, Camera, CheckCircle, AlertCircle, Edit3,
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth-wrapper";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import UploadArea from "@/components/upload-area";

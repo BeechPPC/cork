@@ -190,6 +190,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Implementing post-login redirect fix - added authentication state logging and automatic redirect from landing page to dashboard when user is authenticated, addressing issue where users stay on landing page after successful login
 - June 25, 2025: Fixed require() ES6 module error by switching to direct Clerk hook imports, simplified auth wrapper to use direct hook exports instead of dynamic imports
 - June 25, 2025: Enhanced post-login redirect mechanism with dual authentication detection (isSignedIn + user presence), added loading state during redirect, improved authentication state synchronization for reliable dashboard access after login
+- June 25, 2025: Fixed critical useMutation import errors causing white screen on landing page, corrected useAuth import paths, reduced console logging noise, improved redirect loading state with branded styling
 
 ## Authentication Status
 

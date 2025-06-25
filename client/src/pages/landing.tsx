@@ -67,11 +67,14 @@ export default function Landing() {
     }
   };
 
-  // Don't render landing page content if user is authenticated
+  // Show loading state if redirecting
   if (isLoaded && (isSignedIn || user)) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="h-screen flex items-center justify-center bg-cream dark:bg-gray-900">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-grape border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-slate dark:text-white">Redirecting to dashboard...</p>
+        </div>
       </div>
     );
   }
