@@ -24,15 +24,25 @@ import Subscribe from "@/pages/subscribe";
 import Subscription from "@/pages/subscription";
 
 function Router() {
-  const { isSignedIn, isLoaded, isAuthenticated, isLoading } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
+
+  // Show loading while authentication state is being determined
+  if (!isLoaded) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
     <Switch>
+      {/* Root route - redirect based on auth state */}
       <Route path="/">
-        {!isLoaded || !isSignedIn ? <Landing /> : <Dashboard />}
+        {isSignedIn ? <Dashboard /> : <Landing />}
       </Route>
       
-      {/* Public routes */}
+      {/* Public routes - always accessible */}
       <Route path="/pricing" component={Pricing} />
       <Route path="/contact" component={Contact} />
       <Route path="/help-centre" component={HelpCentre} />
@@ -44,7 +54,7 @@ function Router() {
       <Route path="/referral-program" component={ReferralProgram} />
       <Route path="/checkout" component={Checkout} />
       
-      {/* Protected routes */}
+      {/* Protected routes - only accessible when signed in */}
       {isSignedIn && (
         <>
           <Route path="/dashboard" component={Dashboard} />
@@ -56,15 +66,8 @@ function Router() {
         </>
       )}
       
-      {/* Redirect unauthenticated users to landing */}
-      {isLoaded && !isSignedIn && (
-        <Route path="*">
-          <Landing />
-        </Route>
-      )}
-      
-      {/* 404 for authenticated users */}
-      <Route component={NotFound} />
+      {/* Fallback routes */}
+      <Route component={isSignedIn ? NotFound : Landing} />
     </Switch>
   );
 }

@@ -1,3 +1,4 @@
+import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-react";
 import { isClerkConfigured } from "@/lib/clerk";
 
 export function useAuth() {
@@ -12,27 +13,15 @@ export function useAuth() {
     };
   }
 
-  // Only import Clerk hooks when configured
-  try {
-    const { useAuth: useClerkAuth, useUser } = require("@clerk/clerk-react");
-    const clerkAuth = useClerkAuth();
-    const { user } = useUser();
+  // Use Clerk hooks directly when configured
+  const clerkAuth = useClerkAuth();
+  const { user } = useUser();
 
-    return {
-      user,
-      isLoading: !clerkAuth.isLoaded,
-      isAuthenticated: clerkAuth.isSignedIn,
-      isSignedIn: clerkAuth.isSignedIn,
-      isLoaded: clerkAuth.isLoaded,
-    };
-  } catch (error) {
-    // Fallback if Clerk is not available
-    return {
-      user: null,
-      isLoading: false,
-      isAuthenticated: false,
-      isSignedIn: false,
-      isLoaded: true,
-    };
-  }
+  return {
+    user,
+    isLoading: !clerkAuth.isLoaded,
+    isAuthenticated: clerkAuth.isSignedIn,
+    isSignedIn: clerkAuth.isSignedIn,
+    isLoaded: clerkAuth.isLoaded,
+  };
 }
