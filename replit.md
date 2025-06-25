@@ -195,6 +195,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Fixed Vercel deployment TypeScript errors - resolved multer import conflicts, updated module import patterns for better ESM compatibility, configured TypeScript moduleResolution for production builds
 - June 25, 2025: Resolved critical production server startup issues causing account creation failures - fixed SendGrid import patterns, enhanced Vite setup error handling, corrected ws module imports for serverless compatibility
 - June 25, 2025: Fixed TypeScript compilation errors for production deployment - disabled strict mode temporarily to resolve protected vite.ts file type conflicts, cleaned up duplicate moduleResolution configuration
+- June 25, 2025: Created standalone serverless API handler to bypass Vite configuration issues - implemented production-ready Express function with direct database access, Clerk authentication, and core API endpoints for reliable account creation on Vercel
 
 ## Authentication Status
 
