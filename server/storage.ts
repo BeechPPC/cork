@@ -120,25 +120,33 @@ export class DatabaseStorage implements IStorage {
     budgetRange?: string;
     location?: string;
   }): Promise<User> {
-    const [user] = await db
-      .update(users)
-      .set({ 
-        dateOfBirth: profileData.dateOfBirth,
-        wineExperienceLevel: profileData.wineExperienceLevel,
-        preferredWineTypes: profileData.preferredWineTypes,
-        budgetRange: profileData.budgetRange,
-        location: profileData.location,
-        profileCompleted: true,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, userId))
-      .returning();
-    
-    if (!user) {
-      throw new Error("User not found");
+    try {
+      console.log("Storage - updating user profile:", { userId, profileData });
+      
+      const [user] = await db
+        .update(users)
+        .set({ 
+          dateOfBirth: profileData.dateOfBirth,
+          wineExperienceLevel: profileData.wineExperienceLevel,
+          preferredWineTypes: profileData.preferredWineTypes,
+          budgetRange: profileData.budgetRange,
+          location: profileData.location,
+          profileCompleted: true,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId))
+        .returning();
+      
+      if (!user) {
+        throw new Error("User not found");
+      }
+      
+      console.log("Storage - user profile updated successfully:", user);
+      return user;
+    } catch (error) {
+      console.error("Storage - error updating user profile:", error);
+      throw error;
     }
-    
-    return user;
   }
 
   // Saved wines operations

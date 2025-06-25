@@ -877,6 +877,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/profile/setup', requireAuth, async (req: any, res) => {
     try {
       const userId = req.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ message: "User ID not found" });
+      }
+
       const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body;
       
       console.log("Profile setup request:", {

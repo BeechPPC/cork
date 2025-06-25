@@ -29,6 +29,9 @@ export const requireAuth: RequestHandler = (req, res, next) => {
     // Add userId to request for easy access
     if (req.auth?.userId) {
       req.userId = req.auth.userId;
+      console.log("Auth middleware - userId set:", req.userId);
+    } else {
+      console.log("Auth middleware - no userId found in req.auth");
     }
     
     next();
