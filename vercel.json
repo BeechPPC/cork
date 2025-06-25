@@ -17,6 +17,10 @@
       "src": "api/recommendations-basic.js",
       "use": "@vercel/node"
     },
+    {
+      "src": "api/auth-test.js",
+      "use": "@vercel/node"
+    },
 
 
     {
@@ -48,6 +52,10 @@
     {
       "src": "/api/recommendations",
       "dest": "/api/recommendations-basic.js"
+    },
+    {
+      "src": "/api/auth-test",
+      "dest": "/api/auth-test.js"
     },
     {
       "src": "/api/(.*)",
