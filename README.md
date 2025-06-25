@@ -111,7 +111,7 @@ The app uses Drizzle ORM with PostgreSQL. Schema is defined in `shared/schema.ts
 
 ### Free Tier
 - 3 saved wines
-- 2 wine photo uploads
+- 3 wine photo uploads
 - Basic wine recommendations
 - Educational content access
 
