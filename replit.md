@@ -181,6 +181,22 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Completed Issue #3 - Integrated client-side auth token support with useAuthenticatedQuery and useAuthenticatedMutation hooks for automatic token inclusion in API calls
 - June 25, 2025: All critical authentication issues resolved - serverless compatibility, consistent auth context, automatic token handling, and graceful fallbacks implemented
 - June 25, 2025: Fixed landing page React error boundary crash by implementing ConditionalSignUpButton wrapper to safely handle Clerk imports when not configured
+- June 25, 2025: Resolved Clerk authentication configuration - production keys are working correctly on getcork.app domain, development testing blocked by domain restrictions (expected security behavior)
+
+## Authentication Status
+
+### Current State
+- **Production (getcork.app)**: Full Clerk authentication enabled and working
+- **Development (Replit)**: Authentication disabled due to domain restrictions (security feature)
+- **Landing Page**: Loads correctly with fallback authentication UI
+- **API Endpoints**: Serverless-compatible with token verification
+
+### Authentication Architecture
+- Clerk production keys configured for getcork.app domain
+- ConditionalSignUpButton wrapper prevents crashes when auth disabled
+- AuthWrapper provides consistent auth context across environments
+- Automatic token handling for authenticated API requests
+- Graceful fallbacks for non-authenticated users
 
 ## User Preferences
 
