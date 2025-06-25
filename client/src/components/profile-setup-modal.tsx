@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, User, MapPin, DollarSign, GraduationCap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@clerk/clerk-react';
+import { useAuth } from '@/components/auth-wrapper';
+import { queryClient } from '@/lib/queryClient';
 
 interface ProfileSetupModalProps {
   open: boolean;
