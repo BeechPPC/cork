@@ -165,6 +165,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 24, 2025: Integrated SendGrid email confirmation directly into standalone serverless function for reliable email delivery
 - June 25, 2025: Fixed database storage integration in serverless email capture function - emails now properly saved to PostgreSQL with confirmation emails sent via SendGrid
 - June 25, 2025: Integrated Clerk authentication system with React components, updated useAuth hook to use Clerk's built-in authentication, added ClerkProvider wrapper and sign-in/sign-up components
+- June 25, 2025: Identified DNS configuration needed for Clerk authentication to work with getcork.app custom domain
 
 ## User Preferences
 
