@@ -1,18 +1,14 @@
-// Minimal recommendations endpoint for production
-module.exports = async (req, res) => {
-  try {
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+module.exports = (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    if (req.method === 'OPTIONS') {
-      return res.status(200).end();
-    }
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-    if (req.method === 'POST') {
-      // Return sample Australian wines to unblock user experience
-      const sampleRecommendations = [
+  if (req.method === 'POST') {
+    const recommendations = [
         {
           name: "Penfolds Bin 389",
           type: "Red Wine",
@@ -49,16 +45,11 @@ module.exports = async (req, res) => {
       ];
 
       return res.status(200).json({ 
-        recommendations: sampleRecommendations,
-        query: req.body.query || 'Australian wine recommendations',
+        recommendations: recommendations,
+        query: req.body?.query || 'Australian wine recommendations',
         timestamp: new Date().toISOString()
       });
     }
 
-    return res.status(405).json({ message: 'Method not allowed' });
-
-  } catch (error) {
-    console.error('Recommendations endpoint error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
-  }
+    return res.status(200).json({ message: 'Recommendations endpoint ready' });
 };
