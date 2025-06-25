@@ -48,26 +48,28 @@ export default async function handler(req, res) {
     let emailSaved = false;
     if (process.env.DATABASE_URL) {
       try {
+        console.log(`Attempting to save email: ${email}`);
         const pool = new Pool({ connectionString: process.env.DATABASE_URL });
         const db = drizzle({ client: pool, schema: { emailSignups } });
         
-        // Insert email signup with upsert behavior (ID will auto-increment)
-        await db.insert(emailSignups).values({
+        // Simple insert with returning to confirm save
+        const result = await db.insert(emailSignups).values({
           email: email.toLowerCase().trim(),
         }).onConflictDoUpdate({
           target: emailSignups.email,
           set: {
             createdAt: new Date(),
           },
-        });
+        }).returning();
         
         emailSaved = true;
-        console.log(`Email saved to database: ${email}`);
+        console.log(`Email successfully saved to database:`, result);
         
         // Close the connection
         await pool.end();
       } catch (dbError) {
-        console.error(`Database save failed for ${email}:`, dbError.message);
+        console.error(`Database save failed for ${email}:`, dbError);
+        console.error('Stack trace:', dbError.stack);
         // Don't fail the request if database fails
       }
     } else {
