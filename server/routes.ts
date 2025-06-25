@@ -879,6 +879,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.userId;
       const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body;
       
+      console.log("Profile setup request:", {
+        userId,
+        dateOfBirth,
+        wineExperienceLevel,
+        preferredWineTypes,
+        budgetRange,
+        location
+      });
+      
       // Validate age (must be 18+)
       if (dateOfBirth) {
         const birthDate = new Date(dateOfBirth);
@@ -902,13 +911,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location
       });
       
+      console.log("Profile updated successfully:", updatedUser);
+      
       res.json({ 
         message: "Profile setup completed successfully",
         user: updatedUser
       });
     } catch (error) {
       console.error("Error setting up profile:", error);
-      res.status(500).json({ message: "Failed to set up profile" });
+      console.error("Error details:", error.message);
+      console.error("Error stack:", error.stack);
+      res.status(500).json({ message: "Failed to set up profile", error: error.message });
     }
   });
 

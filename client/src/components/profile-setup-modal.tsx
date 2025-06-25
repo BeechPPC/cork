@@ -86,6 +86,14 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
     setIsLoading(true);
 
     try {
+      console.log("Submitting profile setup:", {
+        dateOfBirth,
+        wineExperienceLevel: experienceLevel || null,
+        preferredWineTypes: selectedWineTypes.length > 0 ? selectedWineTypes : null,
+        budgetRange: budgetRange || null,
+        location: location || null,
+      });
+
       await apiRequest("POST", "/api/profile/setup", {
         dateOfBirth,
         wineExperienceLevel: experienceLevel || null,
@@ -104,9 +112,10 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
 
       onComplete();
     } catch (error) {
+      console.error("Profile setup error:", error);
       toast({
         title: "Setup Failed",
-        description: "There was an error setting up your profile. Please try again.",
+        description: `There was an error setting up your profile: ${error.message || 'Please try again.'}`,
         variant: "destructive",
       });
     } finally {
