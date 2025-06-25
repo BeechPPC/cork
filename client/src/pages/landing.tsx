@@ -189,22 +189,14 @@ export default function Landing() {
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
             Join thousands of wine enthusiasts who trust cork for their wine discoveries
           </p>
-          {isClerkConfigured ? (
-            <SignUpButton mode="modal">
-              <Button 
-                className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                Get Started Free
-              </Button>
-            </SignUpButton>
-          ) : (
+          <ConditionalSignUpButton mode="modal">
             <Button 
-              disabled
-              className="bg-grape opacity-50 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg shadow-lg"
+              onClick={!isClerkConfigured ? handleGetStarted : undefined}
+              className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
             >
-              Get Started Free (Setup Required)
+              {isClerkConfigured ? "Get Started Free" : "Join Waitlist"}
             </Button>
-          )}
+          </ConditionalSignUpButton>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
             Free plan includes 3 saved wines • Premium from $4.99/month
           </p>
