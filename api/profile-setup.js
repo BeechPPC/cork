@@ -1,8 +1,4 @@
-// Simplified profile setup endpoint without external dependencies
-module.exports = async (req, res) => {
-
-
-  // CORS headers for all requests
+module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -16,22 +12,15 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Authentication check
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: "No valid authorization token" });
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    let userId;
+    const userId = 'user_' + Date.now();
 
-    // For testing, accept any token and use a test user ID
-    userId = 'user_' + Date.now();
-
-    // Extract profile data from request
-    const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body;
+    const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body || {};
     
-    // Age validation (must be 18+)
     if (dateOfBirth) {
       const birthDate = new Date(dateOfBirth);
       const today = new Date();
@@ -46,7 +35,6 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Simulate successful profile update
     const updatedUser = {
       id: userId,
       dateOfBirth,
@@ -58,14 +46,13 @@ module.exports = async (req, res) => {
       updatedAt: new Date().toISOString()
     };
 
-    res.status(200).json({ 
+    return res.status(200).json({ 
       message: "Profile setup completed successfully",
       user: updatedUser
     });
 
   } catch (error) {
-    console.error("Profile setup error:", error);
-    res.status(500).json({ 
+    return res.status(500).json({ 
       message: "Failed to set up profile", 
       error: error.message || "Unknown error"
     });
