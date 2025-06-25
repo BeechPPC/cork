@@ -47,10 +47,8 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  // Skip Vite setup in production/serverless environments
+  if (process.env.NODE_ENV === "development" && !process.env.VERCEL) {
     try {
       await setupVite(app, server);
     } catch (error) {
