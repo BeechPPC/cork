@@ -682,8 +682,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         subscription: subscription ? {
           id: subscription.id,
           status: subscription.status,
-          current_period_start: subscription.current_period_start,
-          current_period_end: subscription.current_period_end,
+          current_period_start: (subscription as any).current_period_start,
+          current_period_end: (subscription as any).current_period_end,
           cancel_at_period_end: subscription.cancel_at_period_end,
           plan: subscription.items.data[0]?.price.recurring?.interval,
           pause_collection: subscription.pause_collection,
