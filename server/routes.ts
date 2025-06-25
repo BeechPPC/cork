@@ -2,7 +2,7 @@ import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupClerkAuth, requireAuth } from "./clerkAuth";
+import { setupClerkAuth, requireAuth, isClerkConfigured } from "./clerkAuth";
 import { setupClerkWebhooks } from "./clerkWebhooks";
 import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
@@ -873,13 +873,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Profile setup endpoint
-  app.post('/api/profile/setup', requireAuth, async (req: any, res) => {
+  // Profile setup endpoint with serverless-compatible auth
+  app.post('/api/profile/setup', async (req: any, res) => {
     try {
-      const userId = req.userId;
-      
+      // Check if Clerk is configured
+      if (!isClerkConfigured) {
+        return res.status(503).json({ message: "Authentication not configured" });
+      }
+
+      // Extract auth token from headers
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No valid authorization token" });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      let userId: string;
+
+      try {
+        // Use Clerk to verify the session token
+        const { clerkClient } = require('@clerk/clerk-sdk-node');
+        const verifiedToken = await clerkClient.verifyToken(token);
+        userId = verifiedToken.sub;
+      } catch (authError) {
+        console.error("Token verification failed:", authError);
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
       if (!userId) {
-        return res.status(401).json({ message: "User ID not found" });
+        return res.status(401).json({ message: "User ID not found in token" });
       }
 
       const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body;
@@ -924,9 +946,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error setting up profile:", error);
-      console.error("Error details:", error.message);
-      console.error("Error stack:", error.stack);
-      res.status(500).json({ message: "Failed to set up profile", error: error.message });
+      console.error("Error details:", error?.message);
+      console.error("Error stack:", error?.stack);
+      res.status(500).json({ message: "Failed to set up profile", error: error?.message || "Unknown error" });
     }
   });
 

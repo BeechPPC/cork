@@ -172,6 +172,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Resolved Clerk authentication - DNS configuration verified in Clerk Dashboard, authentication now fully functional on getcork.app
 - June 25, 2025: Fixed post-authentication routing - users now properly redirected to dashboard after successful email verification and sign-up
 - June 25, 2025: Fixed profile setup FUNCTION_INVOCATION_FAILED error by improving authentication handling, database connection stability, and adding proper Clerk session verification
+- June 25, 2025: Replaced Clerk middleware with direct token verification for serverless compatibility - prevents middleware crashes in Vercel functions
 
 ## User Preferences
 

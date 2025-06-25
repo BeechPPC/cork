@@ -123,6 +123,11 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log("Storage - updating user profile:", { userId, profileData });
       
+      // Ensure database connection exists
+      if (!db) {
+        throw new Error("Database connection not available");
+      }
+      
       const [user] = await db
         .update(users)
         .set({ 
@@ -138,14 +143,14 @@ export class DatabaseStorage implements IStorage {
         .returning();
       
       if (!user) {
-        throw new Error("User not found");
+        throw new Error("User not found or update failed");
       }
       
       console.log("Storage - user profile updated successfully:", user);
       return user;
     } catch (error) {
       console.error("Storage - error updating user profile:", error);
-      throw error;
+      throw new Error(`Profile update failed: ${error?.message || 'Unknown database error'}`);
     }
   }
 

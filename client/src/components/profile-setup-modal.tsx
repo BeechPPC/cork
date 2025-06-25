@@ -94,13 +94,36 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
         location: location || null,
       });
 
-      await apiRequest("POST", "/api/profile/setup", {
+      // Get Clerk auth token directly
+      const { useAuth } = await import("@clerk/clerk-react");
+      const auth = useAuth();
+      const token = await auth.getToken();
+
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+
+      const requestData = {
         dateOfBirth,
         wineExperienceLevel: experienceLevel || null,
         preferredWineTypes: selectedWineTypes.length > 0 ? selectedWineTypes : null,
         budgetRange: budgetRange || null,
         location: location || null,
+      };
+
+      const response = await fetch("/api/profile/setup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestData),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
 
       // Invalidate user data to refresh profile
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });

@@ -2,7 +2,7 @@ import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
 import type { Express, RequestHandler } from "express";
 
 // Check if Clerk is configured
-const isClerkConfigured = process.env.CLERK_SECRET_KEY && 
+export const isClerkConfigured = process.env.CLERK_SECRET_KEY && 
   process.env.CLERK_SECRET_KEY !== 'sk_test_placeholder_clerk_secret_key_for_development';
 
 if (!isClerkConfigured) {
