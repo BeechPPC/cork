@@ -25,37 +25,56 @@ function ActionButton({ children, onClick, className }: {
 
 export default function Landing() {
   const [showEmailCapture, setShowEmailCapture] = useState(false);
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, user } = useAuth();
   const [, setLocation] = useLocation();
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
+    console.log("Landing useEffect - Auth state:", { isLoaded, isSignedIn, hasUser: !!user });
+    
     if (isLoaded && isSignedIn) {
       console.log("Landing: Redirecting authenticated user to dashboard");
       setLocation("/dashboard");
+      return;
     }
-  }, [isLoaded, isSignedIn, setLocation]);
+    
+    // Also check for user presence as backup
+    if (isLoaded && user) {
+      console.log("Landing: User found, redirecting to dashboard");
+      setLocation("/dashboard");
+      return;
+    }
+  }, [isLoaded, isSignedIn, user, setLocation]);
 
   // Show email capture popup after 3 seconds (only for non-authenticated users)
   useEffect(() => {
-    if (!isSignedIn) {
+    if (isLoaded && !isSignedIn && !user) {
       const timer = setTimeout(() => {
         setShowEmailCapture(true);
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [isSignedIn]);
+  }, [isLoaded, isSignedIn, user]);
 
   const handleGetStarted = () => {
     if (isClerkConfigured) {
-      // Redirect to signup/dashboard when auth is available
+      // Use Clerk SignUp component instead of direct navigation
       window.location.href = '/api/login';
     } else {
       // Show email capture when auth is not available
       setShowEmailCapture(true);
     }
   };
+
+  // Don't render landing page content if user is authenticated
+  if (isLoaded && (isSignedIn || user)) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream dark:bg-gray-900">

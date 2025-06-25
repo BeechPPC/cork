@@ -38,11 +38,14 @@ function Router() {
     );
   }
 
+  // Check for authentication with both isSignedIn and user presence
+  const isAuthenticated = isSignedIn || !!user;
+
   return (
     <Switch>
       {/* Root route - redirect based on auth state */}
       <Route path="/">
-        {isSignedIn ? <Dashboard /> : <Landing />}
+        {isAuthenticated ? <Dashboard /> : <Landing />}
       </Route>
       
       {/* Public routes - always accessible */}
@@ -58,7 +61,7 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       
       {/* Protected routes - only accessible when signed in */}
-      {isSignedIn && (
+      {isAuthenticated && (
         <>
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/cellar" component={Cellar} />
@@ -70,7 +73,7 @@ function Router() {
       )}
       
       {/* Fallback routes */}
-      <Route component={isSignedIn ? NotFound : Landing} />
+      <Route component={isAuthenticated ? NotFound : Landing} />
     </Switch>
   );
 }
