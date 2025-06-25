@@ -1,18 +1,17 @@
 import sgMail from '@sendgrid/mail';
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
-import { pgTable, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, varchar, timestamp, serial } from 'drizzle-orm/pg-core';
 import { eq } from 'drizzle-orm';
 import ws from 'ws';
 
 // Configure Neon for serverless
 neonConfig.webSocketConstructor = ws;
 
-// Define email signups table schema inline for standalone function
+// Define email signups table schema inline for standalone function (matching actual DB)
 const emailSignups = pgTable("email_signups", {
-  id: varchar("id").primaryKey().notNull(),
+  id: serial("id").primaryKey(),
   email: varchar("email").unique().notNull(),
-  firstName: varchar("first_name"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -52,18 +51,12 @@ export default async function handler(req, res) {
         const pool = new Pool({ connectionString: process.env.DATABASE_URL });
         const db = drizzle({ client: pool, schema: { emailSignups } });
         
-        // Generate a simple ID
-        const signupId = `signup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // Insert email signup with upsert behavior
+        // Insert email signup with upsert behavior (ID will auto-increment)
         await db.insert(emailSignups).values({
-          id: signupId,
           email: email.toLowerCase().trim(),
-          firstName: firstName?.trim() || null,
         }).onConflictDoUpdate({
           target: emailSignups.email,
           set: {
-            firstName: firstName?.trim() || null,
             createdAt: new Date(),
           },
         });
