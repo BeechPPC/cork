@@ -72,7 +72,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.userId;
+      const userId = req.auth?.userId || req.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "No user ID found" });
+      }
+      
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });

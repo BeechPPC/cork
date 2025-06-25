@@ -1,21 +1,25 @@
-import { useUser } from "@clerk/clerk-react";
-import { useQuery } from "@tanstack/react-query";
+import { useAuth as useClerkAuth, useUser } from "@clerk/clerk-react";
 import { isClerkConfigured } from "@/lib/clerk";
 
 export function useAuth() {
-  const clerkHook = isClerkConfigured ? useUser() : { user: null, isLoaded: true };
-  const { user: clerkUser, isLoaded: clerkLoaded } = clerkHook;
-  
-  const { data: user, isLoading: userLoading } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-    enabled: !!clerkUser && clerkLoaded && isClerkConfigured,
-  });
+  const clerkAuth = useClerkAuth();
+  const { user } = useUser();
+
+  if (!isClerkConfigured) {
+    return {
+      user: null,
+      isLoading: false,
+      isAuthenticated: false,
+      isSignedIn: false,
+      isLoaded: true,
+    };
+  }
 
   return {
     user,
-    clerkUser,
-    isLoading: isClerkConfigured ? (!clerkLoaded || userLoading) : false,
-    isAuthenticated: isClerkConfigured ? (!!clerkUser && !!user) : false,
+    isLoading: !clerkAuth.isLoaded,
+    isAuthenticated: clerkAuth.isSignedIn,
+    isSignedIn: clerkAuth.isSignedIn,
+    isLoaded: clerkAuth.isLoaded,
   };
 }
