@@ -9,7 +9,9 @@ import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHi
 import { sendEmailSignupConfirmation } from "./emailService.js";
 import { db } from "./db.js";
 import Stripe from "stripe";
-import multer from "multer";
+import type multer from "multer";
+import multerPkg from "multer";
+const multer = multerPkg;
 
 // Stripe setup
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -883,7 +885,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: subscription.id,
           status: subscription.status,
           cancel_at_period_end: subscription.cancel_at_period_end,
-          current_period_end: subscription.current_period_end,
+          current_period_end: (subscription as any).current_period_end,
         }
       });
     } catch (error: any) {
