@@ -115,7 +115,7 @@ The app uses Drizzle ORM with PostgreSQL. Schema is defined in `shared/schema.ts
 - Basic wine recommendations
 - Educational content access
 
-### Premium Tier ($4.99/month or $49.99/year)
+### Premium Tier ($4.99/month or $49.99/yearly)
 - Unlimited saved wines
 - Unlimited photo uploads
 - Voice search functionality

@@ -20,6 +20,7 @@ if (!isClerkConfigured) {
   if (window.location.hostname === 'getcork.app') {
     console.warn('Authentication disabled: VITE_CLERK_PUBLISHABLE_KEY not properly configured');
   } else {
-    console.log('Authentication disabled for development - test on getcork.app for full functionality');
+    console.log('🔒 Authentication disabled for development. Please test on getcork.app for full functionality.');
+    console.log('💡 Clerk production keys are domain-restricted to getcork.app for security.');
   }
 }

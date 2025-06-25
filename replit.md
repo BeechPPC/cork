@@ -167,6 +167,8 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Integrated Clerk authentication system with React components, updated useAuth hook to use Clerk's built-in authentication, added ClerkProvider wrapper and sign-in/sign-up components
 - June 25, 2025: Identified DNS configuration needed for Clerk authentication to work with getcork.app custom domain
 - June 25, 2025: Resolved Clerk domain restriction issue - production keys only work on getcork.app, development keys needed for Replit testing
+- June 25, 2025: Confirmed Clerk OAuth error on development domain - authentication works only on getcork.app production domain due to domain restrictions
+- June 25, 2025: Identified Clerk Dashboard domain configuration needed - OAuth client_id error indicates getcork.app domain not added to allowed origins in Clerk settings
 
 ## User Preferences
 

@@ -33,14 +33,24 @@ CLERK_WEBHOOK_SECRET=whsec_your_webhook_secret
 3. Select events: `user.created`, `user.updated`, `user.deleted`
 4. Copy the webhook secret to `CLERK_WEBHOOK_SECRET`
 
-### 5. Test Authentication
-Once configured with real keys:
-- Sign In/Get Started buttons will become clickable
+### 5. Configure Domain Settings
+**CRITICAL:** In Clerk Dashboard → Settings → Domain:
+1. Add `getcork.app` as an authorized domain
+2. Set allowed origins to include `https://getcork.app`
+3. Configure redirect URLs:
+   - Sign-in redirect: `https://getcork.app`
+   - Sign-up redirect: `https://getcork.app`
+   - After sign-out: `https://getcork.app`
+
+### 6. Test Authentication
+Once configured with real keys and domain settings:
+- Sign In/Get Started buttons will work on getcork.app
 - Users can create accounts and sign in
 - User data syncs to your database automatically
 
 ## Current Status
-- ❌ Using placeholder keys (authentication disabled)
+- ✅ Production keys configured
+- ❌ Domain not configured in Clerk Dashboard (causing OAuth error)
 - ✅ Frontend components ready
 - ✅ Backend middleware configured
 - ✅ Database schema ready
