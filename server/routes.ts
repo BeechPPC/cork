@@ -909,14 +909,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Reactivate canceled subscription
-  app.post("/api/reactivate-subscription", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.post("/api/reactivate-subscription", requireAuth, async (req: any, res) => {
     const user = req.user;
     
-    if (!user.stripeSubscriptionId || !stripe) {
+    if (!user?.stripeSubscriptionId || !stripe) {
       return res.status(400).json({ message: "No subscription found" });
     }
 
@@ -925,7 +921,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         cancel_at_period_end: false,
       });
 
-      await storage.updateUserSubscriptionPlan(user.id, 'premium');
+      await storage.updateUserSubscriptionPlan(user?.id || '', 'premium');
 
       res.json({ 
         success: true, 
@@ -1096,10 +1092,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("=== PROFILE SETUP ERROR DETAILS ===");
       console.error("Error:", error);
-      console.error("Error name:", error?.name);
-      console.error("Error message:", error?.message);
-      console.error("Error stack:", error?.stack);
-      console.error("Error constructor:", error?.constructor?.name);
+      console.error("Error name:", (error as any)?.name);
+      console.error("Error message:", (error as any)?.message);
+      console.error("Error stack:", (error as any)?.stack);
+      console.error("Error constructor:", (error as any)?.constructor?.name);
       console.error("=====================================");
       
       res.status(500).json({ 
