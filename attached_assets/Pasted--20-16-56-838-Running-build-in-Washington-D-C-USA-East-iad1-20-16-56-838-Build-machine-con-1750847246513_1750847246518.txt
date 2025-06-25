@@ -1,0 +1,138 @@
+[20:16:56.838] Running build in Washington, D.C., USA (East) – iad1
+[20:16:56.838] Build machine configuration: 2 cores, 8 GB
+[20:16:56.879] Cloning github.com/BeechPPC/cork (Branch: main, Commit: 27f25e8)
+[20:16:57.294] Cloning completed: 415.000ms
+[20:16:58.607] Restored build cache from previous deployment (Hit3kEBDyKdZR3KsaszUaWCfeJf8)
+[20:16:59.215] Running "vercel build"
+[20:16:59.981] Vercel CLI 43.3.0
+[20:17:00.154] WARN! Due to `builds` existing in your configuration file, the Build and Development Settings defined in your Project Settings will not apply. Learn More: https://vercel.link/unused-build-settings
+[20:17:01.033] Installing dependencies...
+[20:17:02.690] 
+[20:17:02.691] up to date in 1s
+[20:17:02.692] 
+[20:17:02.692] 72 packages are looking for funding
+[20:17:02.692]   run `npm fund` for details
+[20:17:02.707] Running "npm run build"
+[20:17:02.830] 
+[20:17:02.831] > rest-express@1.0.0 build
+[20:17:02.831] > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[20:17:02.832] 
+[20:17:03.097] [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+[20:17:03.158] transforming...
+[20:17:03.506] Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+[20:17:03.506]   npx update-browserslist-db@latest
+[20:17:03.506]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[20:17:09.419] [32m✓[39m 1827 modules transformed.
+[20:17:09.890] rendering chunks...
+[20:17:09.903] computing gzip size...
+[20:17:09.926] [2m../dist/public/[22m[32mindex.html                 [39m[1m[2m  1.02 kB[22m[1m[22m[2m │ gzip:   0.52 kB[22m
+[20:17:09.927] [2m../dist/public/[22m[2massets/[22m[35mindex-CPSBS2zc.css  [39m[1m[2m 87.65 kB[22m[1m[22m[2m │ gzip:  14.62 kB[22m
+[20:17:09.929] [2m../dist/public/[22m[2massets/[22m[36mindex-BDldTtxn.js   [39m[1m[33m779.29 kB[39m[22m[2m │ gzip: 207.88 kB[22m
+[20:17:09.930] [32m✓ built in 6.80s[39m
+[20:17:09.930] [33m
+[20:17:09.930] (!) Some chunks are larger than 500 kB after minification. Consider:
+[20:17:09.931] - Using dynamic import() to code-split the application
+[20:17:09.932] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[20:17:09.932] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[20:17:09.993] 
+[20:17:09.994]   dist/index.js  79.6kb
+[20:17:09.994] 
+[20:17:09.994] ⚡ Done in 14ms
+[20:17:11.944] Using TypeScript 5.6.3 (local user-provided)
+[20:17:19.873] server/routes.ts(173,15): error TS2339: Property 'analyzeMealPairing' does not exist on type 'typeof import("/vercel/path0/server/openai")'.
+[20:17:19.873] server/routes.ts(625,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.874] server/routes.ts(630,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.874] server/routes.ts(630,15): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.874] server/routes.ts(641,56): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.874] server/routes.ts(641,61): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.874] server/routes.ts(645,19): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.875] server/routes.ts(645,24): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.875] server/routes.ts(651,11): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.875] server/routes.ts(651,16): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.875] server/routes.ts(652,60): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.876] server/routes.ts(652,65): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.876] server/routes.ts(657,19): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.876] server/routes.ts(657,24): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.876] server/routes.ts(664,27): error TS2339: Property 'email' does not exist on type 'Response<Customer | DeletedCustomer>'.
+[20:17:19.876]   Property 'email' does not exist on type 'DeletedCustomer & { lastResponse: { headers: { [key: string]: string; }; requestId: string; statusCode: number; apiVersion?: string | undefined; idempotencyKey?: string | undefined; stripeAccount?: string | undefined; }; }'.
+[20:17:19.877] server/routes.ts(665,26): error TS2339: Property 'name' does not exist on type 'Response<Customer | DeletedCustomer>'.
+[20:17:19.878]   Property 'name' does not exist on type 'DeletedCustomer & { lastResponse: { headers: { [key: string]: string; }; requestId: string; statusCode: number; apiVersion?: string | undefined; idempotencyKey?: string | undefined; stripeAccount?: string | undefined; }; }'.
+[20:17:19.878] server/routes.ts(666,29): error TS2339: Property 'address' does not exist on type 'Response<Customer | DeletedCustomer>'.
+[20:17:19.878]   Property 'address' does not exist on type 'DeletedCustomer & { lastResponse: { headers: { [key: string]: string; }; requestId: string; statusCode: number; apiVersion?: string | undefined; idempotencyKey?: string | undefined; stripeAccount?: string | undefined; }; }'.
+[20:17:19.878] server/routes.ts(689,46): error TS2339: Property 'current_period_start' does not exist on type 'Response<Subscription>'.
+[20:17:19.879] server/routes.ts(690,44): error TS2339: Property 'current_period_end' does not exist on type 'Response<Subscription>'.
+[20:17:19.879] server/routes.ts(704,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.879] server/routes.ts(709,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.879] server/routes.ts(709,15): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.879] server/routes.ts(716,54): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.880] server/routes.ts(716,59): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.880] server/routes.ts(736,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.880] server/routes.ts(741,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.880] server/routes.ts(741,15): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.880] server/routes.ts(747,19): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.881] server/routes.ts(747,24): error TS2339: Property 'stripeCustomerId' does not exist on type 'User'.
+[20:17:19.881] server/routes.ts(760,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.881] server/routes.ts(765,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.881] server/routes.ts(765,15): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.882] server/routes.ts(770,62): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.882] server/routes.ts(770,67): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.882] server/routes.ts(793,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.882] server/routes.ts(798,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.882] server/routes.ts(798,15): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.883] server/routes.ts(803,62): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.883] server/routes.ts(803,67): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.883] server/routes.ts(824,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.883] server/routes.ts(831,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.883] server/routes.ts(831,15): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.884] server/routes.ts(836,64): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.884] server/routes.ts(836,69): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.884] server/routes.ts(852,69): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.884] server/routes.ts(852,74): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.885] server/routes.ts(877,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.885] server/routes.ts(884,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.885] server/routes.ts(884,15): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.885] server/routes.ts(893,58): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.886] server/routes.ts(893,63): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.886] server/routes.ts(894,50): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.886] server/routes.ts(894,55): error TS2339: Property 'id' does not exist on type 'User'.
+[20:17:19.886] server/routes.ts(897,58): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.886] server/routes.ts(897,63): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.893] server/routes.ts(914,44): error TS2339: Property 'current_period_end' does not exist on type 'Response<Subscription>'.
+[20:17:19.893] server/routes.ts(925,14): error TS2339: Property 'requireAuth' does not exist on type 'Request<{}, any, any, ParsedQs, Record<string, any>>'.
+[20:17:19.893] server/routes.ts(931,10): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.893] server/routes.ts(931,15): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.893] server/routes.ts(936,62): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.894] server/routes.ts(936,67): error TS2339: Property 'stripeSubscriptionId' does not exist on type 'User'.
+[20:17:19.894] server/routes.ts(940,48): error TS18048: 'user' is possibly 'undefined'.
+[20:17:19.894] server/routes.ts(940,53): error TS2339: Property 'id' does not exist on type 'User'.
+[20:17:19.894] server/routes.ts(1111,43): error TS2339: Property 'name' does not exist on type '{}'.
+[20:17:19.894] server/routes.ts(1112,46): error TS2339: Property 'message' does not exist on type '{}'.
+[20:17:19.895] server/routes.ts(1113,44): error TS2339: Property 'stack' does not exist on type '{}'.
+[20:17:19.895] server/routes.ts(1119,23): error TS2339: Property 'message' does not exist on type '{}'.
+[20:17:19.895] server/routes.ts(1121,25): error TS2339: Property 'stack' does not exist on type '{}'.
+[20:17:19.895] server/routes.ts(1139,17): error TS18047: 'stripe' is possibly 'null'.
+[20:17:19.895] server/routes.ts(1267,30): error TS7006: Parameter 'signup' implicitly has an 'any' type.
+[20:17:19.896] 
+[20:17:20.019] server/vite.ts(39,5): error TS2322: Type '{ middlewareMode: boolean; hmr: { server: Server<typeof IncomingMessage, typeof ServerResponse>; }; allowedHosts: boolean; }' is not assignable to type 'ServerOptions'.
+[20:17:20.020]   Types of property 'allowedHosts' are incompatible.
+[20:17:20.020]     Type 'boolean' is not assignable to type 'true | string[] | undefined'.
+[20:17:20.020] 
+[20:17:21.539] server/storage.ts(152,56): error TS2339: Property 'message' does not exist on type '{}'.
+[20:17:21.539] 
+[20:17:21.618] server/clerkWebhooks.ts(60,49): error TS18046: 'handlerError' is of type 'unknown'.
+[20:17:21.618] server/clerkWebhooks.ts(63,20): error TS18046: 'handlerError' is of type 'unknown'.
+[20:17:21.619] server/clerkWebhooks.ts(69,50): error TS18046: 'error' is of type 'unknown'.
+[20:17:21.619] server/clerkWebhooks.ts(72,18): error TS18046: 'error' is of type 'unknown'.
+[20:17:21.619] server/clerkWebhooks.ts(126,39): error TS18046: 'error' is of type 'unknown'.
+[20:17:21.619] server/clerkWebhooks.ts(127,37): error TS18046: 'error' is of type 'unknown'.
+[20:17:21.619] server/clerkWebhooks.ts(131,9): error TS18046: 'error' is of type 'unknown'.
+[20:17:21.619] server/clerkWebhooks.ts(132,42): error TS18046: 'error' is of type 'unknown'.
+[20:17:21.619] server/clerkWebhooks.ts(136,44): error TS18046: 'error' is of type 'unknown'.
+[20:17:21.619] 
+[20:17:47.311] Build Completed in /vercel/output [46s]
+[20:17:47.675] Deploying outputs...
+[20:17:55.079] 
+[20:17:55.221] Deployment completed
+[20:18:25.376] Uploading build cache [114.62 MB]...
+[20:18:26.962] Build cache uploaded: 1.586s
+[20:18:29.207] Exiting build container
