@@ -1102,7 +1102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Cancel Stripe subscription if it exists
-      if (user.stripeSubscriptionId) {
+      if (user.stripeSubscriptionId && stripe) {
         try {
           await stripe.subscriptions.cancel(user.stripeSubscriptionId);
           console.log(`Cancelled Stripe subscription ${user.stripeSubscriptionId} for user ${userId}`);
@@ -1232,7 +1232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         total: signups.length,
-        signups: signups.map(signup => ({
+        signups: signups.map((signup: any) => ({
           id: signup.id,
           email: signup.email,
           firstName: signup.firstName,
