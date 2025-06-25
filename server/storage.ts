@@ -13,7 +13,7 @@ import {
   type RecommendationHistory,
   type InsertRecommendationHistory,
   type EmailSignup,
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, desc, count } from "drizzle-orm";
 

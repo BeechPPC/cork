@@ -5,7 +5,7 @@ import { storage } from "./storage.js";
 import { setupClerkAuth, requireAuth, isClerkConfigured } from "./clerkAuth.js";
 import { setupClerkWebhooks } from "./clerkWebhooks.js";
 import { getWineRecommendations, analyseWineImage, analyzeMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai.js";
-import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
+import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "../shared/schema.js";
 import { sendEmailSignupConfirmation } from "./emailService.js";
 import { db } from "./db.js";
 import Stripe from "stripe";
@@ -1225,8 +1225,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // View email signups (admin/development endpoint)
   app.get("/api/email-signups", async (req, res) => {
     try {
-      const { emailSignups } = await import("@shared/schema");
-      const { db } = await import("./db");
+      const { emailSignups } = await import("../shared/schema.js");
+      const { db } = await import("./db.js");
       
       const signups = await db.select().from(emailSignups).orderBy(emailSignups.createdAt);
       
