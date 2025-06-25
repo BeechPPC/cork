@@ -57,19 +57,19 @@ export function setupClerkWebhooks(app: Express) {
 
       } catch (handlerError) {
         console.error('❌ Error in webhook handler:', handlerError);
-        console.error('❌ Handler error stack:', handlerError.stack);
+        console.error('❌ Handler error stack:', (handlerError as Error).stack);
         return res.status(500).json({ 
           error: 'Internal server error', 
-          message: handlerError.message 
+          message: (handlerError as Error).message 
         });
       }
 
     } catch (error) {
       console.error('❌ Unexpected webhook error:', error);
-      console.error('❌ Unexpected error stack:', error.stack);
+      console.error('❌ Unexpected error stack:', (error as Error).stack);
       return res.status(500).json({ 
         error: 'Internal server error',
-        message: error.message 
+        message: (error as Error).message 
       });
     }
   });

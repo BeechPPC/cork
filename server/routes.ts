@@ -4,7 +4,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage.js";
 import { setupClerkAuth, requireAuth, isClerkConfigured } from "./clerkAuth.js";
 import { setupClerkWebhooks } from "./clerkWebhooks.js";
-import { getWineRecommendations, analyseWineImage, analyseMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai.js";
+import { getWineRecommendations, analyseWineImage, analyzeMealPairing, searchAustralianWineries, analyzeWineMenu } from "./openai.js";
 import { insertSavedWineSchema, insertUploadedWineSchema, insertRecommendationHistorySchema } from "@shared/schema";
 import { sendEmailSignupConfirmation } from "./emailService.js";
 import { db } from "./db.js";
@@ -621,11 +621,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get billing information for subscription management
-  app.get("/api/billing-info", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.get("/api/billing-info", requireAuth, async (req: any, res) => {
     const user = req.user;
     if (!user.stripeCustomerId || !stripe) {
       return res.json({ 
@@ -638,7 +634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       // Get customer billing information
-      const customer = await stripe.customers.retrieve(user.stripeCustomerId);
+      const customer = await stripe.customers.retrieve(user.stripeCustomerId) as Stripe.Customer;
       
       // Get invoices
       const invoices = await stripe.invoices.list({
@@ -647,7 +643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Get subscription details
-      let subscription = null;
+      let subscription: Stripe.Subscription | null = null;
       if (user.stripeSubscriptionId) {
         subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
       }

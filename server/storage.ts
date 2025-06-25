@@ -149,7 +149,7 @@ export class DatabaseStorage implements IStorage {
       return user;
     } catch (error) {
       console.error("Storage - error updating user profile:", error);
-      throw new Error(`Profile update failed: ${error?.message || 'Unknown database error'}`);
+      throw new Error(`Profile update failed: ${(error as Error)?.message || 'Unknown database error'}`);
     }
   }
 

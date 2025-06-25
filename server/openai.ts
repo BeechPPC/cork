@@ -126,7 +126,7 @@ Be conversational and helpful, as if you're a knowledgeable sommelier assisting 
   return response.choices[0]?.message?.content || "Unable to analyze the wine menu. Please try again with a clearer image.";
 }
 
-export async function analyseMealPairing(base64Image: string, analysisType: 'meal' | 'menu'): Promise<MealPairingAnalysis> {
+export async function analyzeMealPairing(base64Image: string, analysisType: 'meal' | 'menu'): Promise<MealPairingAnalysis> {
   // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
   const isMenuAnalysis = analysisType === 'menu';
   
