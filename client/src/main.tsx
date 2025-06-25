@@ -4,12 +4,17 @@ import App from "./App";
 import "./index.css";
 import { clerkPubKey, isClerkConfigured } from './lib/clerk';
 
-createRoot(document.getElementById("root")!).render(
-  isClerkConfigured ? (
+const AppWithClerk = () => {
+  if (!isClerkConfigured) {
+    console.warn('Clerk not configured, running without authentication');
+    return <App />;
+  }
+
+  return (
     <ClerkProvider publishableKey={clerkPubKey}>
       <App />
     </ClerkProvider>
-  ) : (
-    <App />
-  )
-);
+  );
+};
+
+createRoot(document.getElementById("root")!).render(<AppWithClerk />);

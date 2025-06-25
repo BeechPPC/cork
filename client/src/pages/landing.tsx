@@ -10,6 +10,7 @@ import { Link } from "wouter";
 import Header from "@/components/header";
 import EmailCaptureModal from "@/components/email-capture-modal";
 
+
 export default function Landing() {
   const [showEmailCapture, setShowEmailCapture] = useState(false);
 
@@ -301,6 +302,8 @@ export default function Landing() {
         open={showEmailCapture} 
         onOpenChange={setShowEmailCapture} 
       />
+      
+
     </div>
   );
 }
