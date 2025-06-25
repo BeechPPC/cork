@@ -178,6 +178,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Enhanced sign-in/user components with fallback states when Clerk is not configured
 - June 25, 2025: Completed Issue #1 - Fixed inconsistent auth middleware usage across all protected routes by replacing requireAuth with serverless-compatible token verification
 - June 25, 2025: Completed Issue #2 - Enhanced landing page authentication integration with proper fallbacks, replaced alert with email capture for non-configured auth
+- June 25, 2025: Completed Issue #3 - Integrated client-side auth token support with useAuthenticatedQuery and useAuthenticatedMutation hooks for automatic token inclusion in API calls
 
 ## User Preferences
 

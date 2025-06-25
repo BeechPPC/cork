@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +10,8 @@ import { Loader2, Wine, Sparkles, Camera, MessageSquare, Mic, Upload, FileText }
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { useAuthenticatedQuery } from "@/hooks/useAuthenticatedQuery";
+import { useAuthenticatedMutation } from "@/hooks/useAuthenticatedMutation";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import WineCard from "@/components/wine-card";
