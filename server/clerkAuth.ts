@@ -19,13 +19,18 @@ export const requireAuth: RequestHandler = (req, res, next) => {
   }
 
   // Use Clerk's Express middleware
-  ClerkExpressRequireAuth()(req, res, (err) => {
+  const clerkMiddleware = ClerkExpressRequireAuth();
+  clerkMiddleware(req, res, (err) => {
     if (err) {
+      console.error("Clerk auth error:", err);
       return res.status(401).json({ message: "Unauthorized" });
     }
     
     // Add userId to request for easy access
-    req.userId = req.auth?.userId;
+    if (req.auth?.userId) {
+      req.userId = req.auth.userId;
+    }
+    
     next();
   });
 };
