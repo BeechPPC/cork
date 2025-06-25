@@ -1,9 +1,9 @@
-import express, { type Express } from "express";
+mport express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
-import viteConfig from "../vite.config.js";
+import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
 
 const viteLogger = createLogger();
@@ -23,6 +23,7 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
+    allowedHosts: true,
   };
 
   const vite = await createViteServer({
@@ -32,10 +33,7 @@ export async function setupVite(app: Express, server: Server) {
       ...viteLogger,
       error: (msg, options) => {
         viteLogger.error(msg, options);
-        if (process.env.NODE_ENV === "development") {
-          process.exit(1);
-        }
-        // In production, log the error but keep the server running
+        process.exit(1);
       },
     },
     server: serverOptions,
