@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useContext } from 'react';
 import { isClerkConfigured } from "@/lib/clerk";
 
-// Create a consistent auth context that works with or without Clerk
+// Create a consistent auth context
 interface AuthContextType {
   user: any;
   isLoading: boolean;
@@ -23,35 +23,28 @@ interface AuthWrapperProps {
   children: ReactNode;
 }
 
-function ClerkAuthWrapper({ children }: AuthWrapperProps) {
-  try {
-    // Only import and use Clerk hooks when we know ClerkProvider exists
-    const { useAuth: useClerkAuth, useUser } = require("@clerk/clerk-react");
-    const clerkAuth = useClerkAuth();
-    const { user } = useUser();
-    
-    const authValue: AuthContextType = {
-      user,
-      isLoading: !clerkAuth.isLoaded,
-      isAuthenticated: clerkAuth.isSignedIn || false,
-      isSignedIn: clerkAuth.isSignedIn || false,
-      isLoaded: clerkAuth.isLoaded || false,
-      getToken: clerkAuth.getToken,
-    };
+function ClerkAuthContent({ children }: AuthWrapperProps) {
+  const { useAuth: useClerkAuth, useUser } = require("@clerk/clerk-react");
+  const clerkAuth = useClerkAuth();
+  const { user } = useUser();
+  
+  const authValue: AuthContextType = {
+    user,
+    isLoading: !clerkAuth.isLoaded,
+    isAuthenticated: clerkAuth.isSignedIn || false,
+    isSignedIn: clerkAuth.isSignedIn || false,
+    isLoaded: clerkAuth.isLoaded || false,
+    getToken: clerkAuth.getToken,
+  };
 
-    return (
-      <AuthContext.Provider value={authValue}>
-        {children}
-      </AuthContext.Provider>
-    );
-  } catch (error) {
-    console.error("ClerkAuthWrapper error:", error);
-    // Fallback to disabled auth if Clerk hooks fail
-    return <DisabledAuthWrapper>{children}</DisabledAuthWrapper>;
-  }
+  return (
+    <AuthContext.Provider value={authValue}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-function DisabledAuthWrapper({ children }: AuthWrapperProps) {
+function DisabledAuthContent({ children }: AuthWrapperProps) {
   const authValue: AuthContextType = {
     user: null,
     isLoading: false,
@@ -70,9 +63,9 @@ function DisabledAuthWrapper({ children }: AuthWrapperProps) {
 
 export function AuthWrapper({ children }: AuthWrapperProps) {
   if (isClerkConfigured) {
-    return <ClerkAuthWrapper>{children}</ClerkAuthWrapper>;
+    return <ClerkAuthContent>{children}</ClerkAuthContent>;
   } else {
-    return <DisabledAuthWrapper>{children}</DisabledAuthWrapper>;
+    return <DisabledAuthContent>{children}</DisabledAuthContent>;
   }
 }
 

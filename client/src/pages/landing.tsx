@@ -19,7 +19,7 @@ function ConditionalSignUpButton({ children, mode }: { children: React.ReactNode
     const { SignUpButton } = require("@clerk/clerk-react");
     return <SignUpButton mode={mode}>{children}</SignUpButton>;
   } catch (error) {
-    console.error("Failed to load SignUpButton:", error);
+    console.error("SignUpButton load error:", error);
     return <>{children}</>;
   }
 }
