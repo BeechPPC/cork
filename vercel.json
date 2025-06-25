@@ -53,14 +53,7 @@
       "src": "/api/email-signup",
       "dest": "/api/email-signup.js"
     },
-    {
-      "src": "/api/profile/setup",
-      "dest": "/api/profile-complete.js"
-    },
-    {
-      "src": "/api/recommendations",
-      "dest": "/api/wine-recommendations.js"
-    },
+
     {
       "src": "/api/auth-test",
       "dest": "/api/auth-test.js"

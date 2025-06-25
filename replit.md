@@ -203,6 +203,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Production deployment verification completed - confirmed Vercel hosting stability with working frontend, health checks, and email capture; identified final syntax fix requirement (semicolon to comma in server/vite.ts line 26) to resolve remaining API endpoint failures
 - June 25, 2025: Critical authentication fix implemented - resolved FUNCTION_INVOCATION_FAILED errors by creating standalone serverless endpoints for profile setup and recommendations, bypassing TypeScript compilation issues in protected vite.ts configuration that were preventing account creation on production
 - June 25, 2025: Comprehensive analysis completed - identified root cause as TypeScript compilation errors in protected server/vite.ts preventing ALL Vercel serverless functions from deploying, documented complete issue analysis in DEPLOYMENT_STATUS.md with specific error details and required fixes
+- June 25, 2025: Implemented routing fix - removed broken standalone serverless function routing for profile/setup and recommendations endpoints, routing them through working Express server to bypass TypeScript compilation failures and restore account creation functionality
 
 ## Authentication Status
 
