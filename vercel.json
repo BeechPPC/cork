@@ -13,6 +13,10 @@
       "src": "api/profile-setup.js",
       "use": "@vercel/node"
     },
+    {
+      "src": "api/recommendations-basic.js",
+      "use": "@vercel/node"
+    },
 
 
     {
@@ -41,8 +45,10 @@
       "src": "/api/profile/setup",
       "dest": "/api/profile-setup.js"
     },
-
-
+    {
+      "src": "/api/recommendations",
+      "dest": "/api/recommendations-basic.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/server/index.ts"

@@ -201,6 +201,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Resolved TypeScript schema compilation errors - simplified Drizzle insert schema definitions and enhanced TypeScript configuration with skipLibCheck for production stability
 - June 25, 2025: Implemented standalone serverless API endpoints for critical account creation functions - created dedicated profile.js and recommendations.js handlers to bypass main server issues, ensuring reliable user onboarding with authentic Australian wine data
 - June 25, 2025: Production deployment verification completed - confirmed Vercel hosting stability with working frontend, health checks, and email capture; identified final syntax fix requirement (semicolon to comma in server/vite.ts line 26) to resolve remaining API endpoint failures
+- June 25, 2025: Critical authentication fix implemented - resolved FUNCTION_INVOCATION_FAILED errors by creating standalone serverless endpoints for profile setup and recommendations, bypassing TypeScript compilation issues in protected vite.ts configuration that were preventing account creation on production
 
 ## Authentication Status
 
