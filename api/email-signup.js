@@ -1,6 +1,22 @@
 import sgMail from '@sendgrid/mail';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import { pgTable, varchar, timestamp } from 'drizzle-orm/pg-core';
+import { eq } from 'drizzle-orm';
+import ws from 'ws';
 
-// Standalone serverless function for email signup with SendGrid integration
+// Configure Neon for serverless
+neonConfig.webSocketConstructor = ws;
+
+// Define email signups table schema inline for standalone function
+const emailSignups = pgTable("email_signups", {
+  id: varchar("id").primaryKey().notNull(),
+  email: varchar("email").unique().notNull(),
+  firstName: varchar("first_name"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Standalone serverless function for email signup with database storage and SendGrid integration
 export default async function handler(req, res) {
   // CORS headers for cross-origin requests
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -29,12 +45,49 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Please enter a valid email address' });
     }
 
-    // Log email signup for collection
+    // Save email to database
+    let emailSaved = false;
+    if (process.env.DATABASE_URL) {
+      try {
+        const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+        const db = drizzle({ client: pool, schema: { emailSignups } });
+        
+        // Generate a simple ID
+        const signupId = `signup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Insert email signup with upsert behavior
+        await db.insert(emailSignups).values({
+          id: signupId,
+          email: email.toLowerCase().trim(),
+          firstName: firstName?.trim() || null,
+        }).onConflictDoUpdate({
+          target: emailSignups.email,
+          set: {
+            firstName: firstName?.trim() || null,
+            createdAt: new Date(),
+          },
+        });
+        
+        emailSaved = true;
+        console.log(`Email saved to database: ${email}`);
+        
+        // Close the connection
+        await pool.end();
+      } catch (dbError) {
+        console.error(`Database save failed for ${email}:`, dbError.message);
+        // Don't fail the request if database fails
+      }
+    } else {
+      console.log('DATABASE_URL not configured, skipping database save');
+    }
+
+    // Log email signup for collection backup
     console.log('EMAIL_SIGNUP:', JSON.stringify({
       email,
       firstName: firstName || null,
       timestamp: new Date().toISOString(),
-      userAgent: req.headers['user-agent'] || 'unknown'
+      userAgent: req.headers['user-agent'] || 'unknown',
+      savedToDatabase: emailSaved
     }));
 
     // Send confirmation email via SendGrid
@@ -113,7 +166,8 @@ getcork.app`,
     return res.json({ 
       message: "Thank you for signing up! You'll be notified when cork launches.",
       success: true,
-      emailSent
+      emailSent,
+      emailSaved
     });
 
   } catch (error) {

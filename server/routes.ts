@@ -1039,6 +1039,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
+  // View email signups (admin/development endpoint)
+  app.get("/api/email-signups", async (req, res) => {
+    try {
+      const { emailSignups } = await import("@shared/schema");
+      const { db } = await import("./db");
+      
+      const signups = await db.select().from(emailSignups).orderBy(emailSignups.createdAt);
+      
+      res.json({
+        total: signups.length,
+        signups: signups.map(signup => ({
+          id: signup.id,
+          email: signup.email,
+          firstName: signup.firstName,
+          createdAt: signup.createdAt
+        }))
+      });
+    } catch (error) {
+      console.error("Error fetching email signups:", error);
+      res.status(500).json({ message: "Failed to fetch signups" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
