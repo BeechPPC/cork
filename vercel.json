@@ -10,6 +10,14 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/profile.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/recommendations.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "server/index.ts",
       "use": "@vercel/node"
     },
@@ -30,6 +38,14 @@
     {
       "src": "/api/email-signup",
       "dest": "/api/email-signup.js"
+    },
+    {
+      "src": "/api/profile",
+      "dest": "/api/profile.js"
+    },
+    {
+      "src": "/api/recommendations",
+      "dest": "/api/recommendations.js"
     },
     {
       "src": "/api/(.*)",
