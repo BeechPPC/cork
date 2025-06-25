@@ -9,6 +9,10 @@
       "src": "api/email-signup.js",
       "use": "@vercel/node"
     },
+    {
+      "src": "api/profile-setup.js",
+      "use": "@vercel/node"
+    },
 
 
     {
@@ -32,6 +36,10 @@
     {
       "src": "/api/email-signup",
       "dest": "/api/email-signup.js"
+    },
+    {
+      "src": "/api/profile/setup",
+      "dest": "/api/profile-setup.js"
     },
 
 

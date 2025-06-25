@@ -1,0 +1,70 @@
+Issue Summary
+I have a critical production error in my Clerk authentication flow. Users can successfully initiate sign-up but encounter an error specifically when submitting their completed profile creation form. This is blocking user onboarding entirely.
+Required Analysis Steps
+1. Error Identification & Logging
+
+Examine all error logs: Check browser console, network tab, server logs, and any Clerk-specific logs
+Identify the exact error message: Capture the full error stack trace, error codes, and any Clerk-specific error responses
+Determine error timing: Pinpoint exactly when the error occurs (form validation, API call, redirect, etc.)
+Network analysis: Inspect all HTTP requests/responses during profile submission, including status codes, headers, and payloads
+
+2. Clerk Configuration Audit
+
+Verify Clerk dashboard settings: Check sign-up flow configuration, required fields, and profile completion settings
+Validate API keys: Ensure publishable and secret keys are correctly configured for production
+Review webhook configurations: Check if any webhooks are failing or misconfigured
+Examine Clerk component props: Verify all Clerk components have correct props and event handlers
+
+3. Code Flow Analysis
+Please trace through the complete user journey:
+
+Sign-up initiation → Profile form display → Form completion → Submission → Error occurrence
+Identify every function, API call, state change, and data transformation in this flow
+Check for any custom validation, middleware, or interceptors that might be interfering
+
+4. Data & State Investigation
+
+Form data validation: Ensure all required fields are properly formatted and validated
+State management: Check if user state, session state, or form state is corrupted
+Database operations: Verify any user profile creation or update operations in the database
+API endpoint functionality: Test all custom API endpoints involved in profile creation
+
+5. Environment & Dependencies
+
+Production environment check: Verify all environment variables are set correctly
+Clerk SDK version: Ensure you're using a stable, compatible version
+Dependency conflicts: Check for any package conflicts or version mismatches
+CORS and security headers: Verify domain configurations and security settings
+
+Debugging Constraints
+What NOT to change:
+
+Preserve existing functionality: Do not modify any working features or flows
+Maintain current user experience: Keep all existing UI/UX intact except for the broken profile submission
+Protect data integrity: Ensure no changes affect existing user data or database schemas
+Preserve integrations: Don't alter other third-party integrations or services
+
+Safe modification zones:
+
+Error handling and logging improvements
+Profile submission logic fixes
+Clerk configuration corrections
+Bug fixes that specifically address the identified error
+
+Expected Output
+Please provide:
+
+Root Cause Analysis: Detailed explanation of what's causing the error
+Minimal Fix Strategy: The smallest possible code changes needed to resolve the issue
+Testing Verification: How to confirm the fix works without breaking other functionality
+Rollback Plan: How to quickly revert changes if needed
+Prevention Measures: Suggestions to prevent similar issues in the future
+
+Additional Context
+
+This is a production application with active users
+I need a surgical fix that addresses only the broken functionality
+The error is consistent and reproducible
+All other authentication flows (sign-in, password reset, etc.) are working correctly
+
+Please start by identifying the exact error and its root cause before proposing any solutions. Focus on precision over broad changes.
