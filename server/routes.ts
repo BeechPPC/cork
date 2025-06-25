@@ -696,13 +696,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update billing address
-  app.post("/api/update-billing-address", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.post("/api/update-billing-address", requireAuth, async (req: any, res) => {
     const user = req.user;
-    if (!user.stripeCustomerId || !stripe) {
+    if (!user?.stripeCustomerId || !stripe) {
       return res.status(400).json({ message: "No billing account found" });
     }
 
@@ -728,13 +724,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create customer portal session for payment method management
-  app.post("/api/create-portal-session", async (req, res) => {
-    if (!req.requireAuth()) {
-      return res.sendStatus(401);
-    }
-
+  app.post("/api/create-portal-session", requireAuth, async (req: any, res) => {
     const user = req.user;
-    if (!user.stripeCustomerId || !stripe) {
+    if (!user?.stripeCustomerId || !stripe) {
       return res.status(400).json({ message: "No billing account found" });
     }
 
@@ -887,7 +879,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cancelImmediately) {
         // Cancel immediately
         subscription = await stripe.subscriptions.cancel(user.stripeSubscriptionId);
-        await storage.updateUserSubscriptionPlan(user.id, 'free');
+        await storage.updateUserSubscriptionPlan(user?.id || '', 'free');
       } else {
         // Cancel at period end
         subscription = await stripe.subscriptions.update(user.stripeSubscriptionId, {
