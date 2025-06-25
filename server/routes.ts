@@ -119,10 +119,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Meal pairing analysis endpoint (Premium feature)
-  app.post("/api/analyze-meal-pairing", upload.single("image"), requireAuth, async (req: any, res) => {
+  // Meal pairing analysis endpoint (Premium feature) - serverless compatible
+  app.post("/api/analyze-meal-pairing", upload.single("image"), async (req: any, res) => {
     try {
-      const userId = req.userId;
+      if (!isClerkConfigured) {
+        return res.status(503).json({ message: "Authentication not configured" });
+      }
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No valid authorization token" });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      let userId: string;
+
+      try {
+        const { clerkClient } = require('@clerk/clerk-sdk-node');
+        const verifiedToken = await clerkClient.verifyToken(token);
+        userId = verifiedToken.sub;
+      } catch (authError) {
+        console.error("Token verification failed:", authError);
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -161,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wine menu analysis
-  app.post("/api/analyze-wine-menu", upload.single('image'), requireAuth, async (req: any, res) => {
+  app.post("/api/analyze-wine-menu", upload.single('image'), async (req: any, res) => {
     try {
       const userId = req.userId;
       const user = await storage.getUser(userId);
@@ -324,10 +344,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Remove wine from cellar
-  app.delete("/api/cellar/:wineId", requireAuth, async (req: any, res) => {
+  // Remove wine from cellar - serverless compatible
+  app.delete("/api/cellar/:wineId", async (req: any, res) => {
     try {
-      const userId = req.userId;
+      if (!isClerkConfigured) {
+        return res.status(503).json({ message: "Authentication not configured" });
+      }
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No valid authorization token" });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      let userId: string;
+
+      try {
+        const { clerkClient } = require('@clerk/clerk-sdk-node');
+        const verifiedToken = await clerkClient.verifyToken(token);
+        userId = verifiedToken.sub;
+      } catch (authError) {
+        console.error("Token verification failed:", authError);
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
       const wineId = parseInt(req.params.wineId);
       await storage.removeSavedWine(userId, wineId);
       res.json({ success: true });
@@ -337,10 +377,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Wine upload and analysis
-  app.post("/api/upload/analyze", requireAuth, upload.single('wine_image'), async (req: any, res) => {
+  // Wine upload and analysis - serverless compatible
+  app.post("/api/upload/analyze", upload.single('wine_image'), async (req: any, res) => {
     try {
-      const userId = req.userId;
+      if (!isClerkConfigured) {
+        return res.status(503).json({ message: "Authentication not configured" });
+      }
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No valid authorization token" });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      let userId: string;
+
+      try {
+        const { clerkClient } = require('@clerk/clerk-sdk-node');
+        const verifiedToken = await clerkClient.verifyToken(token);
+        userId = verifiedToken.sub;
+      } catch (authError) {
+        console.error("Token verification failed:", authError);
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -382,10 +442,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get uploaded wines
-  app.get("/api/uploads", requireAuth, async (req: any, res) => {
+  // Get uploaded wines - serverless compatible
+  app.get("/api/uploads", async (req: any, res) => {
     try {
-      const userId = req.userId;
+      if (!isClerkConfigured) {
+        return res.status(503).json({ message: "Authentication not configured" });
+      }
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No valid authorization token" });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      let userId: string;
+
+      try {
+        const { clerkClient } = require('@clerk/clerk-sdk-node');
+        const verifiedToken = await clerkClient.verifyToken(token);
+        userId = verifiedToken.sub;
+      } catch (authError) {
+        console.error("Token verification failed:", authError);
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
       const uploadedWines = await storage.getUploadedWines(userId);
       res.json(uploadedWines);
     } catch (error) {

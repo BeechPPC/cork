@@ -25,7 +25,7 @@ export default function Landing() {
 
   const handleGetStarted = () => {
     if (!isClerkConfigured) {
-      alert("Authentication is not configured yet. Please set up Clerk API keys to enable sign-up functionality.");
+      setShowEmailCapture(true);
     }
   };
 
