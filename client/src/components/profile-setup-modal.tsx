@@ -41,7 +41,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   
   // Required fields
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -95,9 +95,12 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
         location: location || null,
       });
 
-      // Get Clerk auth token
-      const token = await getToken();
+      // Check if user is signed in and get token
+      if (!isSignedIn) {
+        throw new Error("Please sign in to complete your profile");
+      }
 
+      const token = await getToken?.();
       if (!token) {
         throw new Error("Authentication token not available");
       }
