@@ -10,18 +10,15 @@ if (!container) throw new Error("Root element not found");
 
 const root = createRoot(container);
 
-if (isClerkConfigured) {
-  root.render(
-    <React.StrictMode>
+// Always wrap in ClerkProvider if configured, otherwise render without
+root.render(
+  <React.StrictMode>
+    {isClerkConfigured ? (
       <ClerkProvider publishableKey={clerkPubKey}>
         <App />
       </ClerkProvider>
-    </React.StrictMode>
-  );
-} else {
-  root.render(
-    <React.StrictMode>
+    ) : (
       <App />
-    </React.StrictMode>
-  );
-}
+    )}
+  </React.StrictMode>
+);

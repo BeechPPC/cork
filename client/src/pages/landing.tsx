@@ -9,37 +9,17 @@ import { Link } from "wouter";
 import Header from "@/components/header";
 import EmailCaptureModal from "@/components/email-capture-modal";
 
-// Conditional signup component that handles both authenticated and non-authenticated states
-function ConditionalSignUpButton({ children, onClick, className }: { 
+// Simple button component for all cases
+function ActionButton({ children, onClick, className }: { 
   children: React.ReactNode; 
   onClick?: () => void;
   className?: string;
 }) {
-  if (!isClerkConfigured) {
-    return (
-      <Button onClick={onClick} className={className}>
-        {children}
-      </Button>
-    );
-  }
-  
-  try {
-    const { SignUpButton } = require("@clerk/clerk-react");
-    return (
-      <SignUpButton mode="modal">
-        <button className={className}>
-          {children}
-        </button>
-      </SignUpButton>
-    );
-  } catch (error) {
-    console.error("SignUpButton unavailable");
-    return (
-      <Button onClick={onClick} className={className}>
-        {children}
-      </Button>
-    );
-  }
+  return (
+    <Button onClick={onClick} className={className}>
+      {children}
+    </Button>
+  );
 }
 
 export default function Landing() {
@@ -55,7 +35,11 @@ export default function Landing() {
   }, []);
 
   const handleGetStarted = () => {
-    if (!isClerkConfigured) {
+    if (isClerkConfigured) {
+      // Redirect to signup/dashboard when auth is available
+      window.location.href = '/api/login';
+    } else {
+      // Show email capture when auth is not available
       setShowEmailCapture(true);
     }
   };
@@ -103,12 +87,12 @@ export default function Landing() {
             
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-              <ConditionalSignUpButton 
-                onClick={!isClerkConfigured ? handleGetStarted : undefined}
+              <ActionButton 
+                onClick={handleGetStarted}
                 className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg shadow-2xl hover:shadow-red-500/25 transition-all transform hover:scale-105 border-0"
               >
                 {isClerkConfigured ? "Get Started Free" : "Join Waitlist"}
-              </ConditionalSignUpButton>
+              </ActionButton>
               <Button 
                 variant="outline"
                 className="bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg hover:bg-white/20 transition-all hover:border-white/50"
@@ -205,12 +189,12 @@ export default function Landing() {
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
             Join thousands of wine enthusiasts who trust cork for their wine discoveries
           </p>
-          <ConditionalSignUpButton 
-            onClick={!isClerkConfigured ? handleGetStarted : undefined}
+          <ActionButton 
+            onClick={handleGetStarted}
             className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
           >
             {isClerkConfigured ? "Get Started Free" : "Join Waitlist"}
-          </ConditionalSignUpButton>
+          </ActionButton>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
             Free plan includes 3 saved wines • Premium from $4.99/month
           </p>
