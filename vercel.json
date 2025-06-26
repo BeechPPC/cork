@@ -78,10 +78,7 @@
       "src": "/api/profile/setup",
       "dest": "/api/setup-profile.js"
     },
-    {
-      "src": "/api/recommendations",
-      "dest": "/api/get-recommendations.js"
-    },
+
     {
       "src": "/api/(.*)",
       "dest": "/server/index.ts"
