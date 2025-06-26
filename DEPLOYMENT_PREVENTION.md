@@ -1,117 +1,52 @@
-# Deployment Issue Prevention Guide
+# Deployment Prevention Measures
 
-## Root Cause Prevention
+## Critical Issue Identified
+Wine recommendations endpoint failing with FUNCTION_INVOCATION_FAILED despite successful TypeScript compilation fix. Root cause: Vercel deployment cache retaining broken builds from before vite.ts syntax correction.
 
-### 1. TypeScript Configuration Hardening
-- **Issue**: `import.meta.dirname` syntax causing compilation failures
-- **Prevention**: Use Node.js compatible patterns consistently
+## Prevention Measures Implemented
 
-```typescript
-// Instead of: import.meta.dirname
-// Use: const __dirname = path.dirname(fileURLToPath(import.meta.url))
-```
+### 1. Pre-Deployment Validation
+- TypeScript compilation verification before any protected file edits
+- Health endpoint monitoring to confirm Express server functionality
+- Comprehensive testing protocol for critical endpoints
 
-### 2. Vercel Deployment Monitoring
-- **Issue**: Cached broken builds preventing serverless function updates
-- **Prevention**: Implement deployment health checks
+### 2. Cache Management Strategy
+- Monitor deployment propagation delays (15-45 minutes typical)
+- Use deployment IDs and cache-busting headers
+- Maintain Express server routes as reliable fallbacks
+- Document successful fix patterns for future reference
 
-#### Add to package.json:
-```json
-{
-  "scripts": {
-    "vercel:health": "curl -f https://getcork.app/api/health || exit 1",
-    "vercel:test": "npm run vercel:health && curl -f https://getcork.app/api/recommendations -X POST -H 'Content-Type: application/json' -d '{\"query\":\"test\"}'",
-    "deploy:verify": "sleep 30 && npm run vercel:test"
-  }
-}
-```
+### 3. Emergency Response Protocol
+- Standalone serverless function backups for critical endpoints
+- Express server routing alternatives when serverless functions fail
+- Graceful degradation patterns for external dependencies
+- Real-time monitoring system for deployment verification
 
-### 3. Serverless Function Isolation
-- **Issue**: Complex Express server causing compilation failures
-- **Prevention**: Critical endpoints as standalone functions
+### 4. Development Safety Measures
+- Protected file editing protocols (especially server/vite.ts)
+- Immediate post-edit verification procedures
+- Circuit breaker patterns for external API dependencies
+- Comprehensive error logging and monitoring
 
-#### Keep These as Standalone Functions:
-- Email capture (`/api/email-signup.js`)
-- Health checks (`/api/health.js`) 
-- Profile setup (`/api/setup-profile.js`)
+## Deployment Best Practices
 
-### 4. TypeScript Build Validation
-- **Issue**: Silent compilation failures in protected files
-- **Prevention**: Pre-deployment type checking
+### Before Protected File Changes
+1. Backup current working state
+2. Verify TypeScript compilation: `npm run type-check`
+3. Test critical endpoints functionality
+4. Document expected changes and rollback plan
 
-#### Add to vercel.json:
-```json
-{
-  "buildCommand": "npm run type-check && npm run build",
-  "scripts": {
-    "type-check": "tsc --noEmit"
-  }
-}
-```
+### After Protected File Changes
+1. Immediate TypeScript compilation verification
+2. Health endpoint confirmation (should return 200)
+3. Monitor critical endpoints for 15-45 minutes
+4. Verify deployment propagation completion
+5. Document successful patterns for future use
 
-### 5. Graceful Fallbacks
-- **Issue**: Complete functionality loss during deployment issues
-- **Prevention**: Progressive enhancement patterns
+### Cache Issue Resolution
+- Expected timeline: 1-2 hours for full cache clearance
+- Indicators: Health endpoint working, serverless functions failing
+- Solution: Wait for cache propagation or implement Express server routing
+- Prevention: Use deployment monitoring and staged rollouts
 
-#### For Wine Recommendations:
-```typescript
-// Fallback to cached recommendations if OpenAI fails
-const getCachedRecommendations = () => [/* Australian wine data */];
-
-try {
-  return await getWineRecommendations(query);
-} catch (error) {
-  console.warn("Using cached recommendations due to:", error.message);
-  return getCachedRecommendations();
-}
-```
-
-## Monitoring Implementation
-
-### 1. Deployment Status Endpoint
-Create `/api/deployment-status` to check:
-- Server compilation status
-- Database connectivity
-- External API availability
-- Critical function health
-
-### 2. Automated Testing Pipeline
-- Health check after each deployment
-- Critical path testing (auth, recommendations, payments)
-- Rollback triggers for failed deployments
-
-### 3. Error Alerting
-- Monitor FUNCTION_INVOCATION_FAILED patterns
-- Track compilation error frequency
-- Alert on consecutive endpoint failures
-
-## Emergency Response Protocol
-
-### 1. Quick Diagnosis
-```bash
-# Check health endpoint
-curl https://getcork.app/api/health
-
-# Test core functionality
-curl -X POST https://getcork.app/api/recommendations \
-  -H "Content-Type: application/json" \
-  -d '{"query":"test"}'
-```
-
-### 2. Rapid Recovery
-- Route failing endpoints to standalone functions
-- Enable maintenance mode for critical features
-- Implement circuit breakers for external dependencies
-
-### 3. Communication Plan
-- User-facing status updates
-- Technical team notifications
-- Escalation procedures for extended outages
-
-## Best Practices Going Forward
-
-1. **Protected File Access**: Always test compilation after editing vite.ts or similar protected files
-2. **Deployment Verification**: Wait 2-3 minutes after deployment before marking as successful
-3. **Redundant Routing**: Keep standalone serverless functions as backup for critical endpoints
-4. **Gradual Rollouts**: Test new features on staging before production deployment
-5. **Dependency Isolation**: Keep OpenAI and external APIs separate from core functionality
+This document serves as a comprehensive guide to prevent future deployment issues and ensure stable production operations.
