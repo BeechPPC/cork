@@ -182,15 +182,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      // Get usage counts for plan limits
-      const savedWineCount = await storage.getSavedWineCount(userId);
-      const uploadedWineCount = await storage.getUploadedWineCount(userId);
+      // Get usage counts for plan limits (optimized single query)
+      const userCounts = await storage.getUserCounts(userId);
       
       res.json({
         ...user,
         usage: {
-          savedWines: savedWineCount,
-          uploadedWines: uploadedWineCount,
+          savedWines: userCounts.savedWines,
+          uploadedWines: userCounts.uploadedWines,
         },
       });
     } catch (error) {

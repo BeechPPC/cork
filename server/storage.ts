@@ -45,6 +45,9 @@ export interface IStorage {
   saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine>;
   updateUploadedWine(userId: string, wineId: number, updates: Partial<UploadedWine>): Promise<UploadedWine>;
   
+  // Optimized operations to prevent N+1 queries
+  getUserCounts(userId: string): Promise<{ savedWines: number; uploadedWines: number }>;
+  
   // Recommendation history operations
   saveRecommendationHistory(history: InsertRecommendationHistory): Promise<RecommendationHistory>;
   getRecommendationHistory(userId: string, limit?: number): Promise<RecommendationHistory[]>;
@@ -199,6 +202,29 @@ export class DatabaseStorage implements IStorage {
       .from(uploadedWines)
       .where(eq(uploadedWines.userId, userId));
     return result.count;
+  }
+
+  // Optimized method to get both counts in a single query
+  async getUserCounts(userId: string): Promise<{ savedWines: number; uploadedWines: number }> {
+    const savedWineQuery = db
+      .select({ count: count() })
+      .from(savedWines)
+      .where(eq(savedWines.userId, userId));
+    
+    const uploadedWineQuery = db
+      .select({ count: count() })
+      .from(uploadedWines)
+      .where(eq(uploadedWines.userId, userId));
+
+    const [savedResult, uploadedResult] = await Promise.all([
+      savedWineQuery,
+      uploadedWineQuery
+    ]);
+
+    return {
+      savedWines: savedResult[0].count,
+      uploadedWines: uploadedResult[0].count
+    };
   }
 
   async saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine> {
