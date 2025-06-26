@@ -80,7 +80,7 @@
     },
     {
       "src": "/api/recommendations",
-      "dest": "/api/recommendations-direct.js"
+      "dest": "/api/recommendations-v2.js"
     },
 
     {
