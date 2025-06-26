@@ -52,9 +52,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Email address too long' });
     }
     
-    // Remove potentially dangerous characters
-    if (sanitizedEmail.includes('<') || sanitizedEmail.includes('>') || sanitizedEmail.includes('"') || sanitizedEmail.includes("'")) {
-      return res.status(400).json({ message: 'Email contains invalid characters' });
+    // Block potentially dangerous characters that could be used for injection
+    const dangerousChars = ['<', '>', '"', "'", ';', '\\', '`', '|', '&', '$', '(', ')', '{', '}', '[', ']'];
+    for (const char of dangerousChars) {
+      if (sanitizedEmail.includes(char)) {
+        return res.status(400).json({ message: 'Email contains invalid characters' });
+      }
     }
     
     // Validate domain part length
@@ -77,9 +80,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'First name too long' });
       }
       
-      // Remove potentially dangerous characters
-      if (sanitizedFirstName.includes('<') || sanitizedFirstName.includes('>') || sanitizedFirstName.includes('"') || sanitizedFirstName.includes("'")) {
-        return res.status(400).json({ message: 'First name contains invalid characters' });
+      // Block potentially dangerous characters that could be used for injection
+      const dangerousChars = ['<', '>', '"', "'", ';', '\\', '`', '|', '&', '$', '(', ')', '{', '}', '[', ']'];
+      for (const char of dangerousChars) {
+        if (sanitizedFirstName.includes(char)) {
+          return res.status(400).json({ message: 'First name contains invalid characters' });
+        }
       }
     }
 
