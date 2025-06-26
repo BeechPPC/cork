@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 
 // Standard error response interface
-export interface ApiError {
+export interface ApiErrorResponse {
   message: string;
   error?: string;
   details?: any;
@@ -77,7 +77,7 @@ export function standardErrorHandler(error: any, req: Request, res: Response, ne
   });
 
   // Build response
-  const response: ApiError = {
+  const response: ApiErrorResponse = {
     message,
     error: errorCode
   };
