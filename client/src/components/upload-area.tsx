@@ -34,6 +34,15 @@ export default function UploadArea({ onFileUpload, isLoading = false, disabled =
     }
   }, [isMobile]);
 
+  // Cleanup object URL on component unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const validateFile = (file: File): boolean => {
     // Check file type
     if (!file.type.startsWith('image/')) {
@@ -61,6 +70,11 @@ export default function UploadArea({ onFileUpload, isLoading = false, disabled =
 
   const handleFile = (file: File) => {
     if (!validateFile(file)) return;
+
+    // Clean up existing preview URL before creating new one
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
 
     setSelectedFile(file);
     
