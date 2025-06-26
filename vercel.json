@@ -63,10 +63,6 @@
       "dest": "/api/auth-test.js"
     },
     {
-      "src": "/api/profile/setup",
-      "dest": "/api/profile.js"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "/server/index.ts"
     },
