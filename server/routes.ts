@@ -217,28 +217,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Wine recommendations - minimal test version
+  // Wine recommendations - serverless compatible
   app.post("/api/recommendations", async (req: any, res) => {
     try {
-      // Return mock data to test if the endpoint works at all
-      const mockRecommendations = [
-        {
-          name: "Penfolds Grange Shiraz",
-          type: "Shiraz",
-          region: "Barossa Valley",
-          vintage: "2019",
-          description: "Australia's most iconic wine with rich, full-bodied flavors",
-          priceRange: "$600-700",
-          abv: "14.5%",
-          rating: "98/100",
-          matchReason: "Perfect for special occasions"
-        }
-      ];
+      if (!isClerkConfigured) {
+        return res.status(503).json({ message: "Authentication not configured" });
+      }
 
-      res.json({ recommendations: mockRecommendations });
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: "No valid authorization token" });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      let userId: string;
+
+      try {
+        const { clerkClient } = require('@clerk/clerk-sdk-node');
+        const verifiedToken = await clerkClient.verifyToken(token);
+        userId = verifiedToken.sub;
+      } catch (authError) {
+        console.error("Token verification failed:", authError);
+        return res.status(401).json({ message: "Invalid token" });
+      }
+
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Query is required" });
+      }
+
+      const recommendations = await getWineRecommendations(query);
+
+      // Save to history
+      await storage.saveRecommendationHistory({
+        userId,
+        query,
+        recommendations,
+      });
+
+      res.json({ recommendations });
     } catch (error) {
-      console.error("Error in recommendations endpoint:", error);
-      res.status(500).json({ message: "Failed to get recommendations", error: error.message });
+      console.error("Error getting recommendations:", error);
+      res.status(500).json({ message: "Failed to get recommendations" });
     }
   });
 
