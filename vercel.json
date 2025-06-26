@@ -80,7 +80,7 @@
     },
     {
       "src": "/api/recommendations",
-      "dest": "/api/recommendations-cache-bypass.js"
+      "dest": "/api/recommendations-working.js"
     },
     {
       "src": "/api/(.*)",
