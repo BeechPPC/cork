@@ -1260,6 +1260,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to verify error handler fix (development only)
+  if (process.env.NODE_ENV === 'development') {
+    app.get("/api/test-error-handler", (req, res, next) => {
+      console.log("Test error endpoint called - triggering intentional error");
+      const error = new Error("Test error for error handler verification");
+      (error as any).status = 400;
+      next(error); // This should trigger the error handler without crashing the server
+    });
+  }
+
   const httpServer = createServer(app);
   return httpServer;
 }

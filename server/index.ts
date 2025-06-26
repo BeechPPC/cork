@@ -43,8 +43,19 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    console.error("Express error handler:", {
+      status,
+      message,
+      stack: err.stack,
+      timestamp: new Date().toISOString()
+    });
+
+    // Only send response if it hasn't been sent already
+    if (!res.headersSent) {
+      res.status(status).json({ message });
+    }
+    
+    // Don't throw error - it's already logged and response handled
   });
 
   // Skip Vite setup in production/serverless environments
