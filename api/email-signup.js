@@ -44,17 +44,56 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Please enter a valid email address' });
     }
 
+    // Additional security validations
+    const sanitizedEmail = email.toLowerCase().trim();
+    
+    // Length validation to prevent buffer overflow
+    if (sanitizedEmail.length > 255) {
+      return res.status(400).json({ message: 'Email address too long' });
+    }
+    
+    // Remove potentially dangerous characters
+    if (sanitizedEmail.includes('<') || sanitizedEmail.includes('>') || sanitizedEmail.includes('"') || sanitizedEmail.includes("'")) {
+      return res.status(400).json({ message: 'Email contains invalid characters' });
+    }
+    
+    // Validate domain part length
+    const [localPart, domainPart] = sanitizedEmail.split('@');
+    if (localPart.length > 64 || domainPart.length > 255) {
+      return res.status(400).json({ message: 'Email format invalid' });
+    }
+
+    // Validate and sanitize firstName if provided
+    let sanitizedFirstName = null;
+    if (firstName) {
+      if (typeof firstName !== 'string') {
+        return res.status(400).json({ message: 'First name must be text' });
+      }
+      
+      sanitizedFirstName = firstName.trim();
+      
+      // Length validation
+      if (sanitizedFirstName.length > 50) {
+        return res.status(400).json({ message: 'First name too long' });
+      }
+      
+      // Remove potentially dangerous characters
+      if (sanitizedFirstName.includes('<') || sanitizedFirstName.includes('>') || sanitizedFirstName.includes('"') || sanitizedFirstName.includes("'")) {
+        return res.status(400).json({ message: 'First name contains invalid characters' });
+      }
+    }
+
     // Save email to database
     let emailSaved = false;
     if (process.env.DATABASE_URL) {
       try {
-        console.log(`Attempting to save email: ${email}`);
+        console.log(`Attempting to save email: ${sanitizedEmail}`);
         const pool = new Pool({ connectionString: process.env.DATABASE_URL });
         const db = drizzle({ client: pool, schema: { emailSignups } });
         
-        // Simple insert with returning to confirm save
+        // Use sanitized email for database operation
         const result = await db.insert(emailSignups).values({
-          email: email.toLowerCase().trim(),
+          email: sanitizedEmail,
         }).onConflictDoUpdate({
           target: emailSignups.email,
           set: {
@@ -68,7 +107,7 @@ export default async function handler(req, res) {
         // Close the connection
         await pool.end();
       } catch (dbError) {
-        console.error(`Database save failed for ${email}:`, dbError);
+        console.error(`Database save failed for ${sanitizedEmail}:`, dbError);
         console.error('Stack trace:', dbError.stack);
         // Don't fail the request if database fails
       }
@@ -76,10 +115,10 @@ export default async function handler(req, res) {
       console.log('DATABASE_URL not configured, skipping database save');
     }
 
-    // Log email signup for collection backup
+    // Log email signup for collection backup (using sanitized values)
     console.log('EMAIL_SIGNUP:', JSON.stringify({
-      email,
-      firstName: firstName || null,
+      email: sanitizedEmail,
+      firstName: sanitizedFirstName,
       timestamp: new Date().toISOString(),
       userAgent: req.headers['user-agent'] || 'unknown',
       savedToDatabase: emailSaved
@@ -92,13 +131,13 @@ export default async function handler(req, res) {
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
         
         const msg = {
-          to: email,
+          to: sanitizedEmail,
           from: {
             email: 'hello@getcork.app',
             name: 'cork'
           },
           subject: "You're on the list! cork is launching soon 🍷",
-          text: `G'day${firstName ? ` ${firstName}` : ''}!
+          text: `G'day${sanitizedFirstName ? ` ${sanitizedFirstName}` : ''}!
 
 Thanks for signing up to be notified when cork launches!
 
@@ -120,7 +159,7 @@ cork - Australia's smartest wine recommendations
 getcork.app`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2 style="color: #7c2d12;">G'day${firstName ? ` ${firstName}` : ''}!</h2>
+              <h2 style="color: #7c2d12;">G'day${sanitizedFirstName ? ` ${sanitizedFirstName}` : ''}!</h2>
               
               <p>Thanks for signing up to be notified when <strong>cork</strong> launches!</p>
               
@@ -149,9 +188,9 @@ getcork.app`,
 
         await sgMail.send(msg);
         emailSent = true;
-        console.log(`Confirmation email sent to: ${email}`);
+        console.log(`Confirmation email sent to: ${sanitizedEmail}`);
       } catch (emailError) {
-        console.error(`Email send failed for ${email}:`, emailError.message);
+        console.error(`Email send failed for ${sanitizedEmail}:`, emailError.message);
         // Don't fail the request if email fails
       }
     } else {
