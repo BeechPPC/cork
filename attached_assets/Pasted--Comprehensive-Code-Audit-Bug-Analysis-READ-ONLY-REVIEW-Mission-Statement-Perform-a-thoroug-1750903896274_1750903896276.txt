@@ -1,0 +1,188 @@
+# Comprehensive Code Audit & Bug Analysis - READ-ONLY REVIEW
+
+## Mission Statement
+Perform a thorough, comprehensive audit of the entire codebase to identify ALL potential bugs, issues, vulnerabilities, and improvements. **DO NOT MAKE ANY CHANGES** - only analyze and report findings with proposed solutions.
+
+## Audit Scope - Analyze Every File
+
+### 1. Frontend Analysis
+**React/Next.js Components:**
+- Component logic errors and potential runtime exceptions
+- State management issues (useState, useEffect, context)
+- Props validation and TypeScript type safety
+- Event handler bugs and edge cases
+- Conditional rendering issues that could cause crashes
+- Memory leaks in useEffect dependencies
+- Performance anti-patterns and unnecessary re-renders
+
+**Client-Side JavaScript:**
+- Async/await error handling gaps
+- Promise rejection handling
+- API call error scenarios
+- Form validation completeness
+- Browser compatibility issues
+- XSS vulnerabilities in user input handling
+
+### 2. Backend Analysis
+**Express Server & API Endpoints:**
+- Unhandled promise rejections
+- Missing error handling in async functions
+- Input validation and sanitization gaps
+- SQL injection vulnerabilities
+- Authentication/authorization bypasses
+- Rate limiting and security headers
+- CORS configuration issues
+- Memory leaks and resource cleanup
+
+**Database Operations:**
+- Connection pool management
+- Query optimization opportunities
+- Transaction handling completeness
+- Data integrity constraints
+- Index usage and performance
+- Backup and recovery considerations
+
+### 3. Configuration & Infrastructure
+**Environment & Deployment:**
+- Missing environment variables
+- Hardcoded secrets or sensitive data
+- Deployment configuration errors
+- Build process optimization
+- Dependency security vulnerabilities
+- Version compatibility issues
+
+**File Structure & Organization:**
+- Circular dependency risks
+- Unused imports and dead code
+- Inconsistent naming conventions
+- Missing documentation
+- Configuration file completeness
+
+### 4. Security Analysis
+**Authentication & Authorization:**
+- JWT token handling security
+- Session management vulnerabilities
+- Password security implementations
+- API key exposure risks
+- User role validation completeness
+
+**Data Protection:**
+- PII handling compliance
+- Data encryption at rest and transit
+- Input sanitization thoroughness
+- OWASP Top 10 vulnerability assessment
+
+### 5. Performance & Scalability
+**Code Efficiency:**
+- N+1 query problems
+- Inefficient algorithms
+- Memory usage optimization
+- Caching implementation gaps
+- Bundle size optimization opportunities
+
+**Monitoring & Logging:**
+- Error tracking completeness
+- Performance monitoring gaps
+- Debug information security
+- Log rotation and storage
+
+## Analysis Requirements
+
+### For Each Issue Found, Provide:
+
+1. **Issue Classification:**
+   - Bug Type: Critical/High/Medium/Low
+   - Category: Security/Performance/Functionality/Maintainability
+
+2. **Detailed Description:**
+   - Exact file location and line numbers
+   - What the problem is and why it's problematic
+   - Potential impact and scenarios where it could fail
+
+3. **Root Cause Analysis:**
+   - Why this issue exists
+   - What conditions trigger the problem
+
+4. **Proposed Solution:**
+   - Exact code changes needed (show before/after)
+   - Alternative approaches if applicable
+   - Implementation complexity assessment
+
+5. **Testing Strategy:**
+   - How to reproduce the issue
+   - How to verify the fix works
+   - Edge cases to test
+
+## Output Format
+
+Structure your findings as follows:
+
+```
+## CRITICAL ISSUES (Immediate Attention Required)
+### Issue #1: [Brief Description]
+- **File:** `path/to/file.js` (Lines: 45-52)
+- **Problem:** [Detailed explanation]
+- **Impact:** [What happens if not fixed]
+- **Root Cause:** [Why this exists]
+- **Proposed Fix:** 
+  ```javascript
+  // Before (problematic code)
+  [current code]
+  
+  // After (corrected code)
+  [fixed code]
+  ```
+- **Testing:** [How to verify fix]
+
+## HIGH PRIORITY ISSUES
+[Same format as above]
+
+## MEDIUM PRIORITY ISSUES
+[Same format as above]
+
+## LOW PRIORITY ISSUES / IMPROVEMENTS
+[Same format as above]
+
+## SECURITY VULNERABILITIES
+[Same format as above]
+
+## PERFORMANCE OPTIMIZATIONS
+[Same format as above]
+```
+
+## Analysis Constraints
+
+### What NOT to Do:
+- **DO NOT modify any files**
+- **DO NOT run any fixes automatically**
+- **DO NOT make assumptions** - analyze actual code
+- **DO NOT skip files** - review everything systematically
+
+### What TO Do:
+- **BE THOROUGH** - examine every file in the project
+- **BE SPECIFIC** - provide exact line numbers and code snippets
+- **BE PRACTICAL** - focus on real issues that could impact users
+- **PRIORITIZE** - rank issues by severity and impact
+- **BE COMPREHENSIVE** - cover functionality, security, performance, and maintainability
+
+## Special Focus Areas
+
+### Recently Fixed Issues
+- Double-check that the vite.ts syntax fix is complete and didn't introduce new issues
+- Verify all TypeScript compilation errors are resolved
+- Ensure Clerk authentication flow is fully functional
+
+### Production Environment
+- Focus on issues that could cause production failures
+- Identify single points of failure
+- Look for scenarios that worked in development but might fail in production
+
+### User Experience Impact
+- Issues that could cause user-facing errors
+- Performance problems that affect user experience
+- Accessibility and usability concerns
+
+## Deliverable
+Provide a comprehensive report that serves as a roadmap for improving code quality, security, and reliability. Each issue should be actionable with clear steps for resolution, but remember - **ONLY REPORT, DO NOT IMPLEMENT**.
+
+Begin the audit now and examine every file systematically.
