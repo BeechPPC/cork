@@ -133,7 +133,7 @@ Be conversational and helpful, as if you're a knowledgeable sommelier assisting 
     temperature: 0.7,
   });
 
-  return response.choices[0]?.message?.content || "Unable to analyze the wine menu. Please try again with a clearer image.";
+  return response.choices[0]?.message?.content || "Unable to analyse the wine menu. Please try again with a clearer image.";
 }
 
 export async function analyzeMealPairing(base64Image: string, analysisType: 'meal' | 'menu'): Promise<MealPairingAnalysis> {
