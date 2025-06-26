@@ -217,9 +217,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Wine recommendations - serverless compatible
+  // Wine recommendations - with circuit breaker pattern
   app.post("/api/recommendations", async (req: any, res) => {
     try {
+      console.log("Wine recommendations endpoint called");
+      
       if (!isClerkConfigured) {
         return res.status(503).json({ message: "Authentication not configured" });
       }
@@ -246,19 +248,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query is required" });
       }
 
-      const recommendations = await getWineRecommendations(query);
+      console.log("Processing wine recommendation query:", query);
 
-      // Save to history
-      await storage.saveRecommendationHistory({
-        userId,
-        query,
-        recommendations,
-      });
+      // Circuit breaker pattern with timeout
+      let recommendations;
+      try {
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Request timeout')), 25000)
+        );
+        
+        recommendations = await Promise.race([
+          getWineRecommendations(query),
+          timeoutPromise
+        ]);
+        
+        console.log("Successfully got recommendations:", recommendations?.length || 0);
+      } catch (error) {
+        console.error("OpenAI recommendation failed:", error);
+        throw error;
+      }
+
+      // Save to history (skip if database fails)
+      try {
+        await storage.saveRecommendationHistory({
+          userId,
+          query,
+          recommendations,
+        });
+      } catch (historyError) {
+        console.warn("Failed to save recommendation history:", historyError);
+        // Continue without failing the request
+      }
 
       res.json({ recommendations });
     } catch (error) {
-      console.error("Error getting recommendations:", error);
-      res.status(500).json({ message: "Failed to get recommendations" });
+      console.error("Wine recommendations error:", error);
+      res.status(500).json({ 
+        message: "Failed to get recommendations",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 
