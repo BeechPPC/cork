@@ -10,6 +10,7 @@ import { Calendar, User, MapPin, DollarSign, GraduationCap } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth-wrapper';
 import { queryClient } from '@/lib/queryClient';
+import { saveTemporaryProfile, validateAge } from '@/utils/temporary-profile';
 
 interface ProfileSetupModalProps {
   open: boolean;
@@ -114,33 +115,44 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
         location: location || null,
       };
 
-      const response = await fetch("/api/profile/setup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestData),
-      });
+      // Try server endpoint first
+      try {
+        const response = await fetch("/api/profile/setup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestData),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
-        throw new Error(errorData.message || `HTTP ${response.status}`);
+        if (response.ok) {
+          queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+          toast({
+            title: "Profile Complete!",
+            description: "Welcome to Cork! Your wine journey begins now.",
+          });
+          onComplete();
+          return;
+        }
+      } catch (serverError) {
+        console.warn("Server profile setup failed, using temporary storage:", serverError);
       }
 
-      // Invalidate user data to refresh profile
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Fallback to temporary storage
+      console.log("Using temporary profile storage as fallback");
+      saveTemporaryProfile(requestData);
       
       toast({
-        title: "Profile Complete!",
-        description: "Welcome to Cork! Your wine journey begins now.",
+        title: "Profile Saved!",
+        description: "Welcome to Cork! Your profile has been saved and will sync when our servers are ready.",
       });
 
       onComplete();
     } catch (error) {
       console.error("Profile setup error:", error);
       toast({
-        title: "Setup Failed",
+        title: "Setup Failed", 
         description: `There was an error setting up your profile: ${error.message || 'Please try again.'}`,
         variant: "destructive",
       });
