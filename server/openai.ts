@@ -32,8 +32,9 @@ export interface WineAnalysis {
 
 export async function getWineRecommendations(query: string): Promise<WineRecommendation[]> {
   try {
-    console.log("Starting getWineRecommendations with query:", query);
-    console.log("OpenAI API key exists:", !!process.env.OPENAI_API_KEY);
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'default_key') {
+      throw new Error("OpenAI API key not configured");
+    }
     
     const prompt = `You are an expert wine sommelier with deep knowledge of Australian wines. A user has described what they're looking for: "${query}"
 
@@ -52,7 +53,6 @@ For each wine, provide detailed information in JSON format with these fields:
 
 Respond with JSON in this exact format: { "recommendations": [wine1, wine2, wine3] }`;
 
-    console.log("Making OpenAI API call...");
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -66,19 +66,13 @@ Respond with JSON in this exact format: { "recommendations": [wine1, wine2, wine
         },
       ],
       response_format: { type: "json_object" },
+
     });
 
-    console.log("OpenAI API call successful");
     const result = JSON.parse(response.choices[0].message.content || "{}");
-    console.log("Parsed result:", result);
     return result.recommendations || [];
   } catch (error) {
     console.error("OpenAI API error:", error);
-    console.error("Error details:", {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
     throw new Error("Failed to get wine recommendations: " + (error as Error).message);
   }
 }
