@@ -1,52 +1,66 @@
-// Ultra-minimal recommendations endpoint
-module.exports = (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+import OpenAI from "openai";
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY 
+});
 
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: "No valid authorization token" });
-  }
-
-  const { query } = req.body || {};
-  
-  const recommendations = [
-    {
-      name: "Penfolds Bin 389",
-      type: "Red Wine",
-      region: "Barossa Valley, South Australia",
-      vintage: "2020",
-      description: "A classic Cabernet Shiraz blend with rich berry flavours and oak integration",
-      priceRange: "$60-80 AUD",
-      abv: "14.5%",
-      rating: "4.5/5",
-      matchReason: "Perfect for your preference - full-bodied Australian red with excellent aging potential"
-    },
-    {
-      name: "Wynns Coonawarra Estate Black Label",
-      type: "Red Wine", 
-      region: "Coonawarra, South Australia",
-      vintage: "2019",
-      description: "Premium Cabernet Sauvignon showcasing the terroir of Coonawarra's terra rossa soil",
-      priceRange: "$40-55 AUD",
-      abv: "14.0%",
-      rating: "4.4/5",
-      matchReason: "Exceptional value from one of Australia's most respected wine regions"
+  try {
+    const { query } = req.body;
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({ message: "Query is required" });
     }
-  ];
 
-  return res.status(200).json({ 
-    recommendations,
-    query: query || 'Australian wine recommendations',
-    timestamp: new Date().toISOString()
-  });
-};
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'default_key') {
+      return res.status(500).json({ message: "AI service not configured" });
+    }
+
+    const prompt = `You are an expert wine sommelier with deep knowledge of Australian wines. A user has described what they're looking for: "${query}"
+
+Recommend 3 specific Australian wines that would be perfect for their request. Focus on real, available Australian wines from reputable producers.
+
+For each wine, provide detailed information in JSON format with these fields:
+- name: The exact wine name and producer
+- type: Wine type (e.g., Shiraz, Chardonnay, Pinot Noir, etc.)
+- region: Australian wine region
+- vintage: Recent vintage year if applicable
+- description: Rich description with tasting notes and food pairing suggestions
+- priceRange: Price range in AUD (e.g., "$30-40", "$80-100")
+- abv: Alcohol by volume percentage
+- rating: Professional rating out of 100 or star rating
+- matchReason: Why this wine matches their request
+
+Respond with JSON in this exact format: { "recommendations": [wine1, wine2, wine3] }`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert Australian wine sommelier. Always recommend real, specific Australian wines.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const recommendations = result.recommendations || [];
+    
+    res.status(200).json({ recommendations });
+    
+  } catch (error) {
+    console.error("Wine recommendations error:", error);
+    res.status(500).json({ 
+      message: "Failed to get wine recommendations",
+      error: error.message 
+    });
+  }
+}
