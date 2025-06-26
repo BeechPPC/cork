@@ -10,6 +10,7 @@ import { sendEmailSignupConfirmation } from "./emailService.js";
 import { db } from "./db.js";
 import Stripe from "stripe";
 import multer from "multer";
+import rateLimit from "express-rate-limit";
 
 // Stripe setup
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -33,8 +34,50 @@ const upload = multer({
   },
 });
 
+// Rate limiting configurations
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: {
+    message: "Too many requests from this IP, please try again later.",
+    error: "RATE_LIMIT_EXCEEDED"
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Stricter limit for auth endpoints
+  message: {
+    message: "Too many authentication attempts, please try again later.",
+    error: "AUTH_RATE_LIMIT_EXCEEDED"
+  },
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 50, // Limit file uploads per hour
+  message: {
+    message: "Too many file uploads, please try again later.",
+    error: "UPLOAD_RATE_LIMIT_EXCEEDED"
+  },
+});
+
+const emailSignupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // Maximum 5 email signups per hour per IP
+  message: {
+    message: "Too many signup attempts, please try again later.",
+    error: "SIGNUP_RATE_LIMIT_EXCEEDED"
+  },
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log('Starting server routes registration');
+  
+  // Apply general rate limiting to all API routes
+  app.use('/api/', generalLimiter);
   
   // Multer error handling middleware for file upload errors
   app.use((error: any, req: any, res: any, next: any) => {
@@ -157,7 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Meal pairing analysis endpoint (Premium feature) - serverless compatible
-  app.post("/api/analyze-meal-pairing", upload.single("image"), async (req: any, res) => {
+  app.post("/api/analyze-meal-pairing", uploadLimiter, upload.single("image"), async (req: any, res) => {
     try {
       if (!isClerkConfigured) {
         return res.status(503).json({ message: "Authentication not configured" });
@@ -218,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Wine menu analysis
-  app.post("/api/analyze-wine-menu", upload.single('image'), async (req: any, res) => {
+  app.post("/api/analyze-wine-menu", uploadLimiter, upload.single('image'), async (req: any, res) => {
     try {
       const userId = req.userId;
       const user = await storage.getUser(userId);
@@ -1054,7 +1097,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile setup endpoint with serverless-compatible auth
-  app.post('/api/profile/setup', async (req: any, res) => {
+  app.post('/api/profile/setup', authLimiter, async (req: any, res) => {
     try {
       // Check if Clerk is configured
       if (!isClerkConfigured) {
@@ -1233,7 +1276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Email signup endpoint
-  app.post("/api/email-signup", async (req, res) => {
+  app.post("/api/email-signup", emailSignupLimiter, async (req, res) => {
     try {
       const { email, firstName } = req.body || {};
       
