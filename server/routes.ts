@@ -36,6 +36,43 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   console.log('Starting server routes registration');
   
+  // Multer error handling middleware for file upload errors
+  app.use((error: any, req: any, res: any, next: any) => {
+    if (error instanceof multer.MulterError) {
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ 
+          message: 'File too large. Maximum size is 10MB.',
+          error: 'FILE_TOO_LARGE'
+        });
+      }
+      if (error.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({ 
+          message: 'Too many files. Only one file allowed.',
+          error: 'TOO_MANY_FILES'
+        });
+      }
+      if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({ 
+          message: 'Unexpected file field.',
+          error: 'UNEXPECTED_FILE'
+        });
+      }
+      return res.status(400).json({ 
+        message: 'File upload error: ' + error.message,
+        error: 'UPLOAD_ERROR'
+      });
+    }
+    
+    if (error.message === 'Only image files are allowed') {
+      return res.status(400).json({ 
+        message: 'Only image files are allowed (JPG, PNG, WebP).',
+        error: 'INVALID_FILE_TYPE'
+      });
+    }
+    
+    next(error);
+  });
+  
   // Add simple health check first
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
