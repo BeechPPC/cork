@@ -71,6 +71,10 @@
       "dest": "/api/setup-profile.js"
     },
     {
+      "src": "/api/recommendations",
+      "dest": "/api/wine-recommendations.js"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/server/index.ts"
     },
