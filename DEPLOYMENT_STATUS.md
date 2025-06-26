@@ -11,9 +11,11 @@ Wine recommendations endpoint failing with FUNCTION_INVOCATION_FAILED despite wo
 
 ## Current Status
 - ✅ Health endpoint working (server compilation successful)
-- ❌ Wine recommendations endpoint FUNCTION_INVOCATION_FAILED
+- ❌ Wine recommendations endpoint FUNCTION_INVOCATION_FAILED  
 - ❌ All standalone serverless functions failing (cached build issue)
 - ✅ Express server routes properly configured
+- ✅ Monitoring system confirms: Health 200, Recommendations 500
+- ⏳ Vercel deployment cache preventing updates (15+ minutes elapsed)
 
 ## Solutions Implemented
 1. **Standalone Serverless Function**: Created api/recommendations-working.js bypassing Express

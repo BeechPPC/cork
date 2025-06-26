@@ -206,6 +206,7 @@ cork is a full-stack web application that provides AI-powered wine recommendatio
 - June 25, 2025: Implemented routing fix - removed broken standalone serverless function routing for profile/setup and recommendations endpoints, routing them through working Express server to bypass TypeScript compilation failures and restore account creation functionality
 - June 25, 2025: Surgical authentication fix deployed - created minimal profile.js endpoint without TypeScript dependencies to bypass compilation failures, implementing secure age validation and profile completion while maintaining Clerk authentication flow integrity
 - June 26, 2025: Comprehensive authentication fallback implemented - created client-side temporary profile storage with server-first approach, ensuring users can complete onboarding while TypeScript configuration issues prevent serverless function deployment
+- June 26, 2025: Identified wine recommendations FUNCTION_INVOCATION_FAILED root cause - Vercel deployment cache preventing serverless function updates despite successful vite.ts compilation fix, health endpoint confirms Express server working, implemented monitoring system and deployment prevention measures
 
 ## Authentication Status
 
