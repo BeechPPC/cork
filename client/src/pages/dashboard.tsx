@@ -77,6 +77,7 @@ export default function Dashboard() {
       return response.json();
     },
     onSuccess: (data) => {
+      console.log("New recommendations received:", data.recommendations);
       setRecommendations(data.recommendations || []);
       toast({
         title: "Recommendations Found!",
@@ -163,6 +164,9 @@ export default function Dashboard() {
       });
       return;
     }
+    
+    // Clear previous recommendations to prevent caching issues
+    setRecommendations([]);
     
     if (searchQuery) {
       setQuery(searchQuery);
@@ -502,7 +506,7 @@ export default function Dashboard() {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {recommendations.map((wine, index) => (
                   <WineCard
-                    key={index}
+                    key={`${wine.name}-${wine.region}-${index}`}
                     wine={wine}
                     onSave={() => handleSaveWine(wine)}
                     isLoading={saveWineMutation.isPending}
