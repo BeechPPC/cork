@@ -30,6 +30,14 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/recommendations-working.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/get-recommendations.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/profile.js",
       "use": "@vercel/node"
     },
@@ -72,7 +80,7 @@
     },
     {
       "src": "/api/recommendations",
-      "dest": "/api/wine-recommendations.js"
+      "dest": "/api/get-recommendations.js"
     },
     {
       "src": "/api/(.*)",
