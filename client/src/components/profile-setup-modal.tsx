@@ -65,7 +65,7 @@ export default function ProfileSetupModal({ open, onComplete }: ProfileSetupModa
     return age;
   };
 
-  const isValidAge = dateOfBirth ? calculateAge(dateOfBirth) >= 18 : false;
+  const isValidAge = dateOfBirth ? validateAge(dateOfBirth) : false;
 
   const handleWineTypeToggle = (wineType: string) => {
     setSelectedWineTypes(prev => 

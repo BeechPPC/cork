@@ -33,6 +33,10 @@
       "src": "api/profile.js",
       "use": "@vercel/node"
     },
+    {
+      "src": "api/setup-profile.js",
+      "use": "@vercel/node"
+    },
 
 
     {
@@ -61,6 +65,10 @@
     {
       "src": "/api/auth-test",
       "dest": "/api/auth-test.js"
+    },
+    {
+      "src": "/api/profile/setup",
+      "dest": "/api/setup-profile.js"
     },
     {
       "src": "/api/(.*)",

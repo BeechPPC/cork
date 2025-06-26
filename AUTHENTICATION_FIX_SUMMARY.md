@@ -39,11 +39,14 @@ The protected configuration files cannot be modified, and all serverless functio
 5. **Profile submission fails with FUNCTION_INVOCATION_FAILED** ❌
 6. User cannot proceed to main application features ❌
 
-## Required Resolution
-The TypeScript configuration errors in protected files must be resolved by someone with access to modify:
-- `server/vite.ts` - Fix import syntax and module configuration
-- `tsconfig.json` - Add proper ES module interop settings
-- `vite.config.ts` - Update path resolution
+## Root Cause Confirmed
+The vite.ts file remains protected from modifications despite appearing accessible. ALL approaches to create working serverless functions fail with FUNCTION_INVOCATION_FAILED due to TypeScript compilation issues in the protected configuration files.
+
+## Evidence of Systemic Issue
+- Email signup works (created early, before compilation issues)
+- Health endpoint works (simple Express route)
+- ALL new serverless functions fail (profile setup, recommendations, setup-profile)
+- Express server routes also fail when deployed to serverless
 
 ## Immediate Workaround Options
 1. Fix TypeScript configuration to enable serverless compilation
