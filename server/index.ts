@@ -48,63 +48,80 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
+// Simple health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Test route registration step by step
+app.get('/api/test-routes', async (req, res) => {
   try {
-    console.log('🔧 Registering routes...');
-    const server = await registerRoutes(app);
-    console.log('✅ Routes registered successfully');
+    console.log('🔧 Testing route registration...');
 
-    // Use standardized error handler
-    console.log('🔧 Setting up error handler...');
+    // Test 1: Import registerRoutes
+    console.log('Step 1: Importing registerRoutes...');
+    const { registerRoutes } = await import('./routes.js');
+    console.log('✅ registerRoutes imported successfully');
+
+    // Test 2: Import error handler
+    console.log('Step 2: Importing error handler...');
     const { standardErrorHandler } = await import('./errorHandler.js');
-    app.use(standardErrorHandler);
-    console.log('✅ Error handler set up');
+    console.log('✅ Error handler imported successfully');
 
-    // Skip Vite setup in production/serverless environments
-    if (process.env.NODE_ENV === 'development' && !process.env.VERCEL) {
-      console.log('🔧 Setting up Vite for development...');
-      try {
-        await setupVite(app, server);
-        console.log('✅ Vite setup complete');
-      } catch (error) {
-        console.warn('⚠️ Vite setup failed, serving static files:', error);
-        serveStatic(app);
-      }
-    } else {
-      console.log('🔧 Setting up static file serving for production...');
-      serveStatic(app);
-      console.log('✅ Static file serving set up');
-    }
+    // Test 3: Import Vite utilities
+    console.log('Step 3: Importing Vite utilities...');
+    const { setupVite, serveStatic, log } = await import('./vite.js');
+    console.log('✅ Vite utilities imported successfully');
 
-    // ALWAYS serve the app on port 5000
-    // this serves both the API and the client.
-    // It is the only port that is not firewalled.
-    const port = process.env.PORT || 5000;
-    console.log(`🚀 Starting server on port ${port}...`);
-
-    server.listen(
-      {
-        port,
-        host: '0.0.0.0',
-      },
-      () => {
-        log(`✅ Server running on port ${port}`);
-        console.log(`✅ Server is ready to handle requests`);
-      }
-    );
-
-    // Add error handling for the server
-    server.on('error', error => {
-      console.error('❌ Server error:', error);
+    res.json({
+      message: 'All imports successful',
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    process.exit(1);
+    console.error('❌ Import test failed:', error);
+    res.status(500).json({
+      message: 'Import test failed',
+      error: error.message,
+      stack: error.stack,
+    });
   }
-})();
+});
+
+// Serve static files
+app.use(express.static('dist'));
+
+// Fallback to index.html
+app.use('*', (_req, res) => {
+  res.status(404).json({
+    message: 'Route not found',
+    error: '404',
+  });
+});
+
+const port = process.env.PORT || 5000;
+console.log(`🚀 Starting server on port ${port}...`);
+
+const server = createServer(app);
+
+server.listen(
+  {
+    port,
+    host: '0.0.0.0',
+  },
+  () => {
+    console.log(`✅ Server running on port ${port}`);
+    console.log(`✅ Server is ready to handle requests`);
+  }
+);
+
+// Add error handling for the server
+server.on('error', error => {
+  console.error('❌ Server error:', error);
+});
 
 process.on('uncaughtException', error => {
   console.error('❌ Uncaught Exception:', error);
+  console.error('❌ Stack trace:', error.stack);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
