@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
 import { clerkClient } from '@clerk/clerk-sdk-node';
+import { storage } from './storage.js';
 
 console.log('🚀 Server starting up...');
 console.log('📋 Environment:', {
@@ -50,10 +51,55 @@ app.get('/api/auth/user', async (req: any, res) => {
       const userId = verifiedToken.sub;
       console.log('✅ Token verification - Success, userId:', userId);
 
+      // Try to get user from database
+      console.log('🔍 Fetching user from database for userId:', userId);
+      let user = await storage.getUser(userId);
+      console.log('📊 User from database:', user ? 'Found' : 'Not found');
+
+      if (!user) {
+        console.log(
+          '🆕 User not found in database, creating new user:',
+          userId
+        );
+        try {
+          // Get user info from Clerk
+          const clerkUser = await clerkClient.users.getUser(userId);
+          console.log('📋 Clerk user data:', {
+            email: clerkUser.emailAddresses?.[0]?.emailAddress,
+            firstName: clerkUser.firstName,
+            lastName: clerkUser.lastName,
+          });
+
+          const userData = {
+            id: userId,
+            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
+            firstName: clerkUser.firstName || '',
+            lastName: clerkUser.lastName || '',
+            profileImageUrl: clerkUser.imageUrl || '',
+            subscriptionPlan: 'free', // Default to free plan
+          };
+
+          user = await storage.upsertUser(userData);
+          console.log('✅ Created new user:', user);
+        } catch (createError) {
+          console.error('❌ Failed to create user:', createError);
+          return res.status(500).json({ message: 'Failed to create user' });
+        }
+      }
+
+      console.log('📋 Final user data:', {
+        id: user.id,
+        email: user.email,
+        profileCompleted: user.profileCompleted,
+        dateOfBirth: user.dateOfBirth,
+      });
+
       res.json({
-        message: 'Auth user endpoint is working with Clerk',
-        userId: userId,
-        timestamp: new Date().toISOString(),
+        ...user,
+        usage: {
+          savedWines: 0,
+          uploadedWines: 0,
+        },
       });
     } catch (authError) {
       console.error('❌ Token verification failed:', authError);
