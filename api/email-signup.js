@@ -227,6 +227,7 @@ getcork.app`,
                 <li>Expert analysis of Australian wines</li>
                 <li>Personalised food pairing suggestions</li>
                 <li>Smart cellar management tools</li>
+                <li>Australian wine region knowledge</li>
               </ul>
               
               <p style="color: #666;">We'll only email you when cork is ready to launch - no spam, ever.</p>
