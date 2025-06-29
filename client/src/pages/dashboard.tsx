@@ -100,12 +100,31 @@ export default function Dashboard() {
 
   // Check if profile setup is needed (use backend user)
   useEffect(() => {
+    console.log('🔍 Dashboard profile setup check:', {
+      hasUser: !!user,
+      userProfileCompleted: user?.profileCompleted,
+      user: user,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Check if user data is loaded and profile is not completed
     if (user && !user.profileCompleted) {
+      console.log('✅ Showing profile setup modal - user needs onboarding');
       setShowProfileSetup(true);
+    } else if (user && user.profileCompleted) {
+      console.log('✅ Profile already completed - hiding modal');
+      setShowProfileSetup(false);
     } else {
+      console.log('⏳ Waiting for user data to load...');
       setShowProfileSetup(false);
     }
   }, [user]);
+
+  // TEMPORARY: Force show profile setup for debugging
+  const forceShowProfileSetup = () => {
+    console.log('🔧 Force showing profile setup modal for debugging');
+    setShowProfileSetup(true);
+  };
 
   // Debug: Log user data changes
   useEffect(() => {
@@ -345,6 +364,18 @@ export default function Dashboard() {
               Describe your mood, occasion, or food pairing and let our AI
               sommelier find your perfect match
             </p>
+
+            {/* TEMPORARY DEBUG BUTTON */}
+            <div className="mt-4">
+              <Button
+                onClick={forceShowProfileSetup}
+                variant="outline"
+                size="sm"
+                className="text-red-600 border-red-300 hover:bg-red-50"
+              >
+                🔧 Debug: Force Show Profile Setup
+              </Button>
+            </div>
           </div>
 
           {/* Recommendation Input - Now with Tabs */}
