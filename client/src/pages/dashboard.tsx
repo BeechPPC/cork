@@ -110,34 +110,66 @@ export default function Dashboard() {
       timestamp: new Date().toISOString(),
     });
 
-    // For new users, always show profile setup if we can't determine completion status
-    if (user && !user.profileCompleted) {
-      console.log('✅ Showing profile setup modal - user needs onboarding');
-      setShowProfileSetup(true);
-    } else if (user && user.profileCompleted === true) {
-      console.log('✅ Profile already completed - hiding modal');
-      setShowProfileSetup(false);
-    } else if (
-      !isUserLoading &&
-      (!user || user.profileCompleted === undefined)
-    ) {
-      // If user data failed to load or profileCompleted is undefined, show profile setup
-      console.log('⚠️ User data incomplete, showing profile setup as fallback');
-      setShowProfileSetup(true);
-    } else if (user && !user.dateOfBirth) {
-      // If user has no profile data (no dateOfBirth), show profile setup
-      console.log('✅ Showing profile setup modal - user has no profile data');
-      setShowProfileSetup(true);
-    } else {
+    // If user data is still loading, wait
+    if (isUserLoading) {
       console.log('⏳ Waiting for user data to load...');
       setShowProfileSetup(false);
+      return;
     }
+
+    // If no user data available, show profile setup as fallback
+    if (!user) {
+      console.log(
+        '⚠️ No user data available, showing profile setup as fallback'
+      );
+      setShowProfileSetup(true);
+      return;
+    }
+
+    // If profile is explicitly marked as completed, hide the modal
+    if (user.profileCompleted === true) {
+      console.log('✅ Profile already completed - hiding modal');
+      setShowProfileSetup(false);
+      return;
+    }
+
+    // If profile is explicitly marked as not completed, show the modal
+    if (user.profileCompleted === false) {
+      console.log('✅ Showing profile setup modal - user needs onboarding');
+      setShowProfileSetup(true);
+      return;
+    }
+
+    // If profileCompleted is undefined/null, check if user has any profile data
+    // This handles legacy users who might not have the profileCompleted field
+    if (user.profileCompleted === undefined || user.profileCompleted === null) {
+      if (user.dateOfBirth) {
+        console.log(
+          '✅ User has profile data but no completion flag - assuming completed'
+        );
+        setShowProfileSetup(false);
+      } else {
+        console.log('✅ User has no profile data - showing profile setup');
+        setShowProfileSetup(true);
+      }
+      return;
+    }
+
+    // Default case - hide modal
+    console.log('✅ Default case - hiding profile setup modal');
+    setShowProfileSetup(false);
   }, [user, isUserLoading]);
 
   // TEMPORARY: Force show profile setup for debugging
   const forceShowProfileSetup = () => {
     console.log('🔧 Force showing profile setup modal for debugging');
     setShowProfileSetup(true);
+  };
+
+  // TEMPORARY: Force refresh user data for debugging
+  const forceRefreshUserData = () => {
+    console.log('🔧 Force refreshing user data for debugging');
+    queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
   };
 
   // Debug: Log user data changes
@@ -147,6 +179,8 @@ export default function Dashboard() {
         id: user.id,
         subscriptionPlan: user.subscriptionPlan,
         email: user.email,
+        profileCompleted: user.profileCompleted,
+        dateOfBirth: user.dateOfBirth,
         timestamp: new Date().toISOString(),
       });
     }
@@ -380,7 +414,7 @@ export default function Dashboard() {
             </p>
 
             {/* TEMPORARY DEBUG BUTTON */}
-            <div className="mt-4">
+            <div className="mt-4 space-x-2">
               <Button
                 onClick={forceShowProfileSetup}
                 variant="outline"
@@ -388,6 +422,14 @@ export default function Dashboard() {
                 className="text-red-600 border-red-300 hover:bg-red-50"
               >
                 🔧 Debug: Force Show Profile Setup
+              </Button>
+              <Button
+                onClick={forceRefreshUserData}
+                variant="outline"
+                size="sm"
+                className="text-blue-600 border-blue-300 hover:bg-blue-50"
+              >
+                🔄 Debug: Refresh User Data
               </Button>
             </div>
           </div>
@@ -692,7 +734,11 @@ export default function Dashboard() {
 
       <ProfileSetupModal
         open={showProfileSetup}
-        onComplete={() => setShowProfileSetup(false)}
+        onComplete={() => {
+          setTimeout(() => {
+            setShowProfileSetup(false);
+          }, 100);
+        }}
       />
 
       <Footer />
