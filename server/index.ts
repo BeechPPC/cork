@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from 'express';
 import { createServer } from 'http';
+import { clerkClient } from '@clerk/clerk-sdk-node';
 
 console.log('🚀 Server starting up...');
 console.log('📋 Environment:', {
@@ -24,16 +25,40 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is working!' });
 });
 
-// Try to add the auth user endpoint
+// Try to add the auth user endpoint with Clerk
 app.get('/api/auth/user', async (req: any, res) => {
   try {
     console.log('=== /api/auth/user endpoint called ===');
 
-    // For now, just return a simple response to test if the endpoint works
-    res.json({
-      message: 'Auth user endpoint is working',
-      timestamp: new Date().toISOString(),
-    });
+    // Check if Clerk is configured
+    if (!process.env.CLERK_SECRET_KEY) {
+      console.log('❌ Clerk not configured');
+      return res.status(503).json({ message: 'Authentication not configured' });
+    }
+
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('❌ No valid authorization header');
+      return res.status(401).json({ message: 'No valid authorization token' });
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    console.log('Token verification - Token length:', token.length);
+
+    try {
+      const verifiedToken = await clerkClient.verifyToken(token);
+      const userId = verifiedToken.sub;
+      console.log('✅ Token verification - Success, userId:', userId);
+
+      res.json({
+        message: 'Auth user endpoint is working with Clerk',
+        userId: userId,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (authError) {
+      console.error('❌ Token verification failed:', authError);
+      return res.status(401).json({ message: 'Invalid token' });
+    }
   } catch (error) {
     console.error('❌ Error in /api/auth/user:', error);
     res.status(500).json({ message: 'Failed to fetch user' });
