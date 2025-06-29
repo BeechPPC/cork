@@ -167,7 +167,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes - serverless compatible
   app.get('/api/auth/user', async (req: any, res) => {
     try {
+      console.log('=== /api/auth/user endpoint called ===');
+
       if (!isClerkConfigured) {
+        console.log('❌ Clerk not configured');
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -175,6 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('❌ No valid authorization header');
         return res
           .status(401)
           .json({ message: 'No valid authorization token' });
@@ -192,24 +196,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
-        console.log('Token verification - Success, userId:', userId);
+        console.log('✅ Token verification - Success, userId:', userId);
       } catch (authError) {
-        console.error('Token verification failed:', authError);
+        console.error('❌ Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
       if (!userId) {
+        console.log('❌ User ID not found in token');
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
+      console.log('🔍 Fetching user from database for userId:', userId);
       let user = await storage.getUser(userId);
+      console.log('📊 User from database:', user ? 'Found' : 'Not found');
 
       // If user doesn't exist, create them automatically
       if (!user) {
-        console.log('User not found in database, creating new user:', userId);
+        console.log(
+          '🆕 User not found in database, creating new user:',
+          userId
+        );
         try {
           // Get user info from Clerk
           const clerkUser = await clerkClient.users.getUser(userId);
+          console.log('📋 Clerk user data:', {
+            email: clerkUser.emailAddresses?.[0]?.emailAddress,
+            firstName: clerkUser.firstName,
+            lastName: clerkUser.lastName,
+          });
 
           const userData = {
             id: userId,
@@ -221,39 +236,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
 
           user = await storage.upsertUser(userData);
-          console.log('Created new user:', user);
+          console.log('✅ Created new user:', user);
         } catch (createError) {
-          console.error('Failed to create user:', createError);
+          console.error('❌ Failed to create user:', createError);
           return res.status(500).json({ message: 'Failed to create user' });
         }
       }
 
+      console.log('📋 Final user data before counts:', {
+        id: user.id,
+        email: user.email,
+        profileCompleted: user.profileCompleted,
+        dateOfBirth: user.dateOfBirth,
+      });
+
       // Get usage counts for plan limits (optimized single query)
       try {
         const userCounts = await storage.getUserCounts(userId);
-        console.log('User counts retrieved successfully:', userCounts);
+        console.log('✅ User counts retrieved successfully:', userCounts);
 
-        res.json({
+        const responseData = {
           ...user,
           usage: {
             savedWines: userCounts.savedWines,
             uploadedWines: userCounts.uploadedWines,
           },
+        };
+
+        console.log('📤 Sending response with counts:', {
+          id: responseData.id,
+          profileCompleted: responseData.profileCompleted,
+          usage: responseData.usage,
         });
+
+        res.json(responseData);
       } catch (countsError) {
-        console.error('Error getting user counts:', countsError);
+        console.error('⚠️ Error getting user counts:', countsError);
         // Return user data without counts rather than failing completely
-        console.log('Returning user data without counts due to database error');
-        res.json({
+        console.log(
+          '📤 Returning user data without counts due to database error'
+        );
+
+        const responseData = {
           ...user,
           usage: {
             savedWines: 0,
             uploadedWines: 0,
           },
+        };
+
+        console.log('📤 Sending response without counts:', {
+          id: responseData.id,
+          profileCompleted: responseData.profileCompleted,
+          usage: responseData.usage,
         });
+
+        res.json(responseData);
       }
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('❌ Error fetching user:', error);
       res.status(500).json({ message: 'Failed to fetch user' });
     }
   });
@@ -1667,7 +1708,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   if (process.env.NODE_ENV === 'development') {
     app.get('/api/db-status', async (req, res) => {
       try {
+        console.log('=== Database status check ===');
+
         if (!db) {
+          console.log('❌ Database connection not available');
           return res.json({
             status: 'error',
             message: 'Database connection not available',
@@ -1675,9 +1719,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
+        console.log('✅ Database connection available');
+
         // Try a simple query to check if tables exist
         try {
+          const { users } = await import('../shared/schema.js');
           const result = await db.select().from(users).limit(1);
+          console.log('✅ Users table exists, count:', result.length);
           res.json({
             status: 'ok',
             message: 'Database connection working',
@@ -1686,6 +1734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             userCount: result.length,
           });
         } catch (tableError) {
+          console.error('❌ Table query failed:', tableError);
           res.json({
             status: 'error',
             message: 'Database connected but tables may not exist',
@@ -1695,6 +1744,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       } catch (error) {
+        console.error('❌ Database check failed:', error);
         res.json({
           status: 'error',
           message: 'Database check failed',
