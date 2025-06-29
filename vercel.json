@@ -10,19 +10,11 @@
       "use": "@vercel/node"
     },
     {
-      "src": "api/profile-setup.js",
-      "use": "@vercel/node"
-    },
-    {
       "src": "api/recommendations-basic.js",
       "use": "@vercel/node"
     },
     {
       "src": "api/auth-test.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/profile-complete.js",
       "use": "@vercel/node"
     },
     {
@@ -37,15 +29,6 @@
       "src": "api/get-recommendations.js",
       "use": "@vercel/node"
     },
-    {
-      "src": "api/profile.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/setup-profile.js",
-      "use": "@vercel/node"
-    },
-
     {
       "src": "server/index.ts",
       "use": "@vercel/node"
@@ -68,14 +51,9 @@
       "src": "/api/email-signup",
       "dest": "/api/email-signup.js"
     },
-
     {
       "src": "/api/auth-test",
       "dest": "/api/auth-test.js"
-    },
-    {
-      "src": "/api/profile/setup",
-      "dest": "/api/setup-profile.js"
     },
     {
       "src": "/api/recommendations",
