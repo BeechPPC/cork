@@ -14,7 +14,7 @@ import { Link, useLocation } from 'wouter';
 import Header from '@/components/header';
 import EmailCaptureModal from '@/components/email-capture-modal';
 import { useAuth } from '@/components/auth-wrapper';
-import { SignInButton } from '@clerk/clerk-react';
+import { SignInButton, SignUpButton } from '@clerk/clerk-react';
 
 // Simple button component for all cases
 function ActionButton({
@@ -33,7 +33,7 @@ function ActionButton({
   );
 }
 
-// Clerk SignIn Button wrapper
+// Clerk SignUp Button wrapper for "Get Started" functionality
 function ClerkActionButton({
   children,
   className,
@@ -41,10 +41,20 @@ function ClerkActionButton({
   children: React.ReactNode;
   className?: string;
 }) {
+  console.log(
+    '🔍 ClerkActionButton rendered - isClerkConfigured:',
+    isClerkConfigured
+  );
+
   return (
-    <SignInButton mode="modal">
-      <Button className={className}>{children}</Button>
-    </SignInButton>
+    <SignUpButton mode="modal">
+      <Button
+        className={className}
+        onClick={() => console.log('🔍 Get Started button clicked')}
+      >
+        {children}
+      </Button>
+    </SignUpButton>
   );
 }
 
