@@ -275,44 +275,25 @@ export class DatabaseStorage implements IStorage {
   async getUserCounts(
     userId: string
   ): Promise<{ savedWines: number; uploadedWines: number }> {
-    try {
-      console.log('Storage - getting user counts for userId:', userId);
+    const savedWineQuery = db
+      .select({ count: count() })
+      .from(savedWines)
+      .where(eq(savedWines.userId, userId));
 
-      // Ensure database connection exists
-      if (!db) {
-        throw new Error('Database connection not available');
-      }
+    const uploadedWineQuery = db
+      .select({ count: count() })
+      .from(uploadedWines)
+      .where(eq(uploadedWines.userId, userId));
 
-      const savedWineQuery = db
-        .select({ count: count() })
-        .from(savedWines)
-        .where(eq(savedWines.userId, userId));
+    const [savedResult, uploadedResult] = await Promise.all([
+      savedWineQuery,
+      uploadedWineQuery,
+    ]);
 
-      const uploadedWineQuery = db
-        .select({ count: count() })
-        .from(uploadedWines)
-        .where(eq(uploadedWines.userId, userId));
-
-      const [savedResult, uploadedResult] = await Promise.all([
-        savedWineQuery,
-        uploadedWineQuery,
-      ]);
-
-      const result = {
-        savedWines: savedResult[0].count,
-        uploadedWines: uploadedResult[0].count,
-      };
-
-      console.log('Storage - user counts retrieved successfully:', result);
-      return result;
-    } catch (error) {
-      console.error('Storage - error getting user counts:', error);
-      throw new Error(
-        `Failed to get user counts: ${
-          (error as Error)?.message || 'Unknown database error'
-        }`
-      );
-    }
+    return {
+      savedWines: savedResult[0].count,
+      uploadedWines: uploadedResult[0].count,
+    };
   }
 
   async saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine> {

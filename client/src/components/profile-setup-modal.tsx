@@ -156,11 +156,7 @@ export default function ProfileSetupModal({
         });
 
         if (response.ok) {
-          console.log(
-            '✅ Profile setup successful, invalidating user query...'
-          );
           queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-          console.log('✅ User query invalidated, calling onComplete...');
           toast({
             title: 'Profile Complete!',
             description: 'Welcome to Cork! Your wine journey begins now.',
@@ -179,7 +175,6 @@ export default function ProfileSetupModal({
       console.log('Using temporary profile storage as fallback');
       saveTemporaryProfile(requestData);
 
-      console.log('✅ Temporary profile saved, calling onComplete...');
       toast({
         title: 'Profile Saved!',
         description:
