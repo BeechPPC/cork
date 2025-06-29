@@ -45,11 +45,11 @@ function Router() {
   return (
     <Switch>
       {/* Root route - redirect based on auth state */}
-      {/*<Route path="/">{isAuthenticated ? <Dashboard /> : <Landing />}</Route>*/}
+      <Route path="/">{isAuthenticated ? <Dashboard /> : <Landing />}</Route>
 
-      <Route path="/">
+      {/*<Route path="/">
         <ComingSoon />
-      </Route>
+      </Route>*/}
       {/* Public routes - always accessible */}
       <Route path="/coming-soon" component={ComingSoon} />
       <Route path="/pricing" component={Pricing} />
