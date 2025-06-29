@@ -1,12 +1,12 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { ClerkProvider } from '@clerk/clerk-react';
-import App from "./App";
-import "./index.css";
+import App from './App';
+import './index.css';
 import { clerkPubKey, isClerkConfigured } from './lib/clerk';
 
-const container = document.getElementById("root");
-if (!container) throw new Error("Root element not found");
+const container = document.getElementById('root');
+if (!container) throw new Error('Root element not found');
 
 const root = createRoot(container);
 
@@ -14,7 +14,11 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     {isClerkConfigured ? (
-      <ClerkProvider publishableKey={clerkPubKey}>
+      <ClerkProvider
+        publishableKey={clerkPubKey}
+        // Add custom domain configuration for your Clerk instance
+        domain="rare-akita-78.clerk.accounts.dev"
+      >
         <App />
       </ClerkProvider>
     ) : (

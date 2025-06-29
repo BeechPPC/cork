@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import sgMail from '@sendgrid/mail';
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
@@ -9,10 +10,10 @@ import ws from 'ws';
 neonConfig.webSocketConstructor = ws;
 
 // Define email signups table schema inline for standalone function (matching actual DB)
-const emailSignups = pgTable("email_signups", {
-  id: serial("id").primaryKey(),
-  email: varchar("email").unique().notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+const emailSignups = pgTable('email_signups', {
+  id: serial('id').primaryKey(),
+  email: varchar('email').unique().notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
 });
 
 // Standalone serverless function for email signup with database storage and SendGrid integration
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
 
   try {
     const { email, firstName } = req.body || {};
-    
+
     // Basic email validation
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return res.status(400).json({ message: 'Valid email required' });
@@ -41,25 +42,46 @@ export default async function handler(req, res) {
     // Enhanced email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: 'Please enter a valid email address' });
+      return res
+        .status(400)
+        .json({ message: 'Please enter a valid email address' });
     }
 
     // Additional security validations
     const sanitizedEmail = email.toLowerCase().trim();
-    
+
     // Length validation to prevent buffer overflow
     if (sanitizedEmail.length > 255) {
       return res.status(400).json({ message: 'Email address too long' });
     }
-    
+
     // Block potentially dangerous characters that could be used for injection
-    const dangerousChars = ['<', '>', '"', "'", ';', '\\', '`', '|', '&', '$', '(', ')', '{', '}', '[', ']'];
+    const dangerousChars = [
+      '<',
+      '>',
+      '"',
+      "'",
+      ';',
+      '\\',
+      '`',
+      '|',
+      '&',
+      '$',
+      '(',
+      ')',
+      '{',
+      '}',
+      '[',
+      ']',
+    ];
     for (const char of dangerousChars) {
       if (sanitizedEmail.includes(char)) {
-        return res.status(400).json({ message: 'Email contains invalid characters' });
+        return res
+          .status(400)
+          .json({ message: 'Email contains invalid characters' });
       }
     }
-    
+
     // Validate domain part length
     const [localPart, domainPart] = sanitizedEmail.split('@');
     if (localPart.length > 64 || domainPart.length > 255) {
@@ -72,19 +94,38 @@ export default async function handler(req, res) {
       if (typeof firstName !== 'string') {
         return res.status(400).json({ message: 'First name must be text' });
       }
-      
+
       sanitizedFirstName = firstName.trim();
-      
+
       // Length validation
       if (sanitizedFirstName.length > 50) {
         return res.status(400).json({ message: 'First name too long' });
       }
-      
+
       // Block potentially dangerous characters that could be used for injection
-      const dangerousChars = ['<', '>', '"', "'", ';', '\\', '`', '|', '&', '$', '(', ')', '{', '}', '[', ']'];
+      const dangerousChars = [
+        '<',
+        '>',
+        '"',
+        "'",
+        ';',
+        '\\',
+        '`',
+        '|',
+        '&',
+        '$',
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+      ];
       for (const char of dangerousChars) {
         if (sanitizedFirstName.includes(char)) {
-          return res.status(400).json({ message: 'First name contains invalid characters' });
+          return res
+            .status(400)
+            .json({ message: 'First name contains invalid characters' });
         }
       }
     }
@@ -96,20 +137,24 @@ export default async function handler(req, res) {
         console.log(`Attempting to save email: ${sanitizedEmail}`);
         const pool = new Pool({ connectionString: process.env.DATABASE_URL });
         const db = drizzle({ client: pool, schema: { emailSignups } });
-        
+
         // Use sanitized email for database operation
-        const result = await db.insert(emailSignups).values({
-          email: sanitizedEmail,
-        }).onConflictDoUpdate({
-          target: emailSignups.email,
-          set: {
-            createdAt: new Date(),
-          },
-        }).returning();
-        
+        const result = await db
+          .insert(emailSignups)
+          .values({
+            email: sanitizedEmail,
+          })
+          .onConflictDoUpdate({
+            target: emailSignups.email,
+            set: {
+              createdAt: new Date(),
+            },
+          })
+          .returning();
+
         emailSaved = true;
         console.log(`Email successfully saved to database:`, result);
-        
+
         // Close the connection
         await pool.end();
       } catch (dbError) {
@@ -122,25 +167,28 @@ export default async function handler(req, res) {
     }
 
     // Log email signup for collection backup (using sanitized values)
-    console.log('EMAIL_SIGNUP:', JSON.stringify({
-      email: sanitizedEmail,
-      firstName: sanitizedFirstName,
-      timestamp: new Date().toISOString(),
-      userAgent: req.headers['user-agent'] || 'unknown',
-      savedToDatabase: emailSaved
-    }));
+    console.log(
+      'EMAIL_SIGNUP:',
+      JSON.stringify({
+        email: sanitizedEmail,
+        firstName: sanitizedFirstName,
+        timestamp: new Date().toISOString(),
+        userAgent: req.headers['user-agent'] || 'unknown',
+        savedToDatabase: emailSaved,
+      })
+    );
 
     // Send confirmation email via SendGrid
     let emailSent = false;
     if (process.env.SENDGRID_API_KEY) {
       try {
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-        
+
         const msg = {
           to: sanitizedEmail,
           from: {
             email: 'hello@getcork.app',
-            name: 'cork'
+            name: 'cork',
           },
           subject: "You're on the list! cork is launching soon 🍷",
           text: `G'day${sanitizedFirstName ? ` ${sanitizedFirstName}` : ''}!
@@ -165,7 +213,9 @@ cork - Australia's smartest wine recommendations
 getcork.app`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2 style="color: #7c2d12;">G'day${sanitizedFirstName ? ` ${sanitizedFirstName}` : ''}!</h2>
+              <h2 style="color: #7c2d12;">G'day${
+                sanitizedFirstName ? ` ${sanitizedFirstName}` : ''
+              }!</h2>
               
               <p>Thanks for signing up to be notified when <strong>cork</strong> launches!</p>
               
@@ -189,27 +239,30 @@ getcork.app`,
                 <a href="https://getcork.app" style="color: #7c2d12;">getcork.app</a>
               </p>
             </div>
-          `
+          `,
         };
 
         await sgMail.send(msg);
         emailSent = true;
         console.log(`Confirmation email sent to: ${sanitizedEmail}`);
       } catch (emailError) {
-        console.error(`Email send failed for ${sanitizedEmail}:`, emailError.message);
+        console.error(
+          `Email send failed for ${sanitizedEmail}:`,
+          emailError.message
+        );
         // Don't fail the request if email fails
       }
     } else {
       console.log('SendGrid not configured, skipping email');
     }
-    
-    return res.json({ 
-      message: "Thank you for signing up! You'll be notified when cork launches.",
+
+    return res.json({
+      message:
+        "Thank you for signing up! You'll be notified when cork launches.",
       success: true,
       emailSent,
-      emailSaved
+      emailSaved,
     });
-
   } catch (error) {
     console.error('Email signup error:', error);
     return res.status(500).json({ message: 'Please try again' });

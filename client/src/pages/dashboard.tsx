@@ -1,29 +1,42 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Wine, Sparkles, Camera, MessageSquare, Mic, Upload, FileText } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import { useAuthenticatedQuery } from "@/hooks/useAuthenticatedQuery";
-import { useAuthenticatedMutation } from "@/hooks/useAuthenticatedMutation";
-import { useMutation } from "@tanstack/react-query";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
-import WineCard from "@/components/wine-card";
-import WinePairingSuggestions from "@/components/wine-pairing-suggestions";
-import MealPairing from "@/components/meal-pairing";
-import VoiceSearch from "@/components/voice-search";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Loader2,
+  Wine,
+  Sparkles,
+  Camera,
+  MessageSquare,
+  Mic,
+  Upload,
+  FileText,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  apiRequest,
+  authenticatedApiRequest,
+  queryClient,
+} from '@/lib/queryClient';
+import { isUnauthorizedError } from '@/lib/authUtils';
+import { useAuthenticatedQuery } from '@/hooks/useAuthenticatedQuery';
+import { useAuthenticatedMutation } from '@/hooks/useAuthenticatedMutation';
+import { useMutation } from '@tanstack/react-query';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
+import WineCard from '@/components/wine-card';
+import WinePairingSuggestions from '@/components/wine-pairing-suggestions';
+import MealPairing from '@/components/meal-pairing';
+import VoiceSearch from '@/components/voice-search';
 
-import PlanLimitModal from "@/components/plan-limit-modal";
-import ProfileSetupModal from "@/components/profile-setup-modal";
-import { useEffect } from "react";
-import { useAuth } from "@/components/auth-wrapper";
+import PlanLimitModal from '@/components/plan-limit-modal';
+import ProfileSetupModal from '@/components/profile-setup-modal';
+import { useEffect } from 'react';
+import { useAuth } from '@/components/auth-wrapper';
 
 interface WineRecommendation {
   name: string;
@@ -38,136 +51,179 @@ interface WineRecommendation {
 }
 
 export default function Dashboard() {
-  const [query, setQuery] = useState("");
-  const [recommendations, setRecommendations] = useState<WineRecommendation[]>([]);
+  const [query, setQuery] = useState('');
+  const [recommendations, setRecommendations] = useState<WineRecommendation[]>(
+    []
+  );
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [menuImage, setMenuImage] = useState<File | null>(null);
-  const [menuQuestion, setMenuQuestion] = useState("");
-  const [menuAnalysisResult, setMenuAnalysisResult] = useState("");
+  const [menuQuestion, setMenuQuestion] = useState('');
+  const [menuAnalysisResult, setMenuAnalysisResult] = useState('');
   const [isAnalyzingMenu, setIsAnalyzingMenu] = useState(false);
   const { toast } = useToast();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Fetch user from backend API
+  const { data: user, isLoading: isUserLoading } = useAuthenticatedQuery(
+    ['/api/auth/user'],
+    async token => {
+      const res = await fetch('/api/auth/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch user');
+      const userData = await res.json();
+      console.log('🔍 User data fetched:', {
+        id: userData.id,
+        subscriptionPlan: userData.subscriptionPlan,
+        email: userData.email,
+        timestamp: new Date().toISOString(),
+      });
+      return userData;
+    }
+  );
 
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
+        title: 'Unauthorized',
+        description: 'You are logged out. Logging in again...',
+        variant: 'destructive',
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = '/api/login';
       }, 500);
       return;
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  // Check if profile setup is needed
+  // Check if profile setup is needed (use backend user)
   useEffect(() => {
     if (user && !user.profileCompleted) {
       setShowProfileSetup(true);
+    } else {
+      setShowProfileSetup(false);
+    }
+  }, [user]);
+
+  // Debug: Log user data changes
+  useEffect(() => {
+    if (user) {
+      console.log('🔄 User data updated:', {
+        id: user.id,
+        subscriptionPlan: user.subscriptionPlan,
+        email: user.email,
+        timestamp: new Date().toISOString(),
+      });
     }
   }, [user]);
 
   const getRecommendationsMutation = useMutation({
     mutationFn: async (searchQuery: string) => {
-      const response = await apiRequest("POST", "/api/recommendations", { query: searchQuery });
+      const response = await apiRequest('POST', '/api/recommendations', {
+        query: searchQuery,
+      });
       return response.json();
     },
-    onSuccess: (data) => {
-      console.log("New recommendations received:", data.recommendations);
+    onSuccess: data => {
+      console.log('New recommendations received:', data.recommendations);
       setRecommendations(data.recommendations || []);
       toast({
-        title: "Recommendations Found!",
-        description: `Found ${data.recommendations?.length || 0} wine recommendations for you.`,
+        title: 'Recommendations Found!',
+        description: `Found ${
+          data.recommendations?.length || 0
+        } wine recommendations for you.`,
       });
     },
-    onError: (error) => {
+    onError: error => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
+          title: 'Unauthorized',
+          description: 'You are logged out. Logging in again...',
+          variant: 'destructive',
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = '/api/login';
         }, 500);
         return;
       }
       toast({
-        title: "Error",
-        description: "Failed to get wine recommendations. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to get wine recommendations. Please try again.',
+        variant: 'destructive',
       });
     },
   });
 
   const saveWineMutation = useMutation({
     mutationFn: async (wine: WineRecommendation) => {
-      const response = await apiRequest("POST", "/api/cellar/save", {
-        wineName: wine.name,
-        wineType: wine.type,
-        region: wine.region,
-        vintage: wine.vintage ? String(wine.vintage) : undefined,
-        description: wine.description,
-        priceRange: wine.priceRange,
-        abv: String(wine.abv),
-        rating: String(wine.rating),
-        source: "recommendation",
-      });
+      const response = await authenticatedApiRequest(
+        'POST',
+        '/api/cellar/save',
+        {
+          wineName: wine.name,
+          wineType: wine.type,
+          region: wine.region,
+          vintage: wine.vintage ? String(wine.vintage) : undefined,
+          description: wine.description,
+          priceRange: wine.priceRange,
+          abv: String(wine.abv),
+          rating: String(wine.rating),
+          source: 'recommendation',
+        }
+      );
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Wine Saved!",
-        description: "Added to your cellar successfully.",
+        title: 'Wine Saved!',
+        description: 'Added to your cellar successfully.',
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
     },
-    onError: (error) => {
+    onError: error => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
+          title: 'Unauthorized',
+          description: 'You are logged out. Logging in again...',
+          variant: 'destructive',
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = '/api/login';
         }, 500);
         return;
       }
-      
+
       const errorMessage = error.message;
-      if (errorMessage.includes("Plan limit reached")) {
+      if (errorMessage.includes('Plan limit reached')) {
         setShowLimitModal(true);
         return;
       }
-      
+
       toast({
-        title: "Error",
-        description: "Failed to save wine. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to save wine. Please try again.',
+        variant: 'destructive',
       });
     },
   });
 
   const handleGetRecommendations = (searchQuery?: string) => {
     const queryToUse = searchQuery || query;
-    
+
     if (!queryToUse || typeof queryToUse !== 'string' || !queryToUse.trim()) {
       toast({
-        title: "Input Required",
+        title: 'Input Required',
         description: "Please describe what kind of wine you're looking for.",
-        variant: "destructive",
+        variant: 'destructive',
       });
       return;
     }
-    
+
     // Clear previous recommendations to prevent caching issues
     setRecommendations([]);
-    
+
     if (searchQuery) {
       setQuery(searchQuery);
     }
@@ -183,48 +239,48 @@ export default function Dashboard() {
     if (file) {
       if (!file.type.startsWith('image/')) {
         toast({
-          title: "Invalid file",
-          description: "Please upload an image file (JPG, PNG, or WebP).",
-          variant: "destructive",
+          title: 'Invalid file',
+          description: 'Please upload an image file (JPG, PNG, or WebP).',
+          variant: 'destructive',
         });
         return;
       }
 
       if (file.size > 10 * 1024 * 1024) {
         toast({
-          title: "File too large",
-          description: "Please upload an image smaller than 10MB.",
-          variant: "destructive",
+          title: 'File too large',
+          description: 'Please upload an image smaller than 10MB.',
+          variant: 'destructive',
         });
         return;
       }
 
       setMenuImage(file);
-      setMenuAnalysisResult("");
+      setMenuAnalysisResult('');
     }
   };
 
   const handleMenuAnalysis = async () => {
     if (!menuImage || !menuQuestion.trim()) {
       toast({
-        title: "Missing information",
-        description: "Please upload a menu image and enter your question.",
-        variant: "destructive",
+        title: 'Missing information',
+        description: 'Please upload a menu image and enter your question.',
+        variant: 'destructive',
       });
       return;
     }
 
     if (user?.subscriptionPlan !== 'premium') {
       toast({
-        title: "Premium Feature Required",
-        description: "Upgrade to Premium to analyze wine menus",
-        variant: "destructive",
+        title: 'Premium Feature Required',
+        description: 'Upgrade to Premium to analyze wine menus',
+        variant: 'destructive',
       });
       return;
     }
 
     setIsAnalyzingMenu(true);
-    setMenuAnalysisResult("");
+    setMenuAnalysisResult('');
 
     try {
       const formData = new FormData();
@@ -243,17 +299,17 @@ export default function Dashboard() {
 
       const result = await response.json();
       setMenuAnalysisResult(result.analysis);
-      
+
       toast({
-        title: "Analysis complete!",
-        description: "Your wine menu analysis is ready",
+        title: 'Analysis complete!',
+        description: 'Your wine menu analysis is ready',
       });
     } catch (error) {
       console.error('Menu analysis failed:', error);
       toast({
-        title: "Analysis failed",
-        description: "Please try again with a clearer image.",
-        variant: "destructive",
+        title: 'Analysis failed',
+        description: 'Please try again with a clearer image.',
+        variant: 'destructive',
       });
     } finally {
       setIsAnalyzingMenu(false);
@@ -262,8 +318,8 @@ export default function Dashboard() {
 
   const removeMenuImage = () => {
     setMenuImage(null);
-    setMenuAnalysisResult("");
-    setMenuQuestion("");
+    setMenuAnalysisResult('');
+    setMenuQuestion('');
   };
 
   if (isLoading) {
@@ -286,7 +342,8 @@ export default function Dashboard() {
               What Wine Are You Craving?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Describe your mood, occasion, or food pairing and let our AI sommelier find your perfect match
+              Describe your mood, occasion, or food pairing and let our AI
+              sommelier find your perfect match
             </p>
           </div>
 
@@ -296,19 +353,31 @@ export default function Dashboard() {
               <CardContent className="p-8">
                 <Tabs defaultValue="text" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-8">
-                    <TabsTrigger value="text" className="flex items-center space-x-2">
+                    <TabsTrigger
+                      value="text"
+                      className="flex items-center space-x-2"
+                    >
                       <MessageSquare className="w-4 h-4" />
                       <span>Text Search</span>
                     </TabsTrigger>
-                    <TabsTrigger value="voice" className="flex items-center space-x-2">
+                    <TabsTrigger
+                      value="voice"
+                      className="flex items-center space-x-2"
+                    >
                       <Mic className="w-4 h-4" />
                       <span>Voice Search</span>
                     </TabsTrigger>
-                    <TabsTrigger value="photo" className="flex items-center space-x-2">
+                    <TabsTrigger
+                      value="photo"
+                      className="flex items-center space-x-2"
+                    >
                       <Camera className="w-4 h-4" />
                       <span>Meal Pairing</span>
                     </TabsTrigger>
-                    <TabsTrigger value="menu" className="flex items-center space-x-2">
+                    <TabsTrigger
+                      value="menu"
+                      className="flex items-center space-x-2"
+                    >
                       <FileText className="w-4 h-4" />
                       <span>Wine Menu Help</span>
                     </TabsTrigger>
@@ -316,13 +385,15 @@ export default function Dashboard() {
 
                   <TabsContent value="text" className="space-y-6">
                     <div>
-                      <label className="block text-sm font-medium text-slate mb-3">Tell us what you're looking for</label>
-                      <Textarea 
-                        className="w-full resize-none focus:ring-grape focus:border-grape" 
-                        rows={4} 
+                      <label className="block text-sm font-medium text-slate mb-3">
+                        Tell us what you're looking for
+                      </label>
+                      <Textarea
+                        className="w-full resize-none focus:ring-grape focus:border-grape"
+                        rows={4}
                         placeholder="Suggest a wine for steak around $30..."
                         value={query}
-                        onChange={(e) => setQuery(e.target.value)}
+                        onChange={e => setQuery(e.target.value)}
                       />
                     </div>
 
@@ -337,10 +408,15 @@ export default function Dashboard() {
                           <span>Australian wines focus</span>
                         </div>
                       </div>
-                      
-                      <Button 
+
+                      <Button
                         onClick={() => handleGetRecommendations()}
-                        disabled={getRecommendationsMutation.isPending || !query || typeof query !== 'string' || !query.trim()}
+                        disabled={
+                          getRecommendationsMutation.isPending ||
+                          !query ||
+                          typeof query !== 'string' ||
+                          !query.trim()
+                        }
                         className="bg-grape hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium transition-colors"
                       >
                         {getRecommendationsMutation.isPending ? (
@@ -359,18 +435,18 @@ export default function Dashboard() {
                   </TabsContent>
 
                   <TabsContent value="voice" className="space-y-6">
-                    <VoiceSearch 
+                    <VoiceSearch
                       onSearch={handleGetRecommendations}
                       isSearching={getRecommendationsMutation.isPending}
                       isPremium={user?.subscriptionPlan === 'premium'}
-                      onUpgrade={() => window.location.href = '/pricing'}
+                      onUpgrade={() => (window.location.href = '/pricing')}
                     />
                   </TabsContent>
 
                   <TabsContent value="photo">
-                    <MealPairing 
+                    <MealPairing
                       isPremium={user?.subscriptionPlan === 'premium'}
-                      onUpgrade={() => window.location.href = '/pricing'}
+                      onUpgrade={() => (window.location.href = '/pricing')}
                     />
                   </TabsContent>
 
@@ -380,7 +456,7 @@ export default function Dashboard() {
                         <Label className="block text-sm font-medium text-slate mb-3">
                           Upload Wine Menu Photo
                         </Label>
-                        
+
                         {!menuImage ? (
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-grape transition-colors">
                             <input
@@ -413,7 +489,8 @@ export default function Dashboard() {
                                     {menuImage.name}
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    {(menuImage.size / 1024 / 1024).toFixed(2)} MB
+                                    {(menuImage.size / 1024 / 1024).toFixed(2)}{' '}
+                                    MB
                                   </p>
                                 </div>
                               </div>
@@ -431,13 +508,16 @@ export default function Dashboard() {
                       </div>
 
                       <div>
-                        <Label htmlFor="menu-question" className="block text-sm font-medium text-slate mb-3">
+                        <Label
+                          htmlFor="menu-question"
+                          className="block text-sm font-medium text-slate mb-3"
+                        >
                           Ask a Question About the Menu
                         </Label>
                         <Textarea
                           id="menu-question"
                           value={menuQuestion}
-                          onChange={(e) => setMenuQuestion(e.target.value)}
+                          onChange={e => setMenuQuestion(e.target.value)}
                           placeholder="What wine on this menu would pair well with steak?"
                           className="w-full resize-none focus:ring-grape focus:border-grape"
                           rows={3}
@@ -447,7 +527,11 @@ export default function Dashboard() {
                       <div className="flex justify-end">
                         <Button
                           onClick={handleMenuAnalysis}
-                          disabled={!menuImage || !menuQuestion.trim() || isAnalyzingMenu}
+                          disabled={
+                            !menuImage ||
+                            !menuQuestion.trim() ||
+                            isAnalyzingMenu
+                          }
                           className="bg-grape hover:bg-purple-700 text-white px-6 py-2"
                         >
                           {isAnalyzingMenu ? (
@@ -473,12 +557,13 @@ export default function Dashboard() {
                             </span>
                           </div>
                           <p className="text-sm text-amber-700 mt-1">
-                            Upgrade to Premium to analyse wine menus and get expert recommendations.
+                            Upgrade to Premium to analyse wine menus and get
+                            expert recommendations.
                           </p>
                           <Button
                             size="sm"
                             className="mt-2 bg-amber-600 hover:bg-amber-700 text-white"
-                            onClick={() => window.location.href = '/pricing'}
+                            onClick={() => (window.location.href = '/pricing')}
                           >
                             Upgrade Now
                           </Button>
@@ -487,7 +572,9 @@ export default function Dashboard() {
 
                       {menuAnalysisResult && (
                         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                          <h4 className="font-medium text-blue-900 mb-2">Wine Menu Analysis</h4>
+                          <h4 className="font-medium text-blue-900 mb-2">
+                            Wine Menu Analysis
+                          </h4>
                           <p className="text-sm text-blue-800 whitespace-pre-wrap">
                             {menuAnalysisResult}
                           </p>
@@ -520,11 +607,11 @@ export default function Dashboard() {
               {/* Premium Food Pairing Suggestions */}
               {recommendations.length > 0 && (
                 <div className="mt-8">
-                  <WinePairingSuggestions 
+                  <WinePairingSuggestions
                     wineName={recommendations[0].name}
                     wineType={recommendations[0].type}
                     isPremium={user?.subscriptionPlan === 'premium'}
-                    onUpgrade={() => window.location.href = '/pricing'}
+                    onUpgrade={() => (window.location.href = '/pricing')}
                   />
                 </div>
               )}
@@ -532,19 +619,25 @@ export default function Dashboard() {
           )}
 
           {/* Empty State */}
-          {recommendations.length === 0 && !getRecommendationsMutation.isPending && (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Wine className="w-8 h-8 text-gray-400" />
+          {recommendations.length === 0 &&
+            !getRecommendationsMutation.isPending && (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Wine className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-xl font-poppins font-semibold text-slate mb-2">
+                  Ready for Wine Recommendations?
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Describe what you're looking for and let our AI sommelier help
+                  you discover amazing wines
+                </p>
               </div>
-              <h3 className="text-xl font-poppins font-semibold text-slate mb-2">Ready for Wine Recommendations?</h3>
-              <p className="text-gray-600 mb-6">Describe what you're looking for and let our AI sommelier help you discover amazing wines</p>
-            </div>
-          )}
+            )}
         </div>
       </section>
 
-      <PlanLimitModal 
+      <PlanLimitModal
         open={showLimitModal}
         onOpenChange={setShowLimitModal}
         type="save"
@@ -556,7 +649,7 @@ export default function Dashboard() {
         open={showProfileSetup}
         onComplete={() => setShowProfileSetup(false)}
       />
-      
+
       <Footer />
     </div>
   );

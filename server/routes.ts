@@ -11,6 +11,7 @@ import { db } from "./db.js";
 import Stripe from "stripe";
 import multer from "multer";
 import rateLimit from "express-rate-limit";
+import { clerkClient } from "@clerk/clerk-sdk-node";
 
 // Stripe setup
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -164,10 +165,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = authHeader.replace('Bearer ', '');
       let userId: string;
 
+      console.log("Token verification - Received auth header:", authHeader ? "Present" : "Missing");
+      console.log("Token verification - Token length:", token.length);
+
       try {
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
+        console.log("Token verification - Success, userId:", userId);
       } catch (authError) {
         console.error("Token verification failed:", authError);
         return res.status(401).json({ message: "Invalid token" });
@@ -177,9 +181,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "User ID not found in token" });
       }
       
-      const user = await storage.getUser(userId);
+      let user = await storage.getUser(userId);
+      
+      // If user doesn't exist, create them automatically
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        console.log("User not found in database, creating new user:", userId);
+        try {
+          // Get user info from Clerk
+          const clerkUser = await clerkClient.users.getUser(userId);
+          
+          const userData = {
+            id: userId,
+            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
+            firstName: clerkUser.firstName || '',
+            lastName: clerkUser.lastName || '',
+            profileImageUrl: clerkUser.imageUrl || '',
+            subscriptionPlan: 'free', // Default to free plan
+          };
+          
+          user = await storage.upsertUser(userData);
+          console.log("Created new user:", user);
+        } catch (createError) {
+          console.error("Failed to create user:", createError);
+          return res.status(500).json({ message: "Failed to create user" });
+        }
       }
       
       // Get usage counts for plan limits (optimized single query)
@@ -214,7 +239,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       try {
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
       } catch (authError) {
@@ -372,7 +396,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       try {
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
       } catch (authError) {
@@ -382,8 +405,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const user = await storage.getUser(userId);
       
+      // If user doesn't exist, create them automatically
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        console.log("User not found in database, creating new user for cellar save:", userId);
+        try {
+          // Get user info from Clerk
+          const clerkUser = await clerkClient.users.getUser(userId);
+          
+          const userData = {
+            id: userId,
+            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
+            firstName: clerkUser.firstName || '',
+            lastName: clerkUser.lastName || '',
+            profileImageUrl: clerkUser.imageUrl || '',
+            subscriptionPlan: 'free', // Default to free plan
+          };
+          
+          await storage.upsertUser(userData);
+          console.log("Created new user for cellar save:", userId);
+        } catch (createError) {
+          console.error("Failed to create user for cellar save:", createError);
+          return res.status(500).json({ message: "Failed to create user" });
+        }
       }
 
       // Check plan limits
@@ -422,7 +465,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       try {
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
       } catch (authError) {
@@ -454,7 +496,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       try {
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
       } catch (authError) {
@@ -487,7 +528,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       try {
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
       } catch (authError) {
@@ -552,7 +592,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       try {
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
       } catch (authError) {
@@ -1112,11 +1151,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const token = authHeader.replace('Bearer ', '');
       let userId: string;
 
+      console.log("Token verification - Received auth header:", authHeader ? "Present" : "Missing");
+      console.log("Token verification - Token length:", token.length);
+
       try {
         // Use Clerk to verify the session token
-        const { clerkClient } = require('@clerk/clerk-sdk-node');
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
+        console.log("Token verification - Success, userId:", userId);
       } catch (authError) {
         console.error("Token verification failed:", authError);
         return res.status(401).json({ message: "Invalid token" });
@@ -1124,6 +1166,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!userId) {
         return res.status(401).json({ message: "User ID not found in token" });
+      }
+
+      // Check if user exists, create if not
+      let user = await storage.getUser(userId);
+      if (!user) {
+        console.log("User not found in database, creating new user for profile setup:", userId);
+        try {
+          // Get user info from Clerk
+          const clerkUser = await clerkClient.users.getUser(userId);
+          
+          const userData = {
+            id: userId,
+            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
+            firstName: clerkUser.firstName || '',
+            lastName: clerkUser.lastName || '',
+            profileImageUrl: clerkUser.imageUrl || '',
+            subscriptionPlan: 'free', // Default to free plan
+          };
+          
+          user = await storage.upsertUser(userData);
+          console.log("Created new user for profile setup:", user);
+        } catch (createError) {
+          console.error("Failed to create user for profile setup:", createError);
+          return res.status(500).json({ message: "Failed to create user" });
+        }
       }
 
       const { dateOfBirth, wineExperienceLevel, preferredWineTypes, budgetRange, location } = req.body;
@@ -1313,8 +1380,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Please try again" });
     }
   });
-
-
 
   // View email signups (admin/development endpoint)
   app.get("/api/email-signups", async (req, res) => {

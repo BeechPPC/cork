@@ -1,4 +1,15 @@
-import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { QueryClient, QueryFunction } from '@tanstack/react-query';
+
+// Extend Window interface to include Clerk
+declare global {
+  interface Window {
+    Clerk?: {
+      session?: {
+        getToken(): Promise<string | null>;
+      };
+    };
+  }
+}
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -11,39 +22,127 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  token?: string | null
 ): Promise<Response> {
+  // Get the Clerk token if available and not provided
+  let authToken: string | null = token;
+  if (!authToken) {
+    try {
+      // Try to get token from Clerk if it's available
+      if (typeof window !== 'undefined' && window.Clerk) {
+        authToken = await window.Clerk.session?.getToken();
+        console.log(
+          'API Request - Token retrieved:',
+          authToken ? 'Token exists' : 'No token'
+        );
+      } else {
+        console.log('API Request - Clerk not available on window');
+      }
+    } catch (error) {
+      console.warn('Could not get Clerk token:', error);
+    }
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add authorization header if token is available
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+    console.log('API Request - Authorization header added');
+  } else {
+    console.log('API Request - No authorization header (no token)');
+  }
+
+  console.log('API Request - Making request to:', url, 'with method:', method);
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
+    credentials: 'include',
   });
+
+  console.log('API Request - Response status:', res.status);
 
   await throwIfResNotOk(res);
   return res;
 }
 
-type UnauthorizedBehavior = "returnNull" | "throw";
+// Helper function for authenticated requests
+export async function authenticatedApiRequest(
+  method: string,
+  url: string,
+  data?: unknown | undefined
+): Promise<Response> {
+  // Get token from the auth hook
+  let token: string | null = null;
+  try {
+    if (typeof window !== 'undefined' && window.Clerk) {
+      token = await window.Clerk.session?.getToken();
+    }
+  } catch (error) {
+    console.warn('Could not get auth token:', error);
+  }
+
+  return apiRequest(method, url, data, token);
+}
+
+type UnauthorizedBehavior = 'returnNull' | 'throw';
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
   token?: string | null;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior, token }) =>
   async ({ queryKey }) => {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+    const url = queryKey[0] as string;
+
+    // Check if this is an authenticated endpoint
+    const isAuthenticatedEndpoint =
+      url.includes('/api/auth/') ||
+      url.includes('/api/cellar') ||
+      url.includes('/api/uploads') ||
+      url.includes('/api/profile');
+
+    let authToken = token;
+
+    // Get token for authenticated endpoints
+    if (isAuthenticatedEndpoint && !authToken) {
+      try {
+        if (typeof window !== 'undefined' && window.Clerk) {
+          authToken = await window.Clerk.session?.getToken();
+          console.log(
+            'Query - Token retrieved for',
+            url,
+            authToken ? 'Token exists' : 'No token'
+          );
+        }
+      } catch (error) {
+        console.warn('Could not get auth token for query:', error);
+      }
     }
-    
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+      console.log('Query - Authorization header added for', url);
+    } else if (isAuthenticatedEndpoint) {
+      console.log(
+        'Query - No authorization header for authenticated endpoint:',
+        url
+      );
+    }
+
+    const res = await fetch(url, {
+      credentials: 'include',
       headers,
     });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+    if (unauthorizedBehavior === 'returnNull' && res.status === 401) {
       return null;
     }
 
@@ -54,10 +153,10 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
+      queryFn: getQueryFn({ on401: 'throw' }),
       refetchInterval: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      refetchOnWindowFocus: true,
+      staleTime: 5 * 60 * 1000, // 5 minutes instead of Infinity
       retry: false,
     },
     mutations: {

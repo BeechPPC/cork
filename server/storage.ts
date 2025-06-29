@@ -13,9 +13,9 @@ import {
   type RecommendationHistory,
   type InsertRecommendationHistory,
   type EmailSignup,
-} from "../shared/schema.js";
-import { db } from "./db.js";
-import { eq, desc, count } from "drizzle-orm";
+} from '../shared/schema.js';
+import { db } from './db.js';
+import { eq, desc, count } from 'drizzle-orm';
 
 // Interface for storage operations
 export interface IStorage {
@@ -23,35 +23,56 @@ export interface IStorage {
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
-  updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User>;
-  updateUserSubscriptionPlan(userId: string, subscriptionPlan: string): Promise<User>;
-  updateUserProfile(userId: string, profileData: {
-    dateOfBirth?: string;
-    wineExperienceLevel?: string;
-    preferredWineTypes?: string[];
-    budgetRange?: string;
-    location?: string;
-  }): Promise<User>;
-  
+  updateUserStripeInfo(
+    userId: string,
+    stripeCustomerId: string,
+    stripeSubscriptionId: string | null
+  ): Promise<User>;
+  updateUserSubscriptionPlan(
+    userId: string,
+    subscriptionPlan: string
+  ): Promise<User>;
+  updateUserProfile(
+    userId: string,
+    profileData: {
+      dateOfBirth?: string;
+      wineExperienceLevel?: string;
+      preferredWineTypes?: string[];
+      budgetRange?: string;
+      location?: string;
+    }
+  ): Promise<User>;
+
   // Saved wines operations
   getSavedWines(userId: string): Promise<SavedWine[]>;
   getSavedWineCount(userId: string): Promise<number>;
   saveWine(wine: InsertSavedWine): Promise<SavedWine>;
   removeSavedWine(userId: string, wineId: number): Promise<void>;
-  
+
   // Uploaded wines operations
   getUploadedWines(userId: string): Promise<UploadedWine[]>;
   getUploadedWineCount(userId: string): Promise<number>;
   saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine>;
-  updateUploadedWine(userId: string, wineId: number, updates: Partial<UploadedWine>): Promise<UploadedWine>;
-  
+  updateUploadedWine(
+    userId: string,
+    wineId: number,
+    updates: Partial<UploadedWine>
+  ): Promise<UploadedWine>;
+
   // Optimized operations to prevent N+1 queries
-  getUserCounts(userId: string): Promise<{ savedWines: number; uploadedWines: number }>;
-  
+  getUserCounts(
+    userId: string
+  ): Promise<{ savedWines: number; uploadedWines: number }>;
+
   // Recommendation history operations
-  saveRecommendationHistory(history: InsertRecommendationHistory): Promise<RecommendationHistory>;
-  getRecommendationHistory(userId: string, limit?: number): Promise<RecommendationHistory[]>;
-  
+  saveRecommendationHistory(
+    history: InsertRecommendationHistory
+  ): Promise<RecommendationHistory>;
+  getRecommendationHistory(
+    userId: string,
+    limit?: number
+  ): Promise<RecommendationHistory[]>;
+
   // Email signup operations
   saveEmailSignup(email: string): Promise<EmailSignup>;
 }
@@ -68,24 +89,64 @@ export class DatabaseStorage implements IStorage {
 
   async upsertUser(userData: UpsertUser): Promise<User> {
     if (!db) throw new Error('Database not available');
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+
+    try {
+      // First, try to find existing user by ID
+      const existingUser = await this.getUser(userData.id);
+
+      if (existingUser) {
+        // User exists, update them
+        const [user] = await db
+          .update(users)
+          .set({
+            ...userData,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userData.id))
+          .returning();
+        return user;
+      } else {
+        // User doesn't exist, try to insert
+        // But first check if email already exists
+        if (userData.email) {
+          const existingUserByEmail = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, userData.email))
+            .limit(1);
+
+          if (existingUserByEmail.length > 0) {
+            // Email exists, update that user instead
+            const [user] = await db
+              .update(users)
+              .set({
+                ...userData,
+                updatedAt: new Date(),
+              })
+              .where(eq(users.email, userData.email))
+              .returning();
+            return user;
+          }
+        }
+
+        // No conflicts, safe to insert
+        const [user] = await db.insert(users).values(userData).returning();
+        return user;
+      }
+    } catch (error) {
+      console.error('Error in upsertUser:', error);
+      throw error;
+    }
   }
 
-  async updateUserStripeInfo(userId: string, stripeCustomerId: string, stripeSubscriptionId: string | null): Promise<User> {
-    const updateData: any = { 
+  async updateUserStripeInfo(
+    userId: string,
+    stripeCustomerId: string,
+    stripeSubscriptionId: string | null
+  ): Promise<User> {
+    const updateData: any = {
       stripeCustomerId,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     if (stripeSubscriptionId) {
       updateData.stripeSubscriptionId = stripeSubscriptionId;
@@ -99,60 +160,71 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUserSubscriptionPlan(userId: string, subscriptionPlan: string): Promise<User> {
+  async updateUserSubscriptionPlan(
+    userId: string,
+    subscriptionPlan: string
+  ): Promise<User> {
     const [user] = await db
       .update(users)
-      .set({ 
+      .set({
         subscriptionPlan,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       })
       .where(eq(users.id, userId))
       .returning();
-    
+
     if (!user) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
-    
+
     return user;
   }
 
-  async updateUserProfile(userId: string, profileData: {
-    dateOfBirth?: string;
-    wineExperienceLevel?: string;
-    preferredWineTypes?: string[];
-    budgetRange?: string;
-    location?: string;
-  }): Promise<User> {
+  async updateUserProfile(
+    userId: string,
+    profileData: {
+      dateOfBirth?: string;
+      wineExperienceLevel?: string;
+      preferredWineTypes?: string[];
+      budgetRange?: string;
+      location?: string;
+    }
+  ): Promise<User> {
     try {
-      console.log("Storage - updating user profile:", { userId, profileData });
-      
+      console.log('Storage - updating user profile:', { userId, profileData });
+
       // Ensure database connection exists
       if (!db) {
-        throw new Error("Database connection not available");
+        throw new Error('Database connection not available');
       }
-      
+
       const [user] = await db
         .update(users)
-        .set({ 
+        .set({
           dateOfBirth: profileData.dateOfBirth,
           wineExperienceLevel: profileData.wineExperienceLevel,
           preferredWineTypes: profileData.preferredWineTypes,
           budgetRange: profileData.budgetRange,
           location: profileData.location,
-          updatedAt: new Date()
+          profileCompleted: true,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
         .returning();
-      
+
       if (!user) {
-        throw new Error("User not found or update failed");
+        throw new Error('User not found or update failed');
       }
-      
-      console.log("Storage - user profile updated successfully:", user);
+
+      console.log('Storage - user profile updated successfully:', user);
       return user;
     } catch (error) {
-      console.error("Storage - error updating user profile:", error);
-      throw new Error(`Profile update failed: ${(error as Error)?.message || 'Unknown database error'}`);
+      console.error('Storage - error updating user profile:', error);
+      throw new Error(
+        `Profile update failed: ${
+          (error as Error)?.message || 'Unknown database error'
+        }`
+      );
     }
   }
 
@@ -174,17 +246,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveWine(wine: InsertSavedWine): Promise<SavedWine> {
-    const [savedWine] = await db
-      .insert(savedWines)
-      .values(wine)
-      .returning();
+    const [savedWine] = await db.insert(savedWines).values(wine).returning();
     return savedWine;
   }
 
   async removeSavedWine(userId: string, wineId: number): Promise<void> {
-    await db
-      .delete(savedWines)
-      .where(eq(savedWines.id, wineId));
+    await db.delete(savedWines).where(eq(savedWines.id, wineId));
   }
 
   // Uploaded wines operations
@@ -205,12 +272,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Optimized method to get both counts in a single query
-  async getUserCounts(userId: string): Promise<{ savedWines: number; uploadedWines: number }> {
+  async getUserCounts(
+    userId: string
+  ): Promise<{ savedWines: number; uploadedWines: number }> {
     const savedWineQuery = db
       .select({ count: count() })
       .from(savedWines)
       .where(eq(savedWines.userId, userId));
-    
+
     const uploadedWineQuery = db
       .select({ count: count() })
       .from(uploadedWines)
@@ -218,12 +287,12 @@ export class DatabaseStorage implements IStorage {
 
     const [savedResult, uploadedResult] = await Promise.all([
       savedWineQuery,
-      uploadedWineQuery
+      uploadedWineQuery,
     ]);
 
     return {
       savedWines: savedResult[0].count,
-      uploadedWines: uploadedResult[0].count
+      uploadedWines: uploadedResult[0].count,
     };
   }
 
@@ -235,7 +304,11 @@ export class DatabaseStorage implements IStorage {
     return uploadedWine;
   }
 
-  async updateUploadedWine(userId: string, wineId: number, updates: Partial<UploadedWine>): Promise<UploadedWine> {
+  async updateUploadedWine(
+    userId: string,
+    wineId: number,
+    updates: Partial<UploadedWine>
+  ): Promise<UploadedWine> {
     const [updatedWine] = await db
       .update(uploadedWines)
       .set(updates)
@@ -245,7 +318,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Recommendation history operations
-  async saveRecommendationHistory(history: InsertRecommendationHistory): Promise<RecommendationHistory> {
+  async saveRecommendationHistory(
+    history: InsertRecommendationHistory
+  ): Promise<RecommendationHistory> {
     const [savedHistory] = await db
       .insert(recommendationHistory)
       .values(history)
@@ -253,7 +328,10 @@ export class DatabaseStorage implements IStorage {
     return savedHistory;
   }
 
-  async getRecommendationHistory(userId: string, limit = 10): Promise<RecommendationHistory[]> {
+  async getRecommendationHistory(
+    userId: string,
+    limit = 10
+  ): Promise<RecommendationHistory[]> {
     return await db
       .select()
       .from(recommendationHistory)
@@ -266,7 +344,7 @@ export class DatabaseStorage implements IStorage {
     if (!db) {
       throw new Error('Database not available');
     }
-    
+
     try {
       // Use onConflictDoUpdate to handle duplicates gracefully
       const [emailSignup] = await db
@@ -274,10 +352,10 @@ export class DatabaseStorage implements IStorage {
         .values({ email })
         .onConflictDoUpdate({
           target: emailSignups.email,
-          set: { email: email }
+          set: { email: email },
         })
         .returning();
-      
+
       return emailSignup;
     } catch (error: any) {
       console.error('Database error in saveEmailSignup:', error.message);

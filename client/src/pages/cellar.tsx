@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Wine, Upload, Trash2, Eye, BarChart3, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, authenticatedApiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/header";
@@ -79,7 +79,7 @@ export default function Cellar() {
 
   const removeWineMutation = useMutation({
     mutationFn: async (wineId: number) => {
-      await apiRequest("DELETE", `/api/cellar/${wineId}`);
+      await authenticatedApiRequest("DELETE", `/api/cellar/${wineId}`);
     },
     onSuccess: () => {
       toast({

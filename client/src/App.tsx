@@ -1,33 +1,34 @@
-import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthWrapper, useAuth } from "@/components/auth-wrapper";
-import { ErrorBoundary } from "@/components/error-boundary";
-import NotFound from "@/pages/not-found";
-import Landing from "@/pages/landing";
-import Dashboard from "@/pages/dashboard";
-import Cellar from "@/pages/cellar";
-import Upload from "@/pages/upload";
-import Pricing from "@/pages/pricing";
-import Contact from "@/pages/contact";
-import HelpCentre from "@/pages/help-centre";
-import WineEducation from "@/pages/wine-education";
-import PrivacyPolicy from "@/pages/privacy-policy";
-import TermsOfService from "@/pages/terms-of-service";
-import AgeVerification from "@/pages/age-verification";
-import ResponsibleDrinking from "@/pages/responsible-drinking";
-import ReferralProgram from "@/pages/referral-program";
-import WineryExplorer from "@/pages/winery-explorer";
-import Checkout from "@/pages/checkout";
-import Subscribe from "@/pages/subscribe";
-import Subscription from "@/pages/subscription";
+import { Switch, Route } from 'wouter';
+import { queryClient } from './lib/queryClient';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { AuthWrapper, useAuth } from '@/components/auth-wrapper';
+import { ErrorBoundary } from '@/components/error-boundary';
+import NotFound from '@/pages/not-found';
+import Landing from '@/pages/landing';
+import Dashboard from '@/pages/dashboard';
+import Cellar from '@/pages/cellar';
+import Upload from '@/pages/upload';
+import Pricing from '@/pages/pricing';
+import Contact from '@/pages/contact';
+import HelpCentre from '@/pages/help-centre';
+import WineEducation from '@/pages/wine-education';
+import PrivacyPolicy from '@/pages/privacy-policy';
+import TermsOfService from '@/pages/terms-of-service';
+import AgeVerification from '@/pages/age-verification';
+import ResponsibleDrinking from '@/pages/responsible-drinking';
+import ReferralProgram from '@/pages/referral-program';
+import WineryExplorer from '@/pages/winery-explorer';
+import Checkout from '@/pages/checkout';
+import Subscribe from '@/pages/subscribe';
+import Subscription from '@/pages/subscription';
+import ComingSoon from '@/pages/comingsoon';
 
 function Router() {
   const { isSignedIn, isLoaded, user } = useAuth();
 
-  console.log("Router Auth State:", { isSignedIn, isLoaded, hasUser: !!user });
+  console.log('Router Auth State:', { isSignedIn, isLoaded, hasUser: !!user });
 
   // Show loading while authentication state is being determined
   if (!isLoaded) {
@@ -44,11 +45,13 @@ function Router() {
   return (
     <Switch>
       {/* Root route - redirect based on auth state */}
+      {/*<Route path="/">{isAuthenticated ? <Dashboard /> : <Landing />}</Route>*/}
+
       <Route path="/">
-        {isAuthenticated ? <Dashboard /> : <Landing />}
+        <ComingSoon />
       </Route>
-      
       {/* Public routes - always accessible */}
+      <Route path="/coming-soon" component={ComingSoon} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/contact" component={Contact} />
       <Route path="/help-centre" component={HelpCentre} />
@@ -59,7 +62,7 @@ function Router() {
       <Route path="/responsible-drinking" component={ResponsibleDrinking} />
       <Route path="/referral-program" component={ReferralProgram} />
       <Route path="/checkout" component={Checkout} />
-      
+
       {/* Protected routes - only accessible when signed in */}
       {isAuthenticated && (
         <>
@@ -71,7 +74,7 @@ function Router() {
           <Route path="/subscription" component={Subscription} />
         </>
       )}
-      
+
       {/* Fallback routes */}
       <Route component={isAuthenticated ? NotFound : Landing} />
     </Switch>

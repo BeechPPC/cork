@@ -1,27 +1,53 @@
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Menu, Wine, User, LogOut, ChevronDown, BookOpen, MapPin } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { Link, useLocation } from "wouter";
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import {
+  Menu,
+  Wine,
+  User,
+  LogOut,
+  ChevronDown,
+  BookOpen,
+  MapPin,
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Link, useLocation } from 'wouter';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { SignInButton, SignUpButton } from "@clerk/clerk-react";
-import UserButton from "@/components/user-button";
-import { isClerkConfigured } from "@/lib/clerk";
-import { useState } from "react";
+} from '@/components/ui/dropdown-menu';
+import { SignInButton, SignUpButton, useClerk } from '@clerk/clerk-react';
+import UserButton from '@/components/user-button';
+import { isClerkConfigured } from '@/lib/clerk';
+import { useState } from 'react';
+import { useAuthenticatedQuery } from '@/hooks/useAuthenticatedQuery';
 
 export default function Header() {
-  const { user, isAuthenticated } = useAuth();
+  const { user: clerkUser, isAuthenticated } = useAuth();
+  const { signOut } = useClerk();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Fetch user data from backend API for subscription info
+  const { data: user } = useAuthenticatedQuery(
+    ['/api/auth/user'],
+    async token => {
+      const res = await fetch('/api/auth/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch user');
+      return res.json();
+    },
+    {
+      enabled: isAuthenticated, // Only fetch if authenticated
+    }
+  );
 
+  // Use backend user data if available, fallback to Clerk user data
+  const displayUser = user || clerkUser;
 
   const getInitials = (firstName?: string, lastName?: string) => {
     const first = firstName?.charAt(0) || '';
@@ -30,8 +56,8 @@ export default function Header() {
   };
 
   const isActive = (path: string) => {
-    if (path === "/" && location === "/") return true;
-    return location.startsWith(path) && path !== "/";
+    if (path === '/' && location === '/') return true;
+    return location.startsWith(path) && path !== '/';
   };
 
   return (
@@ -39,88 +65,89 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href={isAuthenticated ? "/dashboard" : "/"}>
-              <h1 className="text-2xl font-poppins font-bold text-grape dark:text-purple-400 cursor-pointer">cork</h1>
+            <Link href={isAuthenticated ? '/dashboard' : '/'}>
+              <h1 className="text-2xl font-poppins font-bold text-grape dark:text-purple-400 cursor-pointer">
+                cork
+              </h1>
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/wine-education">
-              <Button 
-                variant="ghost" 
-                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/wine-education') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-              >
-                Wine Education
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button 
-                variant="ghost" 
-                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/pricing') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-              >
-                Pricing
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button 
-                variant="ghost" 
-                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/contact') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-              >
-                Contact
-              </Button>
-            </Link>
-            <Link href="/help-centre">
-              <Button 
-                variant="ghost" 
-                className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/help-centre') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
-              >
-                Help
-              </Button>
-            </Link>
-            
             {/* Authenticated user navigation */}
             {isAuthenticated && (
               <>
                 <Link href="/dashboard">
-                  <Button 
-                    variant="ghost" 
-                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/dashboard') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/dashboard')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
                   >
                     Recommendations
                   </Button>
                 </Link>
                 <Link href="/cellar">
-                  <Button 
-                    variant="ghost" 
-                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/cellar') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/cellar')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
                   >
                     My Cellar
                   </Button>
                 </Link>
                 <Link href="/upload">
-                  <Button 
-                    variant="ghost" 
-                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/upload') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/upload')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
                   >
                     Upload Wine
                   </Button>
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${isActive('/winery-explorer') ? 'text-grape dark:text-purple-400 font-medium' : ''}`}
+                    <Button
+                      variant="ghost"
+                      className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                        isActive('/winery-explorer') ||
+                        isActive('/wine-education')
+                          ? 'text-grape dark:text-purple-400 font-medium'
+                          : ''
+                      }`}
                     >
-                      Winery Explorer
+                      Explore
                       <ChevronDown className="ml-1 h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700" align="center">
+                  <DropdownMenuContent
+                    className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700"
+                    align="center"
+                  >
                     <DropdownMenuItem asChild>
-                      <Link href="/winery-explorer" className="flex items-center">
+                      <Link
+                        href="/winery-explorer"
+                        className="flex items-center"
+                      >
                         <MapPin className="mr-2 h-4 w-4" />
                         <span>Winery Explorer</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/wine-education"
+                        className="flex items-center"
+                      >
+                        <BookOpen className="mr-2 h-4 w-4" />
+                        Wine Education
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -135,33 +162,29 @@ export default function Header() {
                 {isClerkConfigured ? (
                   <>
                     <SignInButton mode="modal">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         className="text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors font-medium"
-
                       >
                         Sign In
                       </Button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <Button 
-                        className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-
-                      >
+                      <Button className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
                         Get Started
                       </Button>
                     </SignUpButton>
                   </>
                 ) : (
                   <>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       disabled
                       className="text-slate dark:text-gray-200 opacity-50"
                     >
                       Sign In
                     </Button>
-                    <Button 
+                    <Button
                       disabled
                       className="bg-grape opacity-50 text-white px-4 py-2 rounded-lg"
                     >
@@ -173,28 +196,47 @@ export default function Header() {
             ) : (
               /* User Menu */
               <div className="flex items-center space-x-3">
-                <Badge variant="secondary" className="text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                  {user?.subscriptionPlan === 'premium' ? 'Premium' : 'Free'} Plan
+                <Badge
+                  variant="secondary"
+                  className="text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                >
+                  {displayUser?.subscriptionPlan === 'premium'
+                    ? 'Premium'
+                    : 'Free'}{' '}
+                  Plan
                 </Badge>
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full"
+                    >
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.profileImageUrl} alt="Profile" />
+                        <AvatarImage
+                          src={displayUser?.profileImageUrl}
+                          alt="Profile"
+                        />
                         <AvatarFallback className="bg-grape dark:bg-purple-600 text-white text-sm">
-                          {getInitials(user?.firstName, user?.lastName)}
+                          {getInitials(
+                            displayUser?.firstName,
+                            displayUser?.lastName
+                          )}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700" align="end" forceMount>
+                  <DropdownMenuContent
+                    className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700"
+                    align="end"
+                    forceMount
+                  >
                     <div className="flex flex-col space-y-1 p-2">
                       <p className="text-sm font-medium leading-none text-gray-900 dark:text-white">
-                        {user?.firstName} {user?.lastName}
+                        {displayUser?.firstName} {displayUser?.lastName}
                       </p>
                       <p className="text-xs leading-none text-gray-600 dark:text-gray-400">
-                        {user?.email}
+                        {displayUser?.email}
                       </p>
                     </div>
                     <DropdownMenuSeparator />
@@ -209,6 +251,13 @@ export default function Header() {
                         <User className="mr-2 h-4 w-4" />
                         <span>Subscription</span>
                       </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => signOut()}
+                      className="flex items-center cursor-pointer"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign Out</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-1">
@@ -269,6 +318,14 @@ export default function Header() {
                   Pricing
                 </Button>
               </Link>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => signOut()}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
             </div>
           </div>
         )}

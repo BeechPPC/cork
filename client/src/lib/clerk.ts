@@ -3,9 +3,11 @@ export const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''
 
 // For production, only allow getcork.app domain
 const isProductionDomain = window.location.hostname === 'getcork.app'
-const isDevelopmentDomain = window.location.hostname.includes('replit.dev') || window.location.hostname === 'localhost'
+const isDevelopmentDomain = window.location.hostname.includes('replit.dev') || 
+                           window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1'
 
-// Only enable Clerk if we have a key and are on an allowed domain
+// Enable Clerk if we have a key and are on an allowed domain
 const isDomainAllowed = isProductionDomain || isDevelopmentDomain
 
 export const isClerkConfigured = !!clerkPubKey && clerkPubKey.startsWith('pk_') && isDomainAllowed
@@ -18,7 +20,8 @@ console.log('Clerk Configuration:', {
   domain: window.location.hostname,
   environment: isProductionDomain ? 'production' : 'development',
   keyType: clerkPubKey.startsWith('pk_live_') ? 'production' : clerkPubKey.startsWith('pk_test_') ? 'development' : 'unknown',
-  domainAllowed: isDomainAllowed
+  domainAllowed: isDomainAllowed,
+  clerkInstance: 'rare-akita-78.clerk.accounts.dev'
 });
 
 // Show helpful message for setup
