@@ -14,11 +14,7 @@ const root = createRoot(container);
 root.render(
   <React.StrictMode>
     {isClerkConfigured ? (
-      <ClerkProvider
-        publishableKey={clerkPubKey}
-        // Add custom domain configuration for your Clerk instance
-        domain="rare-akita-78.clerk.accounts.dev"
-      >
+      <ClerkProvider publishableKey={clerkPubKey}>
         <App />
       </ClerkProvider>
     ) : (
