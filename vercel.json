@@ -2,93 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/health.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/email-signup.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/profile-setup.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/recommendations-basic.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/auth-test.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/profile-complete.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/wine-recommendations.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/recommendations-working.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/get-recommendations.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/profile.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/setup-profile.js",
-      "use": "@vercel/node"
-    },
-
-
-    {
       "src": "server/index.ts",
       "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "vite build",
-        "outputDirectory": "dist/public"
-      }
     }
   ],
   "routes": [
-    {
-      "src": "/api/health",
-      "dest": "/api/health.js"
-    },
-    {
-      "src": "/api/email-signup",
-      "dest": "/api/email-signup.js"
-    },
-
-    {
-      "src": "/api/auth-test",
-      "dest": "/api/auth-test.js"
-    },
-    {
-      "src": "/api/profile/setup",
-      "dest": "/api/setup-profile.js"
-    },
-    {
-      "src": "/api/recommendations",
-      "dest": "/api/recommendations-working.js"
-    },
     {
       "src": "/api/(.*)",
       "dest": "/server/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/public/$1"
+      "dest": "/server/index.ts"
     }
   ]
 }
