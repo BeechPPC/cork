@@ -1082,11 +1082,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           res.json({ url: session.url });
         } catch (error: any) {
           console.error('Portal session creation error:', error);
-          res
-            .status(500)
-            .json({
-              message: 'Failed to create portal session: ' + error.message,
-            });
+          res.status(500).json({
+            message: 'Failed to create portal session: ' + error.message,
+          });
         }
       }
     );

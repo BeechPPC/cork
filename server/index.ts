@@ -24,6 +24,22 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is working!' });
 });
 
+// Try to add the auth user endpoint
+app.get('/api/auth/user', async (req: any, res) => {
+  try {
+    console.log('=== /api/auth/user endpoint called ===');
+
+    // For now, just return a simple response to test if the endpoint works
+    res.json({
+      message: 'Auth user endpoint is working',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('❌ Error in /api/auth/user:', error);
+    res.status(500).json({ message: 'Failed to fetch user' });
+  }
+});
+
 // Serve static files
 app.use(express.static('dist'));
 
