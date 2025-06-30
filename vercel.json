@@ -87,7 +87,7 @@
     },
     {
       "src": "/api/recommendations",
-      "dest": "/api/recommendations-minimal.js"
+      "dest": "/api/recommendations-working.js"
     },
     {
       "src": "/api/(.*)",
