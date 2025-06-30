@@ -64,6 +64,14 @@
       "dest": "/dist/index.js"
     },
     {
+      "src": "/index.html",
+      "dest": "/dist/public/index.html"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/dist/public/assets/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/dist/public/$1"
     }
