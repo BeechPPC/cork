@@ -117,5 +117,10 @@
   "optionalDependencies": {
     "bufferutil": "^4.0.8",
     "@rollup/rollup-linux-x64-gnu": "^4.0.0"
-  }
+  },
+  "trustedDependencies": [
+    "@clerk/shared",
+    "@tailwindcss/oxide",
+    "es5-ext"
+  ]
 }
