@@ -8,11 +8,10 @@ import {
   serial,
   integer,
   boolean,
-  decimal,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 // Session storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
@@ -29,8 +28,9 @@ export const sessions = pgTable(
 // User storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable('users', {
-  id: varchar('id').primaryKey().notNull(),
+  id: serial('id').primaryKey(),
   email: varchar('email').unique(),
+  clerkId: varchar('clerk_id').unique(),
   firstName: varchar('first_name'),
   lastName: varchar('last_name'),
   profileImageUrl: varchar('profile_image_url'),
@@ -50,7 +50,7 @@ export const users = pgTable('users', {
 // Saved wines table
 export const savedWines = pgTable('saved_wines', {
   id: serial('id').primaryKey(),
-  userId: varchar('user_id')
+  userId: serial('user_id')
     .notNull()
     .references(() => users.id),
   wineName: varchar('wine_name').notNull(),
@@ -69,7 +69,7 @@ export const savedWines = pgTable('saved_wines', {
 // Uploaded wines table
 export const uploadedWines = pgTable('uploaded_wines', {
   id: serial('id').primaryKey(),
-  userId: varchar('user_id')
+  userId: serial('user_id')
     .notNull()
     .references(() => users.id),
   originalImageUrl: varchar('original_image_url').notNull(),
@@ -90,7 +90,7 @@ export const uploadedWines = pgTable('uploaded_wines', {
 // Wine recommendations history
 export const recommendationHistory = pgTable('recommendation_history', {
   id: serial('id').primaryKey(),
-  userId: varchar('user_id')
+  userId: serial('user_id')
     .notNull()
     .references(() => users.id),
   query: text('query').notNull(),
@@ -137,44 +137,32 @@ export const recommendationHistoryRelations = relations(
 );
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertUserSchema = createInsertSchema(users);
 
-export const insertSavedWineSchema = createInsertSchema(savedWines).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertSavedWineSchema = createInsertSchema(savedWines);
 
-export const insertUploadedWineSchema = createInsertSchema(uploadedWines).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertUploadedWineSchema = createInsertSchema(uploadedWines);
 
 export const insertRecommendationHistorySchema = createInsertSchema(
   recommendationHistory
-).omit({
-  id: true,
-  createdAt: true,
-});
+);
 
-export const insertEmailSignupSchema = createInsertSchema(emailSignups).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertEmailSignupSchema = createInsertSchema(emailSignups);
 
 // Types
-export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type UserInsert = typeof users.$inferInsert;
+export type UpsertUser = Partial<User> & { id: number };
+export type CreateUser = Partial<User> & { clerkId: string };
+export type UpdateUser = Partial<User> & { clerkId: string };
 export type SavedWine = typeof savedWines.$inferSelect;
-export type InsertSavedWine = z.infer<typeof insertSavedWineSchema>;
+export type CreateSavedWine = Omit<SavedWine, 'id' | 'createdAt'>;
+export type UpdateSavedWine = Partial<SavedWine> & { id: number };
 export type UploadedWine = typeof uploadedWines.$inferSelect;
-export type InsertUploadedWine = z.infer<typeof insertUploadedWineSchema>;
+export type CreateUploadedWine = Omit<UploadedWine, 'id' | 'createdAt'>;
+export type UpdateUploadedWine = Partial<UploadedWine> & { id: number };
 export type RecommendationHistory = typeof recommendationHistory.$inferSelect;
-export type InsertRecommendationHistory = z.infer<
-  typeof insertRecommendationHistorySchema
->;
+export type CreateRecommendationHistory = Omit<RecommendationHistory, 'id' | 'createdAt'>;
+export type UpdateRecommendationHistory = Partial<RecommendationHistory> & { id: number };
 export type EmailSignup = typeof emailSignups.$inferSelect;
-export type InsertEmailSignup = z.infer<typeof insertEmailSignupSchema>;
+export type CreateEmailSignup = Omit<EmailSignup, 'id' | 'createdAt'>;
