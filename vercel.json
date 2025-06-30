@@ -74,10 +74,6 @@
       "dest": "/api/auth-test.js"
     },
     {
-      "src": "/api/profile/setup",
-      "dest": "/api/setup-profile.js"
-    },
-    {
       "src": "/api/recommendations",
       "dest": "/api/recommendations-working.js"
     },
