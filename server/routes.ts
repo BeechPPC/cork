@@ -136,6 +136,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
+  // Test recommendations endpoint for debugging
+  app.post('/api/test-recommendations', (req, res) => {
+    try {
+      const { query } = req.body;
+      console.log('Test recommendations query:', query);
+
+      res.json({
+        recommendations: [
+          {
+            name: 'Test Wine 1',
+            type: 'Test Type',
+            region: 'Test Region',
+            vintage: '2024',
+            description: 'Test description',
+            priceRange: '$20-30',
+            abv: '13.0%',
+            rating: '90/100',
+            matchReason: 'Test match reason',
+          },
+        ],
+        timestamp: new Date().toISOString(),
+        source: 'test_endpoint',
+        query: query,
+      });
+    } catch (error) {
+      console.error('Test recommendations error:', error);
+      res.status(500).json({
+        message: 'Test recommendations failed',
+        error: error.message,
+      });
+    }
+  });
+
   // Auth middleware
   setupClerkAuth(app);
 
