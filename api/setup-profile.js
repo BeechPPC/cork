@@ -1,6 +1,10 @@
 // Independent profile setup endpoint - bypasses main server compilation issues
 import 'dotenv/config';
-import { neon } from '@neon-database/serverless';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
+
+// Configure Neon for serverless
+neonConfig.webSocketConstructor = ws;
 
 export default async function handler(req, res) {
   console.log('Profile setup endpoint called');
@@ -76,11 +80,12 @@ export default async function handler(req, res) {
     }
 
     console.log('Connecting to database...');
-    const sql = neon(process.env.DATABASE_URL);
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
     // Simple insert/update for now to test
     console.log('Executing database query...');
-    const userResult = await sql`
+    const userResult = await pool.query(
+      `
       INSERT INTO users (
         id, 
         first_name, 
@@ -96,19 +101,7 @@ export default async function handler(req, res) {
         created_at,
         updated_at
       ) VALUES (
-        ${userId},
-        'Cork',
-        'User',
-        'user@getcork.app',
-        ${dateOfBirth || null},
-        ${wineExperienceLevel || null},
-        ${preferredWineTypes ? JSON.stringify(preferredWineTypes) : null},
-        ${budgetRange || null},
-        ${location || null},
-        true,
-        'free',
-        NOW(),
-        NOW()
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW()
       )
       ON CONFLICT (id) DO UPDATE SET
         date_of_birth = EXCLUDED.date_of_birth,
@@ -119,10 +112,27 @@ export default async function handler(req, res) {
         profile_completed = true,
         updated_at = NOW()
       RETURNING *
-    `;
+    `,
+      [
+        userId,
+        'Cork',
+        'User',
+        'user@getcork.app',
+        dateOfBirth || null,
+        wineExperienceLevel || null,
+        preferredWineTypes ? JSON.stringify(preferredWineTypes) : null,
+        budgetRange || null,
+        location || null,
+        true,
+        'free',
+      ]
+    );
 
-    const user = userResult[0];
+    const user = userResult.rows[0];
     console.log('Database operation successful:', user.id);
+
+    // Close the connection
+    await pool.end();
 
     return res.status(200).json({
       message: 'Profile setup completed successfully',
