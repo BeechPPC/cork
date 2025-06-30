@@ -100,45 +100,12 @@ export default function Dashboard() {
 
   // Check if profile setup is needed (use backend user)
   useEffect(() => {
-    console.log('🔍 Dashboard profile setup check:', {
-      hasUser: !!user,
-      userProfileCompleted: user?.profileCompleted,
-      hasDateOfBirth: !!user?.dateOfBirth,
-      hasProfileData: !!(user?.dateOfBirth || user?.wineExperienceLevel),
-      user: user,
-      isUserLoading: isUserLoading,
-      timestamp: new Date().toISOString(),
-    });
-
-    // For new users, always show profile setup if we can't determine completion status
     if (user && !user.profileCompleted) {
-      console.log('✅ Showing profile setup modal - user needs onboarding');
-      setShowProfileSetup(true);
-    } else if (user && user.profileCompleted === true) {
-      console.log('✅ Profile already completed - hiding modal');
-      setShowProfileSetup(false);
-    } else if (
-      !isUserLoading &&
-      (!user || user.profileCompleted === undefined)
-    ) {
-      // If user data failed to load or profileCompleted is undefined, show profile setup
-      console.log('⚠️ User data incomplete, showing profile setup as fallback');
-      setShowProfileSetup(true);
-    } else if (user && !user.dateOfBirth) {
-      // If user has no profile data (no dateOfBirth), show profile setup
-      console.log('✅ Showing profile setup modal - user has no profile data');
       setShowProfileSetup(true);
     } else {
-      console.log('⏳ Waiting for user data to load...');
       setShowProfileSetup(false);
     }
-  }, [user, isUserLoading]);
-
-  // TEMPORARY: Force show profile setup for debugging
-  const forceShowProfileSetup = () => {
-    console.log('🔧 Force showing profile setup modal for debugging');
-    setShowProfileSetup(true);
-  };
+  }, [user]);
 
   // Debug: Log user data changes
   useEffect(() => {
@@ -378,18 +345,6 @@ export default function Dashboard() {
               Describe your mood, occasion, or food pairing and let our AI
               sommelier find your perfect match
             </p>
-
-            {/* TEMPORARY DEBUG BUTTON */}
-            <div className="mt-4">
-              <Button
-                onClick={forceShowProfileSetup}
-                variant="outline"
-                size="sm"
-                className="text-red-600 border-red-300 hover:bg-red-50"
-              >
-                🔧 Debug: Force Show Profile Setup
-              </Button>
-            </div>
           </div>
 
           {/* Recommendation Input - Now with Tabs */}

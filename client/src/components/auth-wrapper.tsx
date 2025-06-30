@@ -86,14 +86,12 @@ export function useAuth(): AuthState {
     const clerkAuth = useClerkAuth();
     const { user } = useUser();
 
-    console.log('🔍 Clerk auth state:', {
+    console.log('Clerk auth state:', {
       isLoaded: clerkAuth.isLoaded,
       isSignedIn: clerkAuth.isSignedIn,
       hasUser: !!user,
       error: clerkError,
       userId: user?.id,
-      userEmail: user?.emailAddresses?.[0]?.emailAddress,
-      timestamp: new Date().toISOString(),
     });
 
     // If Clerk is loaded, return the current state immediately
@@ -109,7 +107,7 @@ export function useAuth(): AuthState {
 
       // Update state if it's different
       if (JSON.stringify(currentState) !== JSON.stringify(authState)) {
-        console.log('🔄 Updating auth state:', currentState);
+        console.log('Updating auth state:', currentState);
         setAuthState(currentState);
       }
 
@@ -119,12 +117,11 @@ export function useAuth(): AuthState {
       }
 
       // Log state changes for debugging
-      console.log('✅ Auth state updated:', {
+      console.log('Auth state updated:', {
         isSignedIn: clerkAuth.isSignedIn,
         hasUser: !!user,
         userId: user?.id,
         isLoaded: true,
-        timestamp: new Date().toISOString(),
       });
 
       return currentState; // Return current state immediately
@@ -133,7 +130,7 @@ export function useAuth(): AuthState {
     // If Clerk is not loaded yet, return the current auth state
     return authState;
   } catch (error) {
-    console.error('❌ Clerk auth error:', error);
+    console.error('Clerk auth error:', error);
     setClerkError(error.message);
 
     // Return safe fallback state
@@ -150,7 +147,7 @@ export function useAuth(): AuthState {
       mountedRef.current &&
       JSON.stringify(authState) !== JSON.stringify(fallbackState)
     ) {
-      console.log('🔄 Setting fallback auth state due to error');
+      console.log('Setting fallback auth state due to error');
       setAuthState(fallbackState);
     }
 

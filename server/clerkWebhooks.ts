@@ -82,7 +82,6 @@ export function setupClerkWebhooks(app: Express) {
 
 async function handleUserUpsert(userData: any) {
   console.log('🚀 === CLERK WEBHOOK TRIGGERED ===');
-  console.log('📅 Timestamp:', new Date().toISOString());
   console.log('🆔 User ID:', userData.id);
   console.log('📧 Email addresses:', userData.email_addresses);
   console.log('👤 First name:', userData.first_name);
@@ -109,13 +108,7 @@ async function handleUserUpsert(userData: any) {
     // Test if we can call upsertUser
     const user = await storage.upsertUser(userToUpsert);
 
-    console.log('✅ User synced successfully from Clerk:', {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      profileCompleted: user.profileCompleted,
-    });
+    console.log('✅ User synced successfully from Clerk:', user);
 
     // Verify the user was actually created
     console.log('🔍 Verifying user creation...');
@@ -128,7 +121,6 @@ async function handleUserUpsert(userData: any) {
         email: verifyUser.email,
         firstName: verifyUser.firstName,
         lastName: verifyUser.lastName,
-        profileCompleted: verifyUser.profileCompleted,
       });
     }
 

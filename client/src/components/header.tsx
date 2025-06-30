@@ -165,20 +165,12 @@ export default function Header() {
                       <Button
                         variant="ghost"
                         className="text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors font-medium"
-                        onClick={() =>
-                          console.log('🔍 Header Sign In button clicked')
-                        }
                       >
                         Sign In
                       </Button>
                     </SignInButton>
                     <SignUpButton mode="modal">
-                      <Button
-                        className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium"
-                        onClick={() =>
-                          console.log('🔍 Header Get Started button clicked')
-                        }
-                      >
+                      <Button className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors font-medium">
                         Get Started
                       </Button>
                     </SignUpButton>
@@ -269,7 +261,7 @@ export default function Header() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-1">
-                      <UserButton />
+                      <UserButton afterSignOutUrl="/" showName={false} />
                     </div>
                   </DropdownMenuContent>
                 </DropdownMenu>

@@ -166,12 +166,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth routes - serverless compatible
   app.get('/api/auth/user', async (req: any, res) => {
-    console.log('🔐 === AUTH USER ENDPOINT TRIGGERED ===');
-    console.log('📅 Timestamp:', new Date().toISOString());
-
     try {
       if (!isClerkConfigured) {
-        console.error('❌ Clerk not configured');
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -179,7 +175,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.error('❌ No valid authorization header');
         return res
           .status(401)
           .json({ message: 'No valid authorization token' });
@@ -189,45 +184,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       console.log(
-        '🔐 Token verification - Received auth header:',
+        'Token verification - Received auth header:',
         authHeader ? 'Present' : 'Missing'
       );
-      console.log('🔐 Token verification - Token length:', token.length);
+      console.log('Token verification - Token length:', token.length);
 
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
-        console.log('✅ Token verification - Success, userId:', userId);
+        console.log('Token verification - Success, userId:', userId);
       } catch (authError) {
-        console.error('❌ Token verification failed:', authError);
+        console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
       if (!userId) {
-        console.error('❌ User ID not found in token');
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
-      console.log('🔍 Checking if user exists in database:', userId);
       let user = await storage.getUser(userId);
 
       // If user doesn't exist, create them automatically
       if (!user) {
-        console.log(
-          '👤 User not found in database, creating new user:',
-          userId
-        );
+        console.log('User not found in database, creating new user:', userId);
         try {
           // Get user info from Clerk
-          console.log('📞 Fetching user info from Clerk...');
           const clerkUser = await clerkClient.users.getUser(userId);
-          console.log('📞 Clerk user data:', {
-            id: clerkUser.id,
-            email: clerkUser.emailAddresses?.[0]?.emailAddress,
-            firstName: clerkUser.firstName,
-            lastName: clerkUser.lastName,
-            imageUrl: clerkUser.imageUrl,
-          });
 
           const userData = {
             id: userId,
@@ -238,60 +220,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             subscriptionPlan: 'free', // Default to free plan
           };
 
-          console.log('💾 Creating user in database with data:', userData);
           user = await storage.upsertUser(userData);
-          console.log('✅ Created new user:', {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            profileCompleted: user.profileCompleted,
-          });
+          console.log('Created new user:', user);
         } catch (createError) {
-          console.error('❌ Failed to create user:', createError);
-          console.error('❌ Create error details:', {
-            message: (createError as Error).message,
-            stack: (createError as Error).stack,
-          });
+          console.error('Failed to create user:', createError);
           return res.status(500).json({ message: 'Failed to create user' });
         }
-      } else {
-        console.log('✅ User already exists in database:', {
-          id: user.id,
-          email: user.email,
-          profileCompleted: user.profileCompleted,
-        });
       }
 
       // Get usage counts for plan limits (optimized single query)
-      console.log('📊 Getting user usage counts for userId:', userId);
       const userCounts = await storage.getUserCounts(userId);
-      console.log('📊 User usage counts:', userCounts);
 
-      const response = {
+      res.json({
         ...user,
         usage: {
           savedWines: userCounts.savedWines,
           uploadedWines: userCounts.uploadedWines,
         },
-      };
-
-      console.log('✅ Returning user data:', {
-        id: response.id,
-        email: response.email,
-        profileCompleted: response.profileCompleted,
-        usage: response.usage,
       });
-
-      res.json(response);
     } catch (error) {
-      console.error('❌ === AUTH USER ERROR DETAILS ===');
-      console.error('❌ Error:', error);
-      console.error('❌ Error name:', (error as any)?.name);
-      console.error('❌ Error message:', (error as any)?.message);
-      console.error('❌ Error stack:', (error as any)?.stack);
-      console.error('❌ =====================================');
-
+      console.error('Error fetching user:', error);
       res.status(500).json({ message: 'Failed to fetch user' });
     }
   });
@@ -1383,13 +1331,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Profile setup endpoint with serverless-compatible auth
   app.post('/api/profile/setup', authLimiter, async (req: any, res) => {
-    console.log('🚀 === PROFILE SETUP ENDPOINT TRIGGERED ===');
-    console.log('📅 Timestamp:', new Date().toISOString());
-
     try {
       // Check if Clerk is configured
       if (!isClerkConfigured) {
-        console.error('❌ Clerk not configured');
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -1398,7 +1342,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Extract auth token from headers
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.error('❌ No valid authorization header');
         return res
           .status(401)
           .json({ message: 'No valid authorization token' });
@@ -1408,46 +1351,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let userId: string;
 
       console.log(
-        '🔐 Token verification - Received auth header:',
+        'Token verification - Received auth header:',
         authHeader ? 'Present' : 'Missing'
       );
-      console.log('🔐 Token verification - Token length:', token.length);
+      console.log('Token verification - Token length:', token.length);
 
       try {
         // Use Clerk to verify the session token
         const verifiedToken = await clerkClient.verifyToken(token);
         userId = verifiedToken.sub;
-        console.log('✅ Token verification - Success, userId:', userId);
+        console.log('Token verification - Success, userId:', userId);
       } catch (authError) {
-        console.error('❌ Token verification failed:', authError);
+        console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
       if (!userId) {
-        console.error('❌ User ID not found in token');
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
       // Check if user exists, create if not
-      console.log('🔍 Checking if user exists in database:', userId);
       let user = await storage.getUser(userId);
-
       if (!user) {
         console.log(
-          '👤 User not found in database, creating new user for profile setup:',
+          'User not found in database, creating new user for profile setup:',
           userId
         );
         try {
           // Get user info from Clerk
-          console.log('📞 Fetching user info from Clerk...');
           const clerkUser = await clerkClient.users.getUser(userId);
-          console.log('📞 Clerk user data:', {
-            id: clerkUser.id,
-            email: clerkUser.emailAddresses?.[0]?.emailAddress,
-            firstName: clerkUser.firstName,
-            lastName: clerkUser.lastName,
-            imageUrl: clerkUser.imageUrl,
-          });
 
           const userData = {
             id: userId,
@@ -1458,32 +1390,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             subscriptionPlan: 'free', // Default to free plan
           };
 
-          console.log('💾 Creating user in database with data:', userData);
           user = await storage.upsertUser(userData);
-          console.log('✅ Created new user for profile setup:', {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            profileCompleted: user.profileCompleted,
-          });
+          console.log('Created new user for profile setup:', user);
         } catch (createError) {
           console.error(
-            '❌ Failed to create user for profile setup:',
+            'Failed to create user for profile setup:',
             createError
           );
-          console.error('❌ Create error details:', {
-            message: (createError as Error).message,
-            stack: (createError as Error).stack,
-          });
           return res.status(500).json({ message: 'Failed to create user' });
         }
-      } else {
-        console.log('✅ User already exists in database:', {
-          id: user.id,
-          email: user.email,
-          profileCompleted: user.profileCompleted,
-        });
       }
 
       const {
@@ -1494,7 +1409,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location,
       } = req.body;
 
-      console.log('📝 Profile setup request data:', {
+      console.log('Profile setup request:', {
         userId,
         dateOfBirth,
         wineExperienceLevel,
@@ -1516,17 +1431,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           age--;
         }
 
-        console.log('🎂 Age validation - Calculated age:', age);
         if (age < 18) {
-          console.error('❌ Age validation failed - user is under 18');
           return res
             .status(400)
             .json({ message: 'You must be 18 or older to use cork' });
         }
-        console.log('✅ Age validation passed');
       }
 
-      console.log('💾 Calling storage.updateUserProfile with userId:', userId);
+      console.log('Calling storage.updateUserProfile with userId:', userId);
       const updatedUser = await storage.updateUserProfile(userId, {
         dateOfBirth,
         wineExperienceLevel,
@@ -1535,26 +1447,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location,
       });
 
-      console.log('✅ Profile updated successfully:', {
-        id: updatedUser.id,
-        email: updatedUser.email,
-        profileCompleted: updatedUser.profileCompleted,
-        dateOfBirth: updatedUser.dateOfBirth,
-        wineExperienceLevel: updatedUser.wineExperienceLevel,
-      });
+      console.log('Profile updated successfully:', updatedUser);
 
       res.json({
         message: 'Profile setup completed successfully',
         user: updatedUser,
       });
     } catch (error) {
-      console.error('❌ === PROFILE SETUP ERROR DETAILS ===');
-      console.error('❌ Error:', error);
-      console.error('❌ Error name:', (error as any)?.name);
-      console.error('❌ Error message:', (error as any)?.message);
-      console.error('❌ Error stack:', (error as any)?.stack);
-      console.error('❌ Error constructor:', (error as any)?.constructor?.name);
-      console.error('❌ =====================================');
+      console.error('=== PROFILE SETUP ERROR DETAILS ===');
+      console.error('Error:', error);
+      console.error('Error name:', (error as any)?.name);
+      console.error('Error message:', (error as any)?.message);
+      console.error('Error stack:', (error as any)?.stack);
+      console.error('Error constructor:', (error as any)?.constructor?.name);
+      console.error('=====================================');
 
       res.status(500).json({
         message: 'Failed to set up profile',

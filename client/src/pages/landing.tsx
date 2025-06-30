@@ -14,8 +14,7 @@ import { Link, useLocation } from 'wouter';
 import Header from '@/components/header';
 import EmailCaptureModal from '@/components/email-capture-modal';
 import { useAuth } from '@/components/auth-wrapper';
-import { SignInButton, SignUpButton } from '@clerk/clerk-react';
-import { useAuthenticatedQuery } from '@/hooks/useAuthenticatedQuery';
+import { SignInButton } from '@clerk/clerk-react';
 
 // Simple button component for all cases
 function ActionButton({
@@ -34,7 +33,7 @@ function ActionButton({
   );
 }
 
-// Clerk SignUp Button wrapper for "Get Started" functionality
+// Clerk SignIn Button wrapper
 function ClerkActionButton({
   children,
   className,
@@ -42,20 +41,10 @@ function ClerkActionButton({
   children: React.ReactNode;
   className?: string;
 }) {
-  console.log(
-    '🔍 ClerkActionButton rendered - isClerkConfigured:',
-    isClerkConfigured
-  );
-
   return (
-    <SignUpButton mode="modal">
-      <Button
-        className={className}
-        onClick={() => console.log('🔍 Get Started button clicked')}
-      >
-        {children}
-      </Button>
-    </SignUpButton>
+    <SignInButton mode="modal">
+      <Button className={className}>{children}</Button>
+    </SignInButton>
   );
 }
 
@@ -64,50 +53,27 @@ export default function Landing() {
   const { isSignedIn, isLoaded, user } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Fetch user data to check if profile is completed
-  const { data: userData } = useAuthenticatedQuery(
-    ['/api/auth/user'],
-    async token => {
-      const res = await fetch('/api/auth/user', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch user');
-      return res.json();
-    },
-    {
-      enabled: isSignedIn, // Only fetch if authenticated
-    }
-  );
-
-  // Redirect authenticated users based on profile completion
+  // Redirect authenticated users to dashboard
   useEffect(() => {
     console.log('Landing useEffect - Auth state:', {
       isLoaded,
       isSignedIn,
       hasUser: !!user,
-      userData: userData,
-      profileCompleted: userData?.profileCompleted,
     });
 
-    if (isLoaded && isSignedIn && user) {
-      // Check if user has completed profile setup
-      if (userData && !userData.profileCompleted) {
-        console.log(
-          'Landing: User needs profile setup, redirecting to dashboard (will show modal)'
-        );
-        setLocation('/dashboard');
-        return;
-      } else if (userData && userData.profileCompleted) {
-        console.log('Landing: User profile complete, redirecting to dashboard');
-        setLocation('/dashboard');
-        return;
-      } else {
-        // User is signed in but we don't have user data yet, wait for it
-        console.log('Landing: User signed in, waiting for user data...');
-        return;
-      }
+    if (isLoaded && isSignedIn) {
+      console.log('Landing: Redirecting authenticated user to dashboard');
+      setLocation('/dashboard');
+      return;
     }
-  }, [isLoaded, isSignedIn, user, userData, setLocation]);
+
+    // Also check for user presence as backup
+    if (isLoaded && user) {
+      console.log('Landing: User found, redirecting to dashboard');
+      setLocation('/dashboard');
+      return;
+    }
+  }, [isLoaded, isSignedIn, user, setLocation]);
 
   // Show email capture popup after 3 seconds (only for non-authenticated users)
   useEffect(() => {
