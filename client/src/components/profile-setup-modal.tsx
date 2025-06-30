@@ -27,7 +27,11 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth-wrapper';
 import { queryClient } from '@/lib/queryClient';
-import { saveTemporaryProfile, validateAge } from '@/utils/temporary-profile';
+import {
+  saveTemporaryProfile,
+  validateAge,
+  clearTemporaryProfile,
+} from '@/utils/temporary-profile';
 
 interface ProfileSetupModalProps {
   open: boolean;
@@ -156,6 +160,8 @@ export default function ProfileSetupModal({
         });
 
         if (response.ok) {
+          // Clear any temporary profile data since server successfully completed setup
+          clearTemporaryProfile();
           queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
           toast({
             title: 'Profile Complete!',

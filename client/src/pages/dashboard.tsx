@@ -104,6 +104,8 @@ export default function Dashboard() {
     // Check backend user first
     if (user && user.profileCompleted) {
       setShowProfileSetup(false);
+      // Clear any temporary profile data since backend confirms completion
+      localStorage.removeItem('cork_temporary_profile');
       return;
     }
 
