@@ -10,7 +10,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "api/recommendations.js",
+      "src": "api/recommendations-final.js",
       "use": "@vercel/node"
     },
     {
@@ -37,7 +37,7 @@
     },
     {
       "src": "/api/recommendations",
-      "dest": "/api/recommendations.js"
+      "dest": "/api/recommendations-final.js"
     },
     {
       "src": "/api/(.*)",
