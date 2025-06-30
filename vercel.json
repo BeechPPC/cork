@@ -30,15 +30,15 @@
       "use": "@vercel/node"
     },
     {
-      "src": "server/index.ts",
+      "src": "dist/index.js",
       "use": "@vercel/node"
     },
     {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "vite build",
-        "outputDirectory": "dist/public"
+        "buildCommand": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist --target=node18 --external:rollup",
+        "outputDirectory": "dist"
       }
     }
   ],
@@ -61,7 +61,7 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server/index.ts"
+      "dest": "/dist/index.js"
     },
     {
       "src": "/(.*)",
