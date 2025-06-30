@@ -1,7 +1,8 @@
 // Independent profile setup endpoint - bypasses main server compilation issues
-const { neon } = require('@neon-database/serverless');
+import 'dotenv/config';
+import { neon } from '@neon-database/serverless';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -24,11 +25,9 @@ module.exports = async (req, res) => {
 
     const token = authHeader.replace('Bearer ', '');
 
-    // For immediate fix - verify token format but allow through
-    // In production, this would verify with Clerk
-    if (!token || token.length < 10) {
-      return res.status(401).json({ message: 'Invalid token format' });
-    }
+    // Generate user ID from token for consistency
+    const userId =
+      'user_' + Buffer.from(token.slice(-20)).toString('hex').slice(0, 16);
 
     const {
       dateOfBirth,
@@ -65,15 +64,12 @@ module.exports = async (req, res) => {
 
     const sql = neon(process.env.DATABASE_URL);
 
-    // Generate user ID from token for consistency
-    const userId =
-      'user_' + Buffer.from(token.slice(-20)).toString('hex').slice(0, 16);
-
-    // Upsert user with profile data
+    // Simple insert/update for now to test
     const userResult = await sql`
       INSERT INTO users (
         id, 
-        name, 
+        first_name, 
+        last_name,
         email, 
         date_of_birth, 
         wine_experience_level, 
@@ -86,7 +82,8 @@ module.exports = async (req, res) => {
         updated_at
       ) VALUES (
         ${userId},
-        'Cork User',
+        'Cork',
+        'User',
         'user@getcork.app',
         ${dateOfBirth || null},
         ${wineExperienceLevel || null},
@@ -116,7 +113,8 @@ module.exports = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        firstName: user.first_name,
+        lastName: user.last_name,
         dateOfBirth: user.date_of_birth,
         wineExperienceLevel: user.wine_experience_level,
         preferredWineTypes: user.preferred_wine_types
@@ -135,4 +133,4 @@ module.exports = async (req, res) => {
       error: error.message || 'Unknown error',
     });
   }
-};
+}

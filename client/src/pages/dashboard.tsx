@@ -37,6 +37,7 @@ import PlanLimitModal from '@/components/plan-limit-modal';
 import ProfileSetupModal from '@/components/profile-setup-modal';
 import { useEffect } from 'react';
 import { useAuth } from '@/components/auth-wrapper';
+import { getTemporaryProfile } from '@/utils/temporary-profile';
 
 interface WineRecommendation {
   name: string;
@@ -98,14 +99,31 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  // Check if profile setup is needed (use backend user)
+  // Check if profile setup is needed (check both backend user and temporary profile)
   useEffect(() => {
+    // Check backend user first
+    if (user && user.profileCompleted) {
+      setShowProfileSetup(false);
+      return;
+    }
+
+    // If backend user is not completed, check temporary profile
+    const temporaryProfile = getTemporaryProfile();
+    if (temporaryProfile && temporaryProfile.profileCompleted) {
+      setShowProfileSetup(false);
+      return;
+    }
+
+    // If neither backend nor temporary profile is completed, show setup
     if (user && !user.profileCompleted) {
       setShowProfileSetup(true);
-    } else {
-      setShowProfileSetup(false);
+    } else if (!user && !isUserLoading) {
+      // If no user data available but not loading, check temporary profile
+      if (!temporaryProfile || !temporaryProfile.profileCompleted) {
+        setShowProfileSetup(true);
+      }
     }
-  }, [user]);
+  }, [user, isUserLoading]);
 
   // Debug: Log user data changes
   useEffect(() => {

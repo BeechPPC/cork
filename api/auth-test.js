@@ -1,5 +1,7 @@
 // Minimal test endpoint to verify serverless function deployment
-module.exports = (req, res) => {
+import 'dotenv/config';
+
+export default function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -13,6 +15,6 @@ module.exports = (req, res) => {
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     hasClerkSecret: !!process.env.CLERK_SECRET_KEY,
-    hasDatabase: !!process.env.DATABASE_URL
+    hasDatabase: !!process.env.DATABASE_URL,
   });
-};
+}
