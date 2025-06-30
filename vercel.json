@@ -53,6 +53,10 @@
       "src": "api/recommendations-simple.js",
       "use": "@vercel/node"
     },
+    {
+      "src": "api/recommendations-minimal.js",
+      "use": "@vercel/node"
+    },
 
     {
       "src": "server/index.ts",
@@ -83,7 +87,7 @@
     },
     {
       "src": "/api/recommendations",
-      "dest": "/api/recommendations-simple.js"
+      "dest": "/api/recommendations-minimal.js"
     },
     {
       "src": "/api/(.*)",
