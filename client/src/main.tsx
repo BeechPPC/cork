@@ -16,8 +16,7 @@ root.render(
     {isClerkConfigured ? (
       <ClerkProvider
         publishableKey={clerkPubKey}
-        // Add custom domain configuration for your Clerk instance
-        domain="rare-akita-78.clerk.accounts.dev"
+        // Let Clerk automatically detect the correct domain based on the publishable key
       >
         <App />
       </ClerkProvider>

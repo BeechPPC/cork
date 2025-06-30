@@ -27,7 +27,6 @@ console.log('Clerk Configuration:', {
     ? 'development'
     : 'unknown',
   domainAllowed: isDomainAllowed,
-  clerkInstance: 'rare-akita-78.clerk.accounts.dev',
 });
 
 // Show helpful message for setup
