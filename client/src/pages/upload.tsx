@@ -34,7 +34,7 @@ interface AnalysisResult {
 }
 
 export default function Upload() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, getToken } = useAuth();
   const { toast } = useToast();
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
@@ -60,11 +60,16 @@ export default function Upload() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('wine_image', file);
+
+      const token = await getToken();
       
       const response = await fetch('/api/upload/analyze', {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
       });
 
       if (!response.ok) {

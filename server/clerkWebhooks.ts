@@ -2,6 +2,7 @@ import { Webhook } from 'svix';
 import express from 'express';
 import type { Express } from 'express';
 import { storage } from './storage.js';
+import { UpsertUser } from '@shared/schema.js';
 
 export function setupClerkWebhooks(app: Express) {
   // CRITICAL: Apply raw body parser ONLY to webhook route
@@ -98,7 +99,13 @@ export function setupClerkWebhooks(app: Express) {
   });
 }
 
-async function handleUserUpsert(userData: any) {
+async function handleUserUpsert(userData: {
+  id: number;
+  email_addresses: { email_address: string }[];
+  first_name: string;
+  last_name: string;
+  image_url: string;
+}) {
   console.log('🚀 === HANDLING USER UPSERT ===');
   console.log('🆔 User ID:', userData.id);
   console.log('📧 Email addresses:', userData.email_addresses);
@@ -118,7 +125,7 @@ async function handleUserUpsert(userData: any) {
       throw new Error('Storage not available');
     }
 
-    const userToUpsert = {
+    const userToUpsert: UpsertUser = {
       id: userData.id,
       email: userData.email_addresses?.[0]?.email_address || '',
       firstName: userData.first_name || '',

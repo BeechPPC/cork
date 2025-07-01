@@ -11,8 +11,7 @@ const isDevelopmentDomain =
 // Enable Clerk if we have a key and are on an allowed domain
 const isDomainAllowed = isProductionDomain || isDevelopmentDomain;
 
-export const isClerkConfigured =
-  !!clerkPubKey && clerkPubKey.startsWith('pk_') && isDomainAllowed;
+export const isClerkConfigured = true
 
 // Log configuration status for debugging
 console.log('Clerk Configuration:', {

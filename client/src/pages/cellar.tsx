@@ -67,12 +67,12 @@ export default function Cellar() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: savedWines = [], isLoading: savedWinesLoading } = useQuery({
+  const { data: savedWines = [], isLoading: savedWinesLoading } = useQuery<SavedWine[]>({
     queryKey: ["/api/cellar"],
     enabled: isAuthenticated,
   });
 
-  const { data: uploadedWines = [], isLoading: uploadedWinesLoading } = useQuery({
+  const { data: uploadedWines = [], isLoading: uploadedWinesLoading } = useQuery<UploadedWine[]>({
     queryKey: ["/api/uploads"],
     enabled: isAuthenticated,
   });

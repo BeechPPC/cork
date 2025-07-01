@@ -2,11 +2,12 @@ import { Pool, neonConfig } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "../shared/schema.js";
+import type { DrizzleDatabase, DrizzlePool } from "./db.types.js";
 
 neonConfig.webSocketConstructor = ws;
 
-let pool: Pool | null = null;
-let db: any = null;
+let pool: DrizzlePool | null = null;
+let db: DrizzleDatabase | null = null;
 
 if (process.env.DATABASE_URL) {
   try {

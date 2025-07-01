@@ -15,6 +15,8 @@ import {
   insertSavedWineSchema,
   insertUploadedWineSchema,
   insertRecommendationHistorySchema,
+  CreateUploadedWine,
+  CreateSavedWine,
 } from '../shared/schema.js';
 import { sendEmailSignupConfirmation } from './emailService.js';
 import { db } from './db.js';
@@ -22,6 +24,7 @@ import Stripe from 'stripe';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import { clerkClient } from '@clerk/clerk-sdk-node';
+import { CreateUser, UpdateUser } from '@shared/schema.js';
 
 // Stripe setup
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -214,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: string;
+      let clerkId: string;
 
       console.log(
         'Token verification - Received auth header:',
@@ -224,36 +227,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
-        userId = verifiedToken.sub;
-        console.log('Token verification - Success, userId:', userId);
+        console.log(verifiedToken);
+        clerkId = verifiedToken.sub;
+        console.log('Token verification - Success, clerkId:', clerkId);
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      if (!userId) {
+      if (!clerkId) {
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
-      let user = await storage.getUser(userId);
+      let user = await storage.getUserByClerkId(clerkId);
 
       // If user doesn't exist, create them automatically
       if (!user) {
-        console.log('User not found in database, creating new user:', userId);
+        console.log('User not found in database, creating new user:', clerkId);
         try {
           // Get user info from Clerk
-          const clerkUser = await clerkClient.users.getUser(userId);
+          const clerkUser = await clerkClient.users.getUser(Number(clerkId));
 
-          const userData = {
-            id: userId,
+          const userData: CreateUser = {
+            clerkId: clerkId,
             email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
             firstName: clerkUser.firstName || '',
             lastName: clerkUser.lastName || '',
             profileImageUrl: clerkUser.imageUrl || '',
-            subscriptionPlan: 'free', // Default to free plan
+            subscriptionPlan: 'free',
           };
 
-          user = await storage.upsertUser(userData);
+          user = await storage.createUser(userData);
           console.log('Created new user:', user);
         } catch (createError) {
           console.error('Failed to create user:', createError);
@@ -262,7 +266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get usage counts for plan limits (optimized single query)
-      const userCounts = await storage.getUserCounts(userId);
+      const userCounts = await storage.getUserCounts(user.id);
 
       res.json({
         ...user,
@@ -303,12 +307,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const verifiedToken = await clerkClient.verifyToken(token);
           userId = verifiedToken.sub;
+          console.log('Token verification - Success, userId:', userId);
         } catch (authError) {
           console.error('Token verification failed:', authError);
           return res.status(401).json({ message: 'Invalid token' });
         }
 
-        const user = await storage.getUser(userId);
+        const user = await storage.getUserByClerkId(userId);
 
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
@@ -354,7 +359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         const userId = req.userId;
-        const user = await storage.getUser(userId);
+        const user = await storage.getUserByClerkId(userId);
 
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
@@ -475,39 +480,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: string;
+      let clerkId: string;
 
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
-        userId = verifiedToken.sub;
+        clerkId = verifiedToken.sub;
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      const user = await storage.getUser(userId);
+      let user = await storage.getUserByClerkId(clerkId);
 
       // If user doesn't exist, create them automatically
       if (!user) {
         console.log(
           'User not found in database, creating new user for cellar save:',
-          userId
+          clerkId
         );
         try {
           // Get user info from Clerk
-          const clerkUser = await clerkClient.users.getUser(userId);
+          const clerkUser = await clerkClient.users.getUser(
+            Number(clerkId)
+          );
 
-          const userData = {
-            id: userId,
+          const userData: CreateUser = {
+            clerkId: clerkId,
             email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
             firstName: clerkUser.firstName || '',
             lastName: clerkUser.lastName || '',
             profileImageUrl: clerkUser.imageUrl || '',
-            subscriptionPlan: 'free', // Default to free plan
+            subscriptionPlan: 'free',
           };
 
-          await storage.upsertUser(userData);
-          console.log('Created new user for cellar save:', userId);
+          user = await storage.createUser(userData);
+          console.log('Created new user for cellar save:', clerkId);
         } catch (createError) {
           console.error('Failed to create user for cellar save:', createError);
           return res.status(500).json({ message: 'Failed to create user' });
@@ -515,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check plan limits
-      const savedWineCount = await storage.getSavedWineCount(userId);
+      const savedWineCount = await storage.getSavedWineCount(user.id);
       if (user.subscriptionPlan === 'free' && savedWineCount >= 3) {
         return res.status(403).json({
           message: 'Plan limit reached',
@@ -525,8 +532,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const wineData = insertSavedWineSchema.parse({ ...req.body, userId });
-      const savedWine = await storage.saveWine(wineData);
+      const wineData = insertSavedWineSchema.parse({
+        ...req.body,
+        userId: user.id,
+      });
+      const savedWine = await storage.saveWine(
+        wineData as unknown as CreateSavedWine
+      );
       res.json(savedWine);
     } catch (error) {
       console.error('Error saving wine:', error);
@@ -551,11 +563,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: string;
+      let userId: number;
 
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
-        userId = verifiedToken.sub;
+        userId = Number(verifiedToken.sub);
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
@@ -586,11 +598,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: string;
+      let userId: number;
 
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
-        userId = verifiedToken.sub;
+        userId = Number(verifiedToken.sub);
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
@@ -625,24 +637,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const token = authHeader.replace('Bearer ', '');
-        let userId: string;
+        let clerkId: string;
 
         try {
           const verifiedToken = await clerkClient.verifyToken(token);
-          userId = verifiedToken.sub;
+          clerkId = verifiedToken.sub;
         } catch (authError) {
           console.error('Token verification failed:', authError);
           return res.status(401).json({ message: 'Invalid token' });
         }
 
-        const user = await storage.getUser(userId);
+        const user = await storage.getUserByClerkId(clerkId);
 
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
         }
 
         // Check plan limits
-        const uploadedWineCount = await storage.getUploadedWineCount(userId);
+        const uploadedWineCount = await storage.getUploadedWineCount(user.id);
         if (user.subscriptionPlan === 'free' && uploadedWineCount >= 3) {
           return res.status(403).json({
             message: 'Upload limit reached',
@@ -664,10 +676,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Save uploaded wine record
         const uploadedWine = await storage.saveUploadedWine({
-          userId,
+          userId: user.id,
           originalImageUrl: `data:${req.file.mimetype};base64,${base64Image}`,
           ...analysis,
-        });
+        } as unknown as CreateUploadedWine);
 
         res.json(uploadedWine);
       } catch (error) {
@@ -694,17 +706,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: string;
+      let clerkId: string;
 
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
-        userId = verifiedToken.sub;
+        clerkId = verifiedToken.sub;
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      const uploadedWines = await storage.getUploadedWines(userId);
+      const user = await storage.getUserByClerkId(clerkId);
+      const uploadedWines = await storage.getUploadedWines(user.id);
       res.json(uploadedWines);
     } catch (error) {
       console.error('Error fetching uploaded wines:', error);
@@ -715,7 +728,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update uploaded wine details
   app.put('/api/uploads/:wineId', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.userId;
+      const userId = Number(req.userId);
       const wineId = parseInt(req.params.wineId);
 
       if (isNaN(wineId)) {
@@ -766,7 +779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     requireAuth,
     async (req: any, res) => {
       try {
-        const userId = req.userId;
+        const userId = Number(req.userId);
         const user = await storage.getUser(userId);
 
         if (!user) {
@@ -1381,7 +1394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: string;
+      let clerkId: string;
 
       console.log(
         'Token verification - Received auth header:',
@@ -1392,30 +1405,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         // Use Clerk to verify the session token
         const verifiedToken = await clerkClient.verifyToken(token);
-        userId = verifiedToken.sub;
-        console.log('Token verification - Success, userId:', userId);
+        clerkId = verifiedToken.sub;
+        console.log('Token verification - Success, clerkId:', clerkId);
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      if (!userId) {
+      if (!clerkId) {
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
       // Check if user exists, create if not
-      let user = await storage.getUser(userId);
+      let user = await storage.getUserByClerkId(clerkId);
       if (!user) {
         console.log(
           'User not found in database, creating new user for profile setup:',
-          userId
+          clerkId
         );
         try {
           // Get user info from Clerk
-          const clerkUser = await clerkClient.users.getUser(userId);
+          const clerkUser = await clerkClient.users.getUser(
+            Number(clerkId)
+          );
 
-          const userData = {
-            id: userId,
+          const userData: CreateUser = {
+            clerkId: clerkId,
             email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
             firstName: clerkUser.firstName || '',
             lastName: clerkUser.lastName || '',
@@ -1423,7 +1438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             subscriptionPlan: 'free', // Default to free plan
           };
 
-          user = await storage.upsertUser(userData);
+          user = await storage.updateUser(userData);
           console.log('Created new user for profile setup:', user);
         } catch (createError) {
           console.error(
@@ -1443,7 +1458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.body;
 
       console.log('Profile setup request:', {
-        userId,
+        clerkId,
         dateOfBirth,
         wineExperienceLevel,
         preferredWineTypes,
@@ -1471,8 +1486,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      console.log('Calling storage.updateUserProfile with userId:', userId);
-      const updatedUser = await storage.updateUserProfile(userId, {
+      console.log('Calling storage.updateUserProfile with userId:', user.id);
+      const updatedUser = await storage.updateUserProfile(user.id, {
         dateOfBirth,
         wineExperienceLevel,
         preferredWineTypes,
