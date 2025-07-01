@@ -246,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('User not found in database, creating new user:', clerkId);
         try {
           // Get user info from Clerk
-          const clerkUser = await clerkClient.users.getUser(Number(clerkId));
+          const clerkUser = await clerkClient.users.getUser(clerkId as unknown as number);
 
           const userData: CreateUser = {
             clerkId: clerkId,
@@ -501,7 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Get user info from Clerk
           const clerkUser = await clerkClient.users.getUser(
-            Number(clerkId)
+            clerkId as unknown as number
           );
 
           const userData: CreateUser = {
@@ -1426,7 +1426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Get user info from Clerk
           const clerkUser = await clerkClient.users.getUser(
-            Number(clerkId)
+            clerkId as unknown as number
           );
 
           const userData: CreateUser = {
