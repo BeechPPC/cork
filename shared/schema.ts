@@ -6,7 +6,6 @@ import {
   jsonb,
   index,
   serial,
-  integer,
   boolean,
   decimal,
 } from 'drizzle-orm/pg-core';
@@ -37,7 +36,7 @@ export const users = pgTable('users', {
   subscriptionPlan: varchar('subscription_plan').default('free'), // "free" or "premium"
   stripeCustomerId: varchar('stripe_customer_id'),
   stripeSubscriptionId: varchar('stripe_subscription_id'),
-  dateOfBirth: varchar('date_of_birth'),
+  dateOfBirth: timestamp('date_of_birth'),
   wineExperienceLevel: varchar('wine_experience_level'),
   preferredWineTypes: varchar('preferred_wine_types').array(),
   budgetRange: varchar('budget_range'),
@@ -48,55 +47,67 @@ export const users = pgTable('users', {
 });
 
 // Saved wines table
-export const savedWines = pgTable('saved_wines', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id')
-    .notNull()
-    .references(() => users.id),
-  wineName: varchar('wine_name').notNull(),
-  wineType: varchar('wine_type').notNull(),
-  region: varchar('region'),
-  vintage: varchar('vintage'),
-  description: text('description'),
-  priceRange: varchar('price_range'),
-  abv: varchar('abv'),
-  rating: varchar('rating'),
-  imageUrl: varchar('image_url'),
-  source: varchar('source').notNull(), // "recommendation" or "uploaded"
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const savedWines = pgTable(
+  'saved_wines',
+  {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    wineName: varchar('wine_name').notNull(),
+    wineType: varchar('wine_type').notNull(),
+    region: varchar('region'),
+    vintage: varchar('vintage'),
+    description: text('description'),
+    priceRange: varchar('price_range'),
+    abv: decimal('abv', { precision: 4, scale: 2 }),
+    rating: decimal('rating', { precision: 3, scale: 1 }),
+    imageUrl: varchar('image_url'),
+    source: varchar('source').notNull(), // "recommendation" or "uploaded"
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  table => [index('IDX_saved_wines_user_id').on(table.userId)]
+);
 
 // Uploaded wines table
-export const uploadedWines = pgTable('uploaded_wines', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id')
-    .notNull()
-    .references(() => users.id),
-  originalImageUrl: varchar('original_image_url').notNull(),
-  wineName: varchar('wine_name'),
-  wineType: varchar('wine_type'),
-  region: varchar('region'),
-  vintage: varchar('vintage'),
-  optimalDrinkingStart: varchar('optimal_drinking_start'),
-  optimalDrinkingEnd: varchar('optimal_drinking_end'),
-  peakYearsStart: varchar('peak_years_start'),
-  peakYearsEnd: varchar('peak_years_end'),
-  analysis: text('analysis'),
-  estimatedValue: varchar('estimated_value'),
-  abv: varchar('abv'),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const uploadedWines = pgTable(
+  'uploaded_wines',
+  {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    originalImageUrl: varchar('original_image_url').notNull(),
+    wineName: varchar('wine_name'),
+    wineType: varchar('wine_type'),
+    region: varchar('region'),
+    vintage: varchar('vintage'),
+    optimalDrinkingStart: varchar('optimal_drinking_start'),
+    optimalDrinkingEnd: varchar('optimal_drinking_end'),
+    peakYearsStart: varchar('peak_years_start'),
+    peakYearsEnd: varchar('peak_years_end'),
+    analysis: text('analysis'),
+    estimatedValue: varchar('estimated_value'),
+    abv: decimal('abv', { precision: 4, scale: 2 }),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  table => [index('IDX_uploaded_wines_user_id').on(table.userId)]
+);
 
 // Wine recommendations history
-export const recommendationHistory = pgTable('recommendation_history', {
-  id: serial('id').primaryKey(),
-  userId: varchar('user_id')
-    .notNull()
-    .references(() => users.id),
-  query: text('query').notNull(),
-  recommendations: jsonb('recommendations').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export const recommendationHistory = pgTable(
+  'recommendation_history',
+  {
+    id: serial('id').primaryKey(),
+    userId: varchar('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    query: text('query').notNull(),
+    recommendations: jsonb('recommendations').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  table => [index('IDX_recommendation_history_user_id').on(table.userId)]
+);
 
 // Email signups for pre-launch
 export const emailSignups = pgTable('email_signups', {
@@ -137,44 +148,27 @@ export const recommendationHistoryRelations = relations(
 );
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertUserSchema = createInsertSchema(users);
 
-export const insertSavedWineSchema = createInsertSchema(savedWines).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertSavedWineSchema = createInsertSchema(savedWines);
 
-export const insertUploadedWineSchema = createInsertSchema(uploadedWines).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertUploadedWineSchema = createInsertSchema(uploadedWines);
 
 export const insertRecommendationHistorySchema = createInsertSchema(
   recommendationHistory
-).omit({
-  id: true,
-  createdAt: true,
-});
+);
 
-export const insertEmailSignupSchema = createInsertSchema(emailSignups).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertEmailSignupSchema = createInsertSchema(emailSignups);
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type SavedWine = typeof savedWines.$inferSelect;
-export type InsertSavedWine = z.infer<typeof insertSavedWineSchema>;
+export type InsertSavedWine = typeof savedWines.$inferInsert;
 export type UploadedWine = typeof uploadedWines.$inferSelect;
-export type InsertUploadedWine = z.infer<typeof insertUploadedWineSchema>;
+export type InsertUploadedWine = typeof uploadedWines.$inferInsert;
 export type RecommendationHistory = typeof recommendationHistory.$inferSelect;
-export type InsertRecommendationHistory = z.infer<
-  typeof insertRecommendationHistorySchema
->;
+export type InsertRecommendationHistory =
+  typeof recommendationHistory.$inferInsert;
 export type EmailSignup = typeof emailSignups.$inferSelect;
-export type InsertEmailSignup = z.infer<typeof insertEmailSignupSchema>;
+export type InsertEmailSignup = typeof emailSignups.$inferInsert;

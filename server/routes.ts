@@ -524,12 +524,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           maxCount: 3,
         });
       }
-
-      const wineData = insertSavedWineSchema.parse({ ...req.body, userId });
+      const wineData = insertSavedWineSchema.parse({
+        userId,
+        wineName: req.body.wineName,
+        wineType: req.body.wineType,
+        source: req.body.source,
+      });
       const savedWine = await storage.saveWine(wineData);
       res.json(savedWine);
     } catch (error) {
       console.error('Error saving wine:', error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ message: 'Invalid wine data' });
+      }
       res.status(500).json({ message: 'Failed to save wine' });
     }
   });
