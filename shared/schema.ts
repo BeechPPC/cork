@@ -11,7 +11,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 // Session storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
@@ -28,8 +28,9 @@ export const sessions = pgTable(
 // User storage table.
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable('users', {
-  id: varchar('id').primaryKey().notNull(),
+  id: serial('id').primaryKey(),
   email: varchar('email').unique(),
+  clerkId: varchar('clerk_id').unique(),
   firstName: varchar('first_name'),
   lastName: varchar('last_name'),
   profileImageUrl: varchar('profile_image_url'),
@@ -161,8 +162,11 @@ export const insertRecommendationHistorySchema = createInsertSchema(
 export const insertEmailSignupSchema = createInsertSchema(emailSignups);
 
 // Types
-export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type UserInsert = typeof users.$inferInsert;
+export type UpsertUser = Partial<User> & { id: number };
+export type CreateUser = Partial<User> & { clerkId: string };
+export type UpdateUser = Partial<User> & { clerkId: string };
 export type SavedWine = typeof savedWines.$inferSelect;
 export type InsertSavedWine = typeof savedWines.$inferInsert;
 export type UploadedWine = typeof uploadedWines.$inferSelect;

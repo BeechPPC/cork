@@ -261,7 +261,7 @@ export default function Header() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-1">
-                      <UserButton afterSignOutUrl="/" showName={false} />
+                      <UserButton />
                     </div>
                   </DropdownMenuContent>
                 </DropdownMenu>

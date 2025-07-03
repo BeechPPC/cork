@@ -1,15 +1,27 @@
 // Removed Stripe Elements - using Checkout instead
 import { useEffect, useState } from 'react';
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Crown, Check } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import Header from "@/components/header";
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Crown, Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import Header from '@/components/header';
+import { useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import { PaymentElement } from '@stripe/react-stripe-js';
+import { stripe } from '@/lib/stripe';
 
 // Using Stripe Checkout - no need for Elements setup
 
-const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuccess: () => void; selectedPlan: string; clientSecret: string }) => {
+const SubscribeFormWrapper = ({
+  onSuccess,
+  selectedPlan,
+  clientSecret,
+}: {
+  onSuccess: () => void;
+  selectedPlan: string;
+  clientSecret: string;
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const { toast } = useToast();
@@ -30,17 +42,17 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
     console.log('Elements object:', elements);
     const isSetupIntent = clientSecret.startsWith('seti_');
     console.log('Is SetupIntent:', isSetupIntent);
-    
+
     if (isSetupIntent) {
       console.log('Using confirmSetup for SetupIntent - Trial Period');
       try {
-        const result = await stripe.confirmSetup({
+        await stripe.confirmSetup({
           elements,
           confirmParams: {
             return_url: `${window.location.origin}/dashboard?subscription=success`,
           },
         });
-        console.log('confirmSetup result:', result);
+        /* console.log('confirmSetup result:', result);
         const { setupIntent: confirmedSetup, error } = result;
 
         if (error) {
@@ -70,40 +82,41 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
           });
           setIsLoading(false);
         }
+          */
       } catch (setupError) {
         console.error('Setup exception:', setupError);
         toast({
-          title: "Setup Error",
-          description: "An unexpected error occurred during setup",
-          variant: "destructive",
+          title: 'Setup Error',
+          description: 'An unexpected error occurred during setup',
+          variant: 'destructive',
         });
         setIsLoading(false);
       }
     } else {
       console.log('Using confirmPayment for PaymentIntent - Immediate Charge');
       try {
-        const result = await stripe.confirmPayment({
+        await stripe.confirmPayment({
           elements,
           confirmParams: {
             return_url: `${window.location.origin}/dashboard?subscription=success`,
           },
         });
-        console.log('confirmPayment result:', result);
+        /*console.log('confirmPayment result:', result);
         const { paymentIntent, error } = result;
 
         if (error) {
           console.error('Payment error:', error);
           toast({
-            title: "Payment Failed",
+            title: 'Payment Failed',
             description: error.message,
-            variant: "destructive",
+            variant: 'destructive',
           });
           setIsLoading(false);
         } else if (paymentIntent && paymentIntent.status === 'succeeded') {
           console.log('Payment successful - subscription activated');
           toast({
-            title: "Payment Successful!",
-            description: "Welcome to Premium! Your subscription is now active.",
+            title: 'Payment Successful!',
+            description: 'Welcome to Premium! Your subscription is now active.',
           });
           setTimeout(() => {
             onSuccess();
@@ -111,18 +124,18 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
         } else {
           console.log('Payment requires additional action');
           toast({
-            title: "Additional Action Required",
-            description: "Please complete the payment process.",
-            variant: "destructive",
+            title: 'Additional Action Required',
+            description: 'Please complete the payment process.',
+            variant: 'destructive',
           });
           setIsLoading(false);
-        }
+        } */
       } catch (paymentError) {
         console.error('Payment exception:', paymentError);
         toast({
-          title: "Payment Error",
-          description: "An unexpected error occurred during payment",
-          variant: "destructive",
+          title: 'Payment Error',
+          description: 'An unexpected error occurred during payment',
+          variant: 'destructive',
         });
         setIsLoading(false);
       }
@@ -132,8 +145,8 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <PaymentElement />
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         disabled={!stripe || isLoading}
         className="w-full bg-grape hover:bg-purple-700 py-3 text-lg font-semibold"
       >
@@ -145,19 +158,22 @@ const SubscribeFormWrapper = ({ onSuccess, selectedPlan, clientSecret }: { onSuc
         ) : (
           <>
             <Crown className="w-4 h-4 mr-2" />
-            Start 7-Day Free Trial ({selectedPlan === 'yearly' ? '$49.99/year' : '$4.99/month'})
+            Start 7-Day Free Trial (
+            {selectedPlan === 'yearly' ? '$49.99/year' : '$4.99/month'})
           </>
         )}
       </Button>
       <p className="text-sm text-gray-600 text-center">
-        Your trial starts today. You'll be charged {selectedPlan === 'yearly' ? '$49.99/year' : '$4.99/month'} after 7 days. Cancel anytime.
+        Your trial starts today. You'll be charged{' '}
+        {selectedPlan === 'yearly' ? '$49.99/year' : '$4.99/month'} after 7
+        days. Cancel anytime.
       </p>
     </form>
   );
 };
 
 export default function Subscribe() {
-  const [clientSecret, setClientSecret] = useState("");
+  const [clientSecret, setClientSecret] = useState('');
   const [loading, setLoading] = useState(true);
   const [subscriptionCreated, setSubscriptionCreated] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
@@ -165,35 +181,35 @@ export default function Subscribe() {
 
   const createSubscription = (plan: string) => {
     setLoading(true);
-    setClientSecret("");
-    
+    setClientSecret('');
+
     fetch('/api/create-subscription', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include', // Include cookies for authentication
-      body: JSON.stringify({ plan })
+      body: JSON.stringify({ plan }),
     })
-      .then(async (res) => {
+      .then(async res => {
         if (res.status === 401) {
           toast({
-            title: "Please log in",
-            description: "You need to be logged in to subscribe",
-            variant: "destructive",
+            title: 'Please log in',
+            description: 'You need to be logged in to subscribe',
+            variant: 'destructive',
           });
           setTimeout(() => {
             window.location.href = '/';
           }, 2000);
           return;
         }
-        
+
         const data = await res.json();
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
-        } else if (data.message === "Already subscribed") {
+        } else if (data.message === 'Already subscribed') {
           toast({
-            title: "Already Subscribed",
+            title: 'Already Subscribed',
             description: "You're already a premium member! Redirecting...",
           });
           setTimeout(() => {
@@ -201,19 +217,19 @@ export default function Subscribe() {
           }, 1500);
         } else if (data.message) {
           toast({
-            title: "Error",
+            title: 'Error',
             description: data.message,
-            variant: "destructive",
+            variant: 'destructive',
           });
         }
         setLoading(false);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Error:', error);
         toast({
-          title: "Error",
-          description: "Failed to initialize subscription. Please try again.",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to initialize subscription. Please try again.',
+          variant: 'destructive',
         });
         setLoading(false);
       });
@@ -233,8 +249,8 @@ export default function Subscribe() {
   const handleSuccess = () => {
     setSubscriptionCreated(true);
     toast({
-      title: "Welcome to Premium!",
-      description: "Your 7-day free trial has started. Enjoy unlimited access!",
+      title: 'Welcome to Premium!',
+      description: 'Your 7-day free trial has started. Enjoy unlimited access!',
     });
     setTimeout(() => {
       window.location.href = '/dashboard';
@@ -265,7 +281,9 @@ export default function Subscribe() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check className="w-8 h-8 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Premium!</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Welcome to Premium!
+              </h2>
               <p className="text-gray-600 mb-4">
                 Your 7-day free trial has started. Redirecting to dashboard...
               </p>
@@ -284,11 +302,14 @@ export default function Subscribe() {
         <div className="max-w-2xl mx-auto px-4 py-16">
           <Card>
             <CardContent className="text-center p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Subscription Setup Failed</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Subscription Setup Failed
+              </h2>
               <p className="text-gray-600 mb-6">
-                We couldn't set up your subscription. Please try again or contact support.
+                We couldn't set up your subscription. Please try again or
+                contact support.
               </p>
-              <Button onClick={() => window.location.href = '/pricing'}>
+              <Button onClick={() => (window.location.href = '/pricing')}>
                 Back to Pricing
               </Button>
             </CardContent>
@@ -310,20 +331,35 @@ export default function Subscribe() {
             Start your 7-day free trial and unlock unlimited wine discoveries
           </p>
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 max-w-md mx-auto">
-            <p className="text-sm font-semibold text-green-800 mb-2">✅ Live Payment Mode</p>
-            <p className="text-xs text-green-700 mb-2">Using production Stripe keys - real payments will be processed.</p>
-            <p className="text-xs text-green-700">Use a real credit card to complete your subscription.</p>
-            <p className="text-xs text-gray-600 mt-2"><strong>Note:</strong> Test cards (4242...) don't work in live mode.</p>
+            <p className="text-sm font-semibold text-green-800 mb-2">
+              ✅ Live Payment Mode
+            </p>
+            <p className="text-xs text-green-700 mb-2">
+              Using production Stripe keys - real payments will be processed.
+            </p>
+            <p className="text-xs text-green-700">
+              Use a real credit card to complete your subscription.
+            </p>
+            <p className="text-xs text-gray-600 mt-2">
+              <strong>Note:</strong> Test cards (4242...) don't work in live
+              mode.
+            </p>
           </div>
         </div>
 
         {/* Plan Selection */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-center mb-4">Choose Your Plan</h2>
-          <p className="text-center text-gray-600 mb-6">Both plans include a 7-day free trial</p>
+          <h2 className="text-xl font-semibold text-center mb-4">
+            Choose Your Plan
+          </h2>
+          <p className="text-center text-gray-600 mb-6">
+            Both plans include a 7-day free trial
+          </p>
           <div className="grid md:grid-cols-2 gap-4 max-w-lg mx-auto">
-            <Card 
-              className={`cursor-pointer transition-all ${selectedPlan === 'monthly' ? 'ring-2 ring-grape' : ''}`}
+            <Card
+              className={`cursor-pointer transition-all ${
+                selectedPlan === 'monthly' ? 'ring-2 ring-grape' : ''
+              }`}
               onClick={() => setSelectedPlan('monthly')}
             >
               <CardContent className="p-4 text-center">
@@ -332,8 +368,10 @@ export default function Subscribe() {
                 <p className="text-sm text-gray-600">per month</p>
               </CardContent>
             </Card>
-            <Card 
-              className={`cursor-pointer transition-all ${selectedPlan === 'yearly' ? 'ring-2 ring-grape' : ''}`}
+            <Card
+              className={`cursor-pointer transition-all ${
+                selectedPlan === 'yearly' ? 'ring-2 ring-grape' : ''
+              }`}
               onClick={() => setSelectedPlan('yearly')}
             >
               <CardContent className="p-4 text-center">
@@ -341,7 +379,9 @@ export default function Subscribe() {
                 <p className="text-2xl font-bold text-grape">$49.99</p>
                 <p className="text-sm text-gray-600">per year</p>
                 <div className="mt-1">
-                  <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Save $10</span>
+                  <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                    Save $10
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -387,11 +427,11 @@ export default function Subscribe() {
               <CardTitle>Payment Information</CardTitle>
             </CardHeader>
             <CardContent>
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <SubscribeFormWrapper 
-                  onSuccess={handleSuccess} 
-                  selectedPlan={selectedPlan} 
-                  clientSecret={clientSecret} 
+              <Elements stripe={stripe} options={{ clientSecret }}>
+                <SubscribeFormWrapper
+                  onSuccess={handleSuccess}
+                  selectedPlan={selectedPlan}
+                  clientSecret={clientSecret}
                 />
               </Elements>
             </CardContent>
@@ -400,4 +440,4 @@ export default function Subscribe() {
       </div>
     </div>
   );
-};
+}

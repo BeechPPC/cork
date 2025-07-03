@@ -13,15 +13,8 @@ const root = createRoot(container);
 // Always wrap in ClerkProvider if configured, otherwise render without
 root.render(
   <React.StrictMode>
-    {isClerkConfigured ? (
-      <ClerkProvider
-        publishableKey={clerkPubKey}
-        // Let Clerk automatically detect the correct domain based on the publishable key
-      >
-        <App />
-      </ClerkProvider>
-    ) : (
+    <ClerkProvider publishableKey={clerkPubKey}>
       <App />
-    )}
+    </ClerkProvider>
   </React.StrictMode>
 );

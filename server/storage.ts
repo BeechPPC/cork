@@ -7,12 +7,15 @@ import {
   type User,
   type UpsertUser,
   type SavedWine,
-  type InsertSavedWine,
   type UploadedWine,
-  type InsertUploadedWine,
+  type CreateUploadedWine,
   type RecommendationHistory,
-  type InsertRecommendationHistory,
+  type CreateRecommendationHistory,
   type EmailSignup,
+  type CreateUser,
+  type UpdateUser,
+  type CreateSavedWine,
+  type UpdateSavedWine,
 } from '../shared/schema.js';
 import { db } from './db.js';
 import { eq, desc, count } from 'drizzle-orm';
@@ -21,19 +24,22 @@ import { eq, desc, count } from 'drizzle-orm';
 export interface IStorage {
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
-  getUser(id: string): Promise<User | undefined>;
+  getUserByClerkId(clerkId: string): Promise<User | undefined>;
+  getUser(userId: number): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  createUser(user: CreateUser): Promise<User>;
+  updateUser(user: UpdateUser): Promise<User>;
   updateUserStripeInfo(
-    userId: string,
+    userId: number,
     stripeCustomerId: string,
     stripeSubscriptionId: string | null
   ): Promise<User>;
   updateUserSubscriptionPlan(
-    userId: string,
+    userId: number,
     subscriptionPlan: string
   ): Promise<User>;
   updateUserProfile(
-    userId: string,
+    userId: number,
     profileData: {
       dateOfBirth?: string;
       wineExperienceLevel?: string;
@@ -44,32 +50,32 @@ export interface IStorage {
   ): Promise<User>;
 
   // Saved wines operations
-  getSavedWines(userId: string): Promise<SavedWine[]>;
-  getSavedWineCount(userId: string): Promise<number>;
-  saveWine(wine: InsertSavedWine): Promise<SavedWine>;
-  removeSavedWine(userId: string, wineId: number): Promise<void>;
+  getSavedWines(userId: number): Promise<SavedWine[]>;
+  getSavedWineCount(userId: number): Promise<number>;
+  saveWine(wine: CreateSavedWine): Promise<SavedWine>;
+  removeSavedWine(userId: number, wineId: number): Promise<void>;
 
   // Uploaded wines operations
-  getUploadedWines(userId: string): Promise<UploadedWine[]>;
-  getUploadedWineCount(userId: string): Promise<number>;
-  saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine>;
+  getUploadedWines(userId: number): Promise<UploadedWine[]>;
+  getUploadedWineCount(userId: number): Promise<number>;
+  saveUploadedWine(wine: CreateUploadedWine): Promise<UploadedWine>;
   updateUploadedWine(
-    userId: string,
+    userId: number,
     wineId: number,
     updates: Partial<UploadedWine>
   ): Promise<UploadedWine>;
 
   // Optimized operations to prevent N+1 queries
   getUserCounts(
-    userId: string
+    userId: number
   ): Promise<{ savedWines: number; uploadedWines: number }>;
 
   // Recommendation history operations
   saveRecommendationHistory(
-    history: InsertRecommendationHistory
+    history: CreateRecommendationHistory
   ): Promise<RecommendationHistory>;
   getRecommendationHistory(
-    userId: string,
+    userId: number,
     limit?: number
   ): Promise<RecommendationHistory[]>;
 
@@ -81,10 +87,26 @@ export class DatabaseStorage implements IStorage {
   // User operations
   // (IMPORTANT) these user operations are mandatory for Replit Auth.
 
-  async getUser(id: string): Promise<User | undefined> {
+  async getUserByClerkId(clerkId: string): Promise<User | undefined> {
     if (!db) return undefined;
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    const rows = await db
+      .select()
+      .from(users)
+      .where(eq(users.clerkId, clerkId))
+      .limit(1);
+
+    return rows[0];
+  }
+
+  async getUser(userId: number): Promise<User | undefined> {
+    if (!db) return undefined;
+    const rows = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    return rows[0];
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -92,7 +114,7 @@ export class DatabaseStorage implements IStorage {
 
     try {
       // First, try to find existing user by ID
-      const existingUser = await this.getUser(userData.id);
+      const existingUser = await this.getUserByClerkId(userData.clerkId);
 
       if (existingUser) {
         // User exists, update them
@@ -102,7 +124,7 @@ export class DatabaseStorage implements IStorage {
             ...userData,
             updatedAt: new Date(),
           })
-          .where(eq(users.id, userData.id))
+          .where(eq(users.clerkId, userData.clerkId))
           .returning();
         return user;
       } else {
@@ -139,8 +161,24 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async createUser(userData: CreateUser): Promise<User> {
+    if (!db) throw new Error('Database not available');
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async updateUser(userData: UpdateUser): Promise<User> {
+    if (!db) throw new Error('Database not available');
+    const [user] = await db
+      .update(users)
+      .set(userData)
+      .where(eq(users.clerkId, userData.clerkId))
+      .returning();
+    return user;
+  }
+
   async updateUserStripeInfo(
-    userId: string,
+    userId: number,
     stripeCustomerId: string,
     stripeSubscriptionId: string | null
   ): Promise<User> {
@@ -161,7 +199,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserSubscriptionPlan(
-    userId: string,
+    userId: number,
     subscriptionPlan: string
   ): Promise<User> {
     const [user] = await db
@@ -181,7 +219,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserProfile(
-    userId: string,
+    userId: number,
     profileData: {
       dateOfBirth?: string;
       wineExperienceLevel?: string;
@@ -229,7 +267,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Saved wines operations
-  async getSavedWines(userId: string): Promise<SavedWine[]> {
+  async getSavedWines(userId: number): Promise<SavedWine[]> {
     return await db
       .select()
       .from(savedWines)
@@ -237,7 +275,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(savedWines.createdAt));
   }
 
-  async getSavedWineCount(userId: string): Promise<number> {
+  async getSavedWineCount(userId: number): Promise<number> {
     const [result] = await db
       .select({ count: count() })
       .from(savedWines)
@@ -245,17 +283,17 @@ export class DatabaseStorage implements IStorage {
     return result.count;
   }
 
-  async saveWine(wine: InsertSavedWine): Promise<SavedWine> {
+  async saveWine(wine: CreateSavedWine): Promise<SavedWine> {
     const [savedWine] = await db.insert(savedWines).values(wine).returning();
     return savedWine;
   }
 
-  async removeSavedWine(userId: string, wineId: number): Promise<void> {
+  async removeSavedWine(userId: number, wineId: number): Promise<void> {
     await db.delete(savedWines).where(eq(savedWines.id, wineId));
   }
 
   // Uploaded wines operations
-  async getUploadedWines(userId: string): Promise<UploadedWine[]> {
+  async getUploadedWines(userId: number): Promise<UploadedWine[]> {
     return await db
       .select()
       .from(uploadedWines)
@@ -263,7 +301,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(uploadedWines.createdAt));
   }
 
-  async getUploadedWineCount(userId: string): Promise<number> {
+  async getUploadedWineCount(userId: number): Promise<number> {
     const [result] = await db
       .select({ count: count() })
       .from(uploadedWines)
@@ -273,7 +311,7 @@ export class DatabaseStorage implements IStorage {
 
   // Optimized method to get both counts in a single query
   async getUserCounts(
-    userId: string
+    userId: number
   ): Promise<{ savedWines: number; uploadedWines: number }> {
     const savedWineQuery = db
       .select({ count: count() })
@@ -296,7 +334,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine> {
+  async saveUploadedWine(wine: CreateUploadedWine): Promise<UploadedWine> {
     const [uploadedWine] = await db
       .insert(uploadedWines)
       .values(wine)
@@ -305,7 +343,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUploadedWine(
-    userId: string,
+    userId: number,
     wineId: number,
     updates: Partial<UploadedWine>
   ): Promise<UploadedWine> {
@@ -319,7 +357,7 @@ export class DatabaseStorage implements IStorage {
 
   // Recommendation history operations
   async saveRecommendationHistory(
-    history: InsertRecommendationHistory
+    history: CreateRecommendationHistory
   ): Promise<RecommendationHistory> {
     const [savedHistory] = await db
       .insert(recommendationHistory)
@@ -329,7 +367,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecommendationHistory(
-    userId: string,
+    userId: number,
     limit = 10
   ): Promise<RecommendationHistory[]> {
     return await db
