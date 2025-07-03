@@ -340,7 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const base64Image = req.file.buffer.toString('base64');
 
         // Import and analyze meal/menu
-        const { analyzeMealPairing } = await import('./openai');
+        const { analyzeMealPairing } = await import('./openai.js');
         const result = await analyzeMealPairing(base64Image, analysisType);
 
         res.json(result);
@@ -1595,7 +1595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Send contact form email via SendGrid
-      const { sendContactFormEmail } = await import('./emailService');
+      const { sendContactFormEmail } = await import('./emailService.js');
       const emailSent = await sendContactFormEmail({
         name,
         email,

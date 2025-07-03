@@ -21,8 +21,9 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "buildCommand": "vite build",
-        "outputDirectory": "dist/public"
+        "buildCommand": "npm run build:vercel",
+        "outputDirectory": "dist/public",
+        "installCommand": "npm ci --prefer-offline --no-audit"
       }
     }
   ],
@@ -47,5 +48,8 @@
       "src": "/(.*)",
       "dest": "/dist/public/$1"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
