@@ -15,8 +15,8 @@ import {
   insertSavedWineSchema,
   insertUploadedWineSchema,
   insertRecommendationHistorySchema,
-  CreateUploadedWine,
-  CreateSavedWine,
+  InsertUploadedWine,
+  InsertSavedWine,
 } from '../shared/schema.js';
 import { sendEmailSignupConfirmation } from './emailService.js';
 import { db } from './db.js';
@@ -35,7 +35,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-05-28.basil',
+      apiVersion: '2025-06-30.basil',
     })
   : null;
 
@@ -534,7 +534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: user.id,
       });
       const savedWine = await storage.saveWine(
-        wineData as unknown as CreateSavedWine
+        wineData as unknown as InsertSavedWine
       );
       res.json(savedWine);
     } catch (error) {
@@ -679,7 +679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: user.id,
           originalImageUrl: `data:${req.file.mimetype};base64,${base64Image}`,
           ...analysis,
-        } as unknown as CreateUploadedWine);
+        } as unknown as InsertUploadedWine);
 
         res.json(uploadedWine);
       } catch (error) {

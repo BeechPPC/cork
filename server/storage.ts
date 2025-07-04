@@ -8,14 +8,13 @@ import {
   type UpsertUser,
   type SavedWine,
   type UploadedWine,
-  type CreateUploadedWine,
+  type InsertUploadedWine,
   type RecommendationHistory,
-  type CreateRecommendationHistory,
+  type InsertRecommendationHistory,
   type EmailSignup,
   type CreateUser,
   type UpdateUser,
-  type CreateSavedWine,
-  type UpdateSavedWine,
+  type InsertSavedWine,
 } from '../shared/schema.js';
 import { db } from './db.js';
 import { eq, desc, count } from 'drizzle-orm';
@@ -52,13 +51,13 @@ export interface IStorage {
   // Saved wines operations
   getSavedWines(userId: number): Promise<SavedWine[]>;
   getSavedWineCount(userId: number): Promise<number>;
-  saveWine(wine: CreateSavedWine): Promise<SavedWine>;
+  saveWine(wine: InsertSavedWine): Promise<SavedWine>;
   removeSavedWine(userId: number, wineId: number): Promise<void>;
 
   // Uploaded wines operations
   getUploadedWines(userId: number): Promise<UploadedWine[]>;
   getUploadedWineCount(userId: number): Promise<number>;
-  saveUploadedWine(wine: CreateUploadedWine): Promise<UploadedWine>;
+  saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine>;
   updateUploadedWine(
     userId: number,
     wineId: number,
@@ -72,7 +71,7 @@ export interface IStorage {
 
   // Recommendation history operations
   saveRecommendationHistory(
-    history: CreateRecommendationHistory
+    history: InsertRecommendationHistory
   ): Promise<RecommendationHistory>;
   getRecommendationHistory(
     userId: number,
