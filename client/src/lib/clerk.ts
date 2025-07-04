@@ -12,7 +12,7 @@ const isDevelopmentDomain =
 const isDomainAllowed = isProductionDomain || isDevelopmentDomain;
 const hasValidKey =
   clerkPubKey &&
-  clerkPubKey.length > 50 &&
+  clerkPubKey.length > 20 &&
   (clerkPubKey.startsWith('pk_test_') || clerkPubKey.startsWith('pk_live_'));
 
 export const isClerkConfigured = hasValidKey && isDomainAllowed;
