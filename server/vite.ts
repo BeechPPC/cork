@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createServer as createViteServer, createLogger } from 'vite';
 import { type Server } from 'http';
-import viteConfig from '../vite.config.js';
+import { default as viteConfig } from '../vite.config.js';
 import { nanoid } from 'nanoid';
 import { fileURLToPath } from 'url';
 
@@ -27,7 +27,7 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    allowedHosts: true as true,
+    allowedHosts: true,
   };
 
   const vite = await createViteServer({
@@ -68,7 +68,9 @@ export async function setupVite(app: Express, server: Server) {
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ 'Content-Type': 'text/html' }).end(page);
     } catch (e) {
-      vite.ssrFixStacktrace(e as Error);
+      if (e instanceof Error) {
+        vite.ssrFixStacktrace(e);
+      }
       next(e);
     }
   });

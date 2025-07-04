@@ -8,10 +8,14 @@ const isDevelopmentDomain =
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1';
 
-// Enable Clerk if we have a key and are on an allowed domain
+// Enable Clerk if we have a valid key and are on an allowed domain
 const isDomainAllowed = isProductionDomain || isDevelopmentDomain;
+const hasValidKey =
+  clerkPubKey &&
+  clerkPubKey.length > 50 &&
+  (clerkPubKey.startsWith('pk_test_') || clerkPubKey.startsWith('pk_live_'));
 
-export const isClerkConfigured = true
+export const isClerkConfigured = hasValidKey && isDomainAllowed;
 
 // Log configuration status for debugging
 console.log('Clerk Configuration:', {

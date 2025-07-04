@@ -78,7 +78,14 @@ export function useAuth(): AuthState {
         getToken: async () => null,
       });
     }
-    return authState;
+    return {
+      user: null,
+      isLoading: false,
+      isAuthenticated: false,
+      isSignedIn: false,
+      isLoaded: true,
+      getToken: async () => null,
+    };
   }
 
   try {
