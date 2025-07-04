@@ -282,7 +282,7 @@ export class DatabaseStorage implements IStorage {
     return result.count;
   }
 
-  async saveWine(wine: CreateSavedWine): Promise<SavedWine> {
+  async saveWine(wine: InsertSavedWine): Promise<SavedWine> {
     const [savedWine] = await db.insert(savedWines).values(wine).returning();
     return savedWine;
   }
@@ -333,7 +333,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async saveUploadedWine(wine: CreateUploadedWine): Promise<UploadedWine> {
+  async saveUploadedWine(wine: InsertUploadedWine): Promise<UploadedWine> {
     const [uploadedWine] = await db
       .insert(uploadedWines)
       .values(wine)
@@ -356,7 +356,7 @@ export class DatabaseStorage implements IStorage {
 
   // Recommendation history operations
   async saveRecommendationHistory(
-    history: CreateRecommendationHistory
+    history: InsertRecommendationHistory
   ): Promise<RecommendationHistory> {
     const [savedHistory] = await db
       .insert(recommendationHistory)
