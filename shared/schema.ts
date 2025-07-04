@@ -8,6 +8,7 @@ import {
   serial,
   boolean,
   decimal,
+  integer,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
@@ -52,7 +53,7 @@ export const savedWines = pgTable(
   'saved_wines',
   {
     id: serial('id').primaryKey(),
-    userId: varchar('user_id')
+    userId: integer('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     wineName: varchar('wine_name').notNull(),
@@ -75,7 +76,7 @@ export const uploadedWines = pgTable(
   'uploaded_wines',
   {
     id: serial('id').primaryKey(),
-    userId: varchar('user_id')
+    userId: integer('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     originalImageUrl: varchar('original_image_url').notNull(),
@@ -100,7 +101,7 @@ export const recommendationHistory = pgTable(
   'recommendation_history',
   {
     id: serial('id').primaryKey(),
-    userId: varchar('user_id')
+    userId: integer('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     query: text('query').notNull(),
