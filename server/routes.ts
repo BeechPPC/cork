@@ -203,7 +203,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes - serverless compatible
   app.get('/api/auth/user', async (req: any, res) => {
     try {
+      console.log('Auth user endpoint called');
+
       if (!isClerkConfigured) {
+        console.log('Clerk not configured');
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -211,6 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('No valid auth header');
         return res
           .status(401)
           .json({ message: 'No valid authorization token' });
@@ -227,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         const verifiedToken = await clerkClient.verifyToken(token);
-        console.log(verifiedToken);
+        console.log('Token verification successful:', verifiedToken);
         clerkId = verifiedToken.sub;
         console.log('Token verification - Success, clerkId:', clerkId);
       } catch (authError) {
@@ -236,9 +240,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (!clerkId) {
+        console.log('No clerkId found in token');
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
+      console.log('Looking up user in database for clerkId:', clerkId);
       let user = await storage.getUserByClerkId(clerkId);
 
       // If user doesn't exist, create them automatically
@@ -247,6 +253,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           // Get user info from Clerk
           const clerkUser = await clerkClient.users.getUser(clerkId);
+          console.log('Retrieved user from Clerk:', clerkUser.id);
 
           const userData: CreateUser = {
             clerkId: clerkId,
@@ -258,26 +265,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
 
           user = await storage.createUser(userData);
-          console.log('Created new user:', user);
+          console.log('Created new user:', user.id);
         } catch (createError) {
           console.error('Failed to create user:', createError);
-          return res.status(500).json({ message: 'Failed to create user' });
+          return res.status(500).json({
+            message: 'Failed to create user',
+            error: createError.message,
+          });
         }
+      } else {
+        console.log('Found existing user:', user.id);
       }
 
       // Get usage counts for plan limits (optimized single query)
+      console.log('Getting user counts for user:', user.id);
       const userCounts = await storage.getUserCounts(user.id);
+      console.log('User counts retrieved:', userCounts);
 
-      res.json({
+      const response = {
         ...user,
         usage: {
           savedWines: userCounts.savedWines,
           uploadedWines: userCounts.uploadedWines,
         },
-      });
+      };
+
+      console.log('Sending user response');
+      res.json(response);
     } catch (error) {
       console.error('Error fetching user:', error);
-      res.status(500).json({ message: 'Failed to fetch user' });
+      res.status(500).json({
+        message: 'Failed to fetch user',
+        error: error.message,
+      });
     }
   });
 
