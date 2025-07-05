@@ -31,10 +31,6 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, 'dist/public'),
     emptyOutDir: true,
-    rollupOptions: {
-      // Use esbuild instead of Rollup for better Vercel compatibility
-      external: ['@rollup/rollup-linux-x64-gnu'],
-    },
   },
   server: {
     fs: {
