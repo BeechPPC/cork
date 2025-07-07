@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "esbuild client/src/main.tsx --bundle --outfile=dist/public/main.js --format=esm --target=es2020 --jsx=automatic --minify && npm run copy-assets",
+    "build:client": "node scripts/build-client.js && npm run copy-assets",
     "build:server": "echo 'Server build complete'",
     "copy-assets": "mkdir -p dist/public && cp -r client/public/* dist/public/ && cp client/index.html dist/public/",
     "start": "NODE_ENV=production tsx server/index.ts",
