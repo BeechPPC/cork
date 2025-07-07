@@ -9,8 +9,9 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "npm run build:client && npm run build:server",
-    "build:client": "vite build",
+    "build:client": "esbuild client/src/main.tsx --bundle --outfile=dist/public/main.js --format=esm --target=es2020 --jsx=automatic --minify && npm run copy-assets",
     "build:server": "echo 'Server build complete'",
+    "copy-assets": "mkdir -p dist/public && cp -r client/public/* dist/public/ && cp client/index.html dist/public/",
     "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",
     "db:push": "drizzle-kit push",
@@ -112,6 +113,7 @@
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
+    "esbuild": "^0.25.0",
     "firebase-tools": "^14.9.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
