@@ -31,6 +31,8 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, 'dist/public'),
     emptyOutDir: true,
+    target: 'esnext',
+    minify: 'esbuild',
     rollupOptions: {
       external: ['@rollup/rollup-linux-x64-gnu'],
     },
@@ -40,5 +42,8 @@ export default defineConfig({
       strict: true,
       deny: ['**/.*'],
     },
+  },
+  optimizeDeps: {
+    exclude: ['@rollup/rollup-linux-x64-gnu'],
   },
 });
