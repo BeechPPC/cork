@@ -1668,6 +1668,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             profileImageUrl: firebaseUser.photoURL || '',
             subscriptionPlan: 'free' as const,
             profileCompleted: false,
+            usage: {
+              savedWines: 0,
+              uploadedWines: 0,
+            },
           };
 
           user = await storage.createUser(
