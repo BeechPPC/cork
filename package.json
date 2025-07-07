@@ -124,5 +124,10 @@
     "@clerk/shared",
     "@tailwindcss/oxide",
     "es5-ext"
-  ]
+  ],
+  "overrides": {
+    "rollup": {
+      "@rollup/rollup-linux-x64-gnu": "npm:@rollup/rollup-linux-x64-musl@4.9.5"
+    }
+  }
 }

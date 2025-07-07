@@ -31,15 +31,14 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, 'dist/public'),
     emptyOutDir: true,
+    rollupOptions: {
+      external: ['@rollup/rollup-linux-x64-gnu'],
+    },
   },
   server: {
     fs: {
       strict: true,
       deny: ['**/.*'],
     },
-  },
-  // Force esbuild for better Vercel compatibility
-  esbuild: {
-    target: 'node18',
   },
 });
