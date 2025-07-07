@@ -3,14 +3,18 @@
   "builds": [
     {
       "src": "server/index.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "runtime": "nodejs18.x"
+      }
     },
     {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "buildCommand": "vite build",
-        "outputDirectory": "dist/public"
+        "outputDirectory": "dist/public",
+        "runtime": "nodejs18.x"
       }
     }
   ],
