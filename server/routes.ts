@@ -2,8 +2,12 @@ import type { Express } from 'express';
 import express from 'express';
 import { createServer, type Server } from 'http';
 import { storage } from './storage.js';
-import { setupClerkAuth, requireAuth, isClerkConfigured } from './clerkAuth.js';
-import { setupClerkWebhooks } from './clerkWebhooks.js';
+import {
+  setupClerkAuth,
+  requireAuth,
+  isFirebaseConfigured,
+} from './clerkAuth.js';
+
 import {
   getWineRecommendations,
   analyseWineImage,
@@ -19,12 +23,12 @@ import {
   InsertSavedWine,
 } from '../shared/schema.js';
 import { sendEmailSignupConfirmation } from './emailService.js';
-import { db } from './db.js';
+
 import Stripe from 'stripe';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
-import { clerkClient } from '@clerk/clerk-sdk-node';
 import { CreateUser, UpdateUser } from '@shared/schema.js';
+import type { User, SavedWine, UploadedWine } from '../shared/schema.js';
 
 // Stripe setup
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -175,8 +179,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   setupClerkAuth(app);
 
-  // Clerk webhooks (must be before body parser middleware)
-  setupClerkWebhooks(app);
+  // Firebase auth setup (replacing Clerk webhooks)
+  setupClerkAuth(app);
 
   // Winery search route (placed early to avoid middleware conflicts)
   app.post('/api/search-wineries', async (req, res) => {
@@ -205,13 +209,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Auth user endpoint called');
 
-      if (!isClerkConfigured) {
-        console.log('Clerk not configured');
-        return res
-          .status(503)
-          .json({ message: 'Authentication not configured' });
-      }
-
       const authHeader = req.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         console.log('No valid auth header');
@@ -221,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let clerkId: string;
+      let firebaseUserId: string;
 
       console.log(
         'Token verification - Received auth header:',
@@ -230,74 +227,213 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Token verification - Token length:', token.length);
 
       try {
-        const verifiedToken = await clerkClient.verifyToken(token);
-        console.log('Token verification successful:', verifiedToken);
-        clerkId = verifiedToken.sub;
-        console.log('Token verification - Success, clerkId:', clerkId);
+        // Verify Firebase ID token
+        const admin = await import('firebase-admin');
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        console.log('Token verification successful:', decodedToken);
+        firebaseUserId = decodedToken.uid;
+        console.log(
+          'Token verification - Success, firebaseUserId:',
+          firebaseUserId
+        );
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      if (!clerkId) {
-        console.log('No clerkId found in token');
+      if (!firebaseUserId) {
+        console.log('No firebaseUserId found in token');
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
-      console.log('Looking up user in database for clerkId:', clerkId);
-      let user = await storage.getUserByClerkId(clerkId);
+      console.log(
+        'Looking up user in database for firebaseUserId:',
+        firebaseUserId
+      );
+      let user = await storage.getUserByFirebaseId(firebaseUserId);
 
-      // If user doesn't exist, create them automatically
       if (!user) {
-        console.log('User not found in database, creating new user:', clerkId);
+        console.log(
+          'User not found in database, creating new user:',
+          firebaseUserId
+        );
         try {
-          // Get user info from Clerk
-          const clerkUser = await clerkClient.users.getUser(clerkId);
-          console.log('Retrieved user from Clerk:', clerkUser.id);
+          // Get user info from Firebase Auth
+          const admin = await import('firebase-admin');
+          const firebaseUser = await admin.auth().getUser(firebaseUserId);
+          console.log('Retrieved user from Firebase:', firebaseUser.uid);
 
-          const userData: CreateUser = {
-            clerkId: clerkId,
-            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
-            firstName: clerkUser.firstName || '',
-            lastName: clerkUser.lastName || '',
-            profileImageUrl: clerkUser.imageUrl || '',
-            subscriptionPlan: 'free',
+          const userData = {
+            firebaseId: firebaseUserId,
+            email: firebaseUser.email || '',
+            firstName: firebaseUser.displayName?.split(' ')[0] || '',
+            lastName:
+              firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+            profileImageUrl: firebaseUser.photoURL || '',
+            subscriptionPlan: 'free' as const,
+            profileCompleted: false,
+          };
+
+          user = await storage.createUser(
+            userData as Omit<User, 'id' | 'createdAt' | 'updatedAt'>
+          );
+          console.log('Created new user:', user);
+        } catch (createError) {
+          console.error('Failed to create user:', createError);
+          return res.status(500).json({ message: 'Failed to create user' });
+        }
+      }
+
+      console.log('Returning user data:', {
+        id: user.id,
+        email: user.email,
+        subscriptionPlan: user.subscriptionPlan,
+      });
+
+      res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImageUrl: user.profileImageUrl,
+        subscriptionPlan: user.subscriptionPlan,
+        profileCompleted: user.profileCompleted || false,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      });
+    } catch (error: any) {
+      console.error('Auth user endpoint error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // PATCH: /api/auth/user endpoint
+  // If user is not found, call storage.createUser(userData) with the correct fields
+  // Do not call storage.updateUser with a single argument
+  // Remove any clerkClient references
+  app.patch('/api/auth/user', async (req: any, res) => {
+    try {
+      console.log('Auth user patch endpoint called');
+
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.log('No valid auth header for patch');
+        return res
+          .status(401)
+          .json({ message: 'No valid authorization token for patch' });
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+      let firebaseUserId: string;
+
+      console.log(
+        'Token verification - Received auth header for patch:',
+        authHeader ? 'Present' : 'Missing'
+      );
+      console.log('Token verification - Token length for patch:', token.length);
+
+      try {
+        // Verify Firebase ID token
+        const admin = await import('firebase-admin');
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        console.log('Token verification successful for patch:', decodedToken);
+        firebaseUserId = decodedToken.uid;
+        console.log(
+          'Token verification - Success, firebaseUserId for patch:',
+          firebaseUserId
+        );
+      } catch (authError) {
+        console.error('Token verification failed for patch:', authError);
+        return res.status(401).json({ message: 'Invalid token for patch' });
+      }
+
+      if (!firebaseUserId) {
+        console.log('No firebaseUserId found in token for patch');
+        return res
+          .status(401)
+          .json({ message: 'User ID not found in token for patch' });
+      }
+
+      console.log(
+        'Looking up user in database for firebaseUserId for patch:',
+        firebaseUserId
+      );
+      let user = await storage.getUserByFirebaseId(firebaseUserId);
+
+      if (!user) {
+        console.log(
+          'User not found in database for patch, creating new user:',
+          firebaseUserId
+        );
+        try {
+          // Get user info from Firebase Auth
+          const admin = await import('firebase-admin');
+          const firebaseUser = await admin.auth().getUser(firebaseUserId);
+          console.log(
+            'Retrieved user from Firebase for patch:',
+            firebaseUser.uid
+          );
+
+          const userData = {
+            firebaseId: firebaseUserId,
+            email: firebaseUser.email || '',
+            firstName: firebaseUser.displayName?.split(' ')[0] || '',
+            lastName:
+              firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+            profileImageUrl: firebaseUser.photoURL || '',
+            subscriptionPlan: 'free' as const,
+            profileCompleted: false,
           };
 
           user = await storage.createUser(userData);
-          console.log('Created new user:', user.id);
+          console.log('Created new user for patch:', user);
         } catch (createError) {
-          console.error('Failed to create user:', createError);
-          return res.status(500).json({
-            message: 'Failed to create user',
-            error: createError.message,
-          });
+          console.error('Failed to create user for patch:', createError);
+          return res
+            .status(500)
+            .json({ message: 'Failed to create user for patch' });
         }
-      } else {
-        console.log('Found existing user:', user.id);
       }
 
-      // Get usage counts for plan limits (optimized single query)
-      console.log('Getting user counts for user:', user.id);
-      const userCounts = await storage.getUserCounts(user.id);
-      console.log('User counts retrieved:', userCounts);
+      // Update user fields if provided in the request body
+      const updates: UpdateUser = {};
+      if (req.body.firstName !== undefined) {
+        updates.firstName = req.body.firstName;
+      }
+      if (req.body.lastName !== undefined) {
+        updates.lastName = req.body.lastName;
+      }
+      if (req.body.profileImageUrl !== undefined) {
+        updates.profileImageUrl = req.body.profileImageUrl;
+      }
+      if (req.body.subscriptionPlan !== undefined) {
+        updates.subscriptionPlan = req.body.subscriptionPlan;
+      }
+      if (req.body.profileCompleted !== undefined) {
+        updates.profileCompleted = req.body.profileCompleted;
+      }
 
-      const response = {
-        ...user,
-        usage: {
-          savedWines: userCounts.savedWines,
-          uploadedWines: userCounts.uploadedWines,
-        },
-      };
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ message: 'No valid fields to update' });
+      }
 
-      console.log('Sending user response');
-      res.json(response);
-    } catch (error) {
-      console.error('Error fetching user:', error);
-      res.status(500).json({
-        message: 'Failed to fetch user',
-        error: error.message,
+      const updatedUser = await storage.updateUser(user.id, updates);
+      console.log('User updated successfully:', updatedUser);
+
+      res.json({
+        id: updatedUser.id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        profileImageUrl: updatedUser.profileImageUrl,
+        subscriptionPlan: updatedUser.subscriptionPlan,
+        profileCompleted: updatedUser.profileCompleted,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
       });
+    } catch (error: any) {
+      console.error('Auth user patch endpoint error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 
@@ -308,7 +444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     upload.single('image'),
     async (req: any, res) => {
       try {
-        if (!isClerkConfigured) {
+        if (!isFirebaseConfigured()) {
           return res
             .status(503)
             .json({ message: 'Authentication not configured' });
@@ -325,15 +461,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let userId: string;
 
         try {
-          const verifiedToken = await clerkClient.verifyToken(token);
-          userId = verifiedToken.sub;
+          const admin = await import('firebase-admin');
+          const decodedToken = await admin.auth().verifyIdToken(token);
+          userId = decodedToken.uid;
           console.log('Token verification - Success, userId:', userId);
         } catch (authError) {
           console.error('Token verification failed:', authError);
           return res.status(401).json({ message: 'Invalid token' });
         }
 
-        const user = await storage.getUserByClerkId(userId);
+        const user = await storage.getUserByFirebaseId(userId);
 
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
@@ -379,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: any, res) => {
       try {
         const userId = req.userId;
-        const user = await storage.getUserByClerkId(userId);
+        const user = await storage.getUserByFirebaseId(userId);
 
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
@@ -486,7 +623,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Save wine to cellar - serverless compatible
   app.post('/api/cellar/save', async (req: any, res) => {
     try {
-      if (!isClerkConfigured) {
+      if (!isFirebaseConfigured()) {
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -500,39 +637,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let clerkId: string;
+      let firebaseId: string;
 
       try {
-        const verifiedToken = await clerkClient.verifyToken(token);
-        clerkId = verifiedToken.sub;
+        const admin = await import('firebase-admin');
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        firebaseId = decodedToken.uid;
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      let user = await storage.getUserByClerkId(clerkId);
+      let user = await storage.getUserByFirebaseId(firebaseId);
 
       // If user doesn't exist, create them automatically
       if (!user) {
         console.log(
           'User not found in database, creating new user for cellar save:',
-          clerkId
+          firebaseId
         );
         try {
-          // Get user info from Clerk
-          const clerkUser = await clerkClient.users.getUser(clerkId);
+          // Get user info from Firebase Auth
+          const admin = await import('firebase-admin');
+          const firebaseUser = await admin.auth().getUser(firebaseId);
+          console.log('Retrieved user from Firebase:', firebaseUser.uid);
 
-          const userData: CreateUser = {
-            clerkId: clerkId,
-            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
-            firstName: clerkUser.firstName || '',
-            lastName: clerkUser.lastName || '',
-            profileImageUrl: clerkUser.imageUrl || '',
-            subscriptionPlan: 'free',
+          const userData = {
+            firebaseId: firebaseId,
+            email: firebaseUser.email || '',
+            firstName: firebaseUser.displayName?.split(' ')[0] || '',
+            lastName:
+              firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+            profileImageUrl: firebaseUser.photoURL || '',
+            subscriptionPlan: 'free' as const,
+            profileCompleted: false,
           };
 
           user = await storage.createUser(userData);
-          console.log('Created new user for cellar save:', clerkId);
+          console.log('Created new user for cellar save:', firebaseId);
         } catch (createError) {
           console.error('Failed to create user for cellar save:', createError);
           return res.status(500).json({ message: 'Failed to create user' });
@@ -549,13 +691,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           maxCount: 3,
         });
       }
-      const wineData = insertSavedWineSchema.parse({
-        ...req.body,
+      const wineData = {
         userId: user.id,
-      });
+        wineName: req.body.wineName,
+        wineType: req.body.wineType,
+        source: req.body.source || 'recommendation',
+        region: req.body.region,
+        vintage: req.body.vintage,
+        description: req.body.description,
+        priceRange: req.body.priceRange,
+        abv: req.body.abv,
+        rating: req.body.rating,
+        imageUrl: req.body.imageUrl,
+      };
       const savedWine = await storage.saveWine(
-        wineData as unknown as InsertSavedWine
+        wineData as Omit<SavedWine, 'id' | 'createdAt'>
       );
+
+      // Update user's usage count
+      const newSavedWineCount = await storage.getSavedWineCount(user.id);
+      await storage.updateUser(user.id, {
+        usage: {
+          ...user.usage,
+          savedWines: newSavedWineCount,
+        },
+      });
+
       res.json(savedWine);
     } catch (error) {
       console.error('Error saving wine:', error);
@@ -569,7 +730,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get saved wines - serverless compatible
   app.get('/api/cellar', async (req: any, res) => {
     try {
-      if (!isClerkConfigured) {
+      if (!isFirebaseConfigured()) {
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -583,17 +744,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: number;
+      let userId: string;
 
       try {
-        const verifiedToken = await clerkClient.verifyToken(token);
-        userId = Number(verifiedToken.sub);
+        const admin = await import('firebase-admin');
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        userId = decodedToken.uid;
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
       const savedWines = await storage.getSavedWines(userId);
+
+      // Set cache headers to prevent browser caching
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      });
+
       res.json(savedWines);
     } catch (error) {
       console.error('Error fetching saved wines:', error);
@@ -604,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Remove wine from cellar - serverless compatible
   app.delete('/api/cellar/:wineId', async (req: any, res) => {
     try {
-      if (!isClerkConfigured) {
+      if (!isFirebaseConfigured()) {
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -618,18 +788,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let userId: number;
+      let userId: string;
 
       try {
-        const verifiedToken = await clerkClient.verifyToken(token);
-        userId = Number(verifiedToken.sub);
+        const admin = await import('firebase-admin');
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        userId = decodedToken.uid;
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      const wineId = parseInt(req.params.wineId);
-      await storage.removeSavedWine(userId, wineId);
+      const wineId = req.params.wineId;
+      await storage.removeSavedWine(wineId);
+
+      // Update user's usage count after deletion
+      const newSavedWineCount = await storage.getSavedWineCount(userId);
+      await storage.updateUser(userId, {
+        usage: {
+          savedWines: newSavedWineCount,
+        },
+      });
+
       res.json({ success: true });
     } catch (error) {
       console.error('Error removing wine:', error);
@@ -643,7 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     upload.single('wine_image'),
     async (req: any, res) => {
       try {
-        if (!isClerkConfigured) {
+        if (!isFirebaseConfigured()) {
           return res
             .status(503)
             .json({ message: 'Authentication not configured' });
@@ -657,17 +837,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         const token = authHeader.replace('Bearer ', '');
-        let clerkId: string;
+        let firebaseId: string;
 
         try {
-          const verifiedToken = await clerkClient.verifyToken(token);
-          clerkId = verifiedToken.sub;
+          const admin = await import('firebase-admin');
+          const decodedToken = await admin.auth().verifyIdToken(token);
+          firebaseId = decodedToken.uid;
         } catch (authError) {
           console.error('Token verification failed:', authError);
           return res.status(401).json({ message: 'Invalid token' });
         }
 
-        const user = await storage.getUserByClerkId(clerkId);
+        const user = await storage.getUserByFirebaseId(firebaseId);
 
         if (!user) {
           return res.status(404).json({ message: 'User not found' });
@@ -695,11 +876,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const analysis = await analyseWineImage(base64Image);
 
         // Save uploaded wine record
-        const uploadedWine = await storage.saveUploadedWine({
+        const uploadedWineData = {
           userId: user.id,
           originalImageUrl: `data:${req.file.mimetype};base64,${base64Image}`,
           ...analysis,
-        } as unknown as InsertUploadedWine);
+          abv: parseFloat(analysis.abv) || 0,
+        };
+        const uploadedWine = await storage.saveUploadedWine(
+          uploadedWineData as Omit<UploadedWine, 'id' | 'createdAt'>
+        );
+
+        // Update user's usage count
+        const newUploadedWineCount = await storage.getUploadedWineCount(
+          user.id
+        );
+        await storage.updateUser(user.id, {
+          usage: {
+            ...user.usage,
+            uploadedWines: newUploadedWineCount,
+          },
+        });
 
         res.json(uploadedWine);
       } catch (error) {
@@ -712,7 +908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get uploaded wines - serverless compatible
   app.get('/api/uploads', async (req: any, res) => {
     try {
-      if (!isClerkConfigured) {
+      if (!isFirebaseConfigured()) {
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -726,18 +922,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let clerkId: string;
+      let firebaseId: string;
 
       try {
-        const verifiedToken = await clerkClient.verifyToken(token);
-        clerkId = verifiedToken.sub;
+        const admin = await import('firebase-admin');
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        firebaseId = decodedToken.uid;
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      const user = await storage.getUserByClerkId(clerkId);
+      const user = await storage.getUserByFirebaseId(firebaseId);
       const uploadedWines = await storage.getUploadedWines(user.id);
+
+      // Set cache headers to prevent browser caching
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      });
+
       res.json(uploadedWines);
     } catch (error) {
       console.error('Error fetching uploaded wines:', error);
@@ -782,8 +987,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const updatedWine = await storage.updateUploadedWine(
-        userId,
-        wineId,
+        wineId.toString(),
         updates
       );
       res.json(updatedWine);
@@ -799,7 +1003,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     requireAuth,
     async (req: any, res) => {
       try {
-        const userId = Number(req.userId);
+        const userId = req.userId;
         const user = await storage.getUser(userId);
 
         if (!user) {
@@ -846,7 +1050,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             metadata: { userId: user.id },
           });
           customerId = customer.id;
-          await storage.updateUserStripeInfo(userId, customerId, null);
+          await storage.updateUserStripeInfo(userId, {
+            stripeCustomerId: customerId,
+          });
         }
 
         // Get price ID based on plan (default to monthly)
@@ -1399,7 +1605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/profile/setup', authLimiter, async (req: any, res) => {
     try {
       // Check if Clerk is configured
-      if (!isClerkConfigured) {
+      if (!isFirebaseConfigured()) {
         return res
           .status(503)
           .json({ message: 'Authentication not configured' });
@@ -1414,7 +1620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const token = authHeader.replace('Bearer ', '');
-      let clerkId: string;
+      let firebaseId: string;
 
       console.log(
         'Token verification - Received auth header:',
@@ -1423,40 +1629,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Token verification - Token length:', token.length);
 
       try {
-        // Use Clerk to verify the session token
-        const verifiedToken = await clerkClient.verifyToken(token);
-        clerkId = verifiedToken.sub;
-        console.log('Token verification - Success, clerkId:', clerkId);
+        // Use Firebase Admin to verify the ID token
+        const { getAuth } = await import('firebase-admin/auth');
+        const decodedToken = await getAuth().verifyIdToken(token);
+        firebaseId = decodedToken.uid;
+        console.log('Token verification - Success, firebaseId:', firebaseId);
       } catch (authError) {
         console.error('Token verification failed:', authError);
         return res.status(401).json({ message: 'Invalid token' });
       }
 
-      if (!clerkId) {
+      if (!firebaseId) {
         return res.status(401).json({ message: 'User ID not found in token' });
       }
 
       // Check if user exists, create if not
-      let user = await storage.getUserByClerkId(clerkId);
+      let user = await storage.getUserByFirebaseId(firebaseId);
       if (!user) {
         console.log(
           'User not found in database, creating new user for profile setup:',
-          clerkId
+          firebaseId
         );
         try {
-          // Get user info from Clerk
-          const clerkUser = await clerkClient.users.getUser(clerkId);
+          // Get user info from Firebase Admin
+          const { getAuth } = await import('firebase-admin/auth');
+          const firebaseUser = await getAuth().getUser(firebaseId);
 
-          const userData: CreateUser = {
-            clerkId: clerkId,
-            email: clerkUser.emailAddresses?.[0]?.emailAddress || '',
-            firstName: clerkUser.firstName || '',
-            lastName: clerkUser.lastName || '',
-            profileImageUrl: clerkUser.imageUrl || '',
-            subscriptionPlan: 'free', // Default to free plan
+          const userData = {
+            firebaseId: firebaseId,
+            email: firebaseUser.email || '',
+            firstName: firebaseUser.displayName?.split(' ')[0] || '',
+            lastName:
+              firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
+            profileImageUrl: firebaseUser.photoURL || '',
+            subscriptionPlan: 'free' as const,
+            profileCompleted: false,
           };
 
-          user = await storage.updateUser(userData);
+          user = await storage.createUser(
+            userData as Omit<User, 'id' | 'createdAt' | 'updatedAt'>
+          );
           console.log('Created new user for profile setup:', user);
         } catch (createError) {
           console.error(
@@ -1476,7 +1688,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.body;
 
       console.log('Profile setup request:', {
-        clerkId,
+        firebaseId,
         dateOfBirth,
         wineExperienceLevel,
         preferredWineTypes,
@@ -1511,6 +1723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         preferredWineTypes,
         budgetRange,
         location,
+        profileCompleted: true, // Set profile as completed
       });
 
       console.log('Profile updated successfully:', updatedUser);
@@ -1563,11 +1776,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update user to free plan
       await storage.updateUserSubscriptionPlan(userId, 'free');
-      await storage.updateUserStripeInfo(
-        userId,
-        user.stripeCustomerId || '',
-        null
-      );
+      await storage.updateUserStripeInfo(userId, {
+        stripeCustomerId: user.stripeCustomerId || '',
+        stripeSubscriptionId: null,
+      });
 
       res.json({
         message: 'Successfully downgraded to free plan',
@@ -1650,14 +1862,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log('EMAIL_SIGNUP:', email, new Date().toISOString());
 
-      // Try to save to database if available
+      // Save to Firebase
       try {
-        if (process.env.DATABASE_URL && db) {
-          await storage.saveEmailSignup(email);
-          console.log(`Email saved to database: ${email}`);
-        }
+        await storage.saveEmailSignup(email);
+        console.log(`Email saved to Firebase: ${email}`);
       } catch (dbError: any) {
-        console.log(`Database save failed for ${email}:`, dbError.message);
+        console.log(`Firebase save failed for ${email}:`, dbError.message);
       }
 
       // Try to send confirmation email
@@ -1682,22 +1892,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // View email signups (admin/development endpoint)
   app.get('/api/email-signups', async (req, res) => {
     try {
-      const { emailSignups } = await import('../shared/schema.js');
-      const { db } = await import('./db.js');
-
-      const signups = await db
-        .select()
-        .from(emailSignups)
-        .orderBy(emailSignups.createdAt);
-
+      // Note: This endpoint would need to be implemented in Firebase storage
+      // For now, return a placeholder response
       res.json({
-        total: signups.length,
-        signups: signups.map((signup: any) => ({
-          id: signup.id,
-          email: signup.email,
-          firstName: signup.firstName,
-          createdAt: signup.createdAt,
-        })),
+        message: 'Email signups endpoint not yet implemented for Firebase',
+        total: 0,
+        signups: [],
       });
     } catch (error) {
       console.error('Error fetching email signups:', error);

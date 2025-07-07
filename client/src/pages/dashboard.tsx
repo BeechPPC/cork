@@ -36,7 +36,7 @@ import VoiceSearch from '@/components/voice-search';
 import PlanLimitModal from '@/components/plan-limit-modal';
 import ProfileSetupModal from '@/components/profile-setup-modal';
 import { useEffect } from 'react';
-import { useAuth } from '@/components/auth-wrapper';
+import { useAuth } from '@/components/firebase-auth/AuthWrapper';
 import { getTemporaryProfile } from '@/utils/temporary-profile';
 
 interface WineRecommendation {
@@ -52,21 +52,22 @@ interface WineRecommendation {
 }
 
 export default function Dashboard() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const { toast } = useToast();
   const [query, setQuery] = useState('');
   const [recommendations, setRecommendations] = useState<WineRecommendation[]>(
     []
   );
-  const [showLimitModal, setShowLimitModal] = useState(false);
-  const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [menuImage, setMenuImage] = useState<File | null>(null);
   const [menuQuestion, setMenuQuestion] = useState('');
   const [menuAnalysisResult, setMenuAnalysisResult] = useState('');
   const [isAnalyzingMenu, setIsAnalyzingMenu] = useState(false);
-  const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [currentSavedCount, setCurrentSavedCount] = useState(0);
 
   // Fetch user from backend API
-  const { data: user, isLoading: isUserLoading } = useAuthenticatedQuery(
+  const { data: backendUser, isLoading: isUserLoading } = useAuthenticatedQuery(
     ['/api/auth/user'],
     async token => {
       const res = await fetch('/api/auth/user', {
@@ -101,8 +102,24 @@ export default function Dashboard() {
 
   // Check if profile setup is needed (check both backend user and temporary profile)
   useEffect(() => {
-    // Check backend user first
-    if (user && user.profileCompleted) {
+    console.log('🔍 Dashboard: Profile setup check triggered:', {
+      user: backendUser
+        ? {
+            id: backendUser.id,
+            profileCompleted: backendUser.profileCompleted,
+            email: backendUser.email,
+          }
+        : null,
+      isUserLoading,
+      showProfileSetup,
+      timestamp: new Date().toISOString(),
+    });
+
+    // Check backend user first - if profile is completed, never show setup again
+    if (backendUser && backendUser.profileCompleted === true) {
+      console.log(
+        '🔍 Dashboard: Backend user profile is completed, hiding modal permanently'
+      );
       setShowProfileSetup(false);
       // Clear any temporary profile data since backend confirms completion
       localStorage.removeItem('cork_temporary_profile');
@@ -111,33 +128,48 @@ export default function Dashboard() {
 
     // If backend user is not completed, check temporary profile
     const temporaryProfile = getTemporaryProfile();
+    console.log('🔍 Dashboard: Temporary profile check:', temporaryProfile);
+
     if (temporaryProfile && temporaryProfile.profileCompleted) {
+      console.log('🔍 Dashboard: Temporary profile is completed, hiding modal');
       setShowProfileSetup(false);
       return;
     }
 
     // If neither backend nor temporary profile is completed, show setup
-    if (user && !user.profileCompleted) {
+    if (backendUser && backendUser.profileCompleted !== true) {
+      console.log(
+        '🔍 Dashboard: Backend user profile not completed, showing modal'
+      );
       setShowProfileSetup(true);
-    } else if (!user && !isUserLoading) {
+    } else if (!backendUser && !isUserLoading) {
       // If no user data available but not loading, check temporary profile
       if (!temporaryProfile || !temporaryProfile.profileCompleted) {
+        console.log(
+          '🔍 Dashboard: No user data and no temporary profile, showing modal'
+        );
         setShowProfileSetup(true);
       }
     }
-  }, [user, isUserLoading]);
+  }, [backendUser, isUserLoading]);
 
   // Debug: Log user data changes
   useEffect(() => {
-    if (user) {
+    if (backendUser) {
       console.log('🔄 User data updated:', {
-        id: user.id,
-        subscriptionPlan: user.subscriptionPlan,
-        email: user.email,
+        id: backendUser.id,
+        subscriptionPlan: backendUser.subscriptionPlan,
+        email: backendUser.email,
         timestamp: new Date().toISOString(),
       });
+
+      // Force show profile setup if not completed
+      if (!backendUser.profileCompleted) {
+        console.log('🔄 Force showing profile setup modal');
+        setShowProfileSetup(true);
+      }
     }
-  }, [user]);
+  }, [backendUser]);
 
   const getRecommendationsMutation = useMutation({
     mutationFn: async (searchQuery: string) => {
@@ -200,9 +232,16 @@ export default function Dashboard() {
         title: 'Wine Saved!',
         description: 'Added to your cellar successfully.',
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      // Invalidate the saved wines query to refresh the cellar
+      queryClient.invalidateQueries({ queryKey: ['saved-wines'] });
+      // Also invalidate with user ID to ensure cellar updates
+      if (backendUser?.id) {
+        queryClient.invalidateQueries({
+          queryKey: ['saved-wines', backendUser.id],
+        });
+      }
     },
-    onError: error => {
+    onError: async (error: any) => {
       if (isUnauthorizedError(error)) {
         toast({
           title: 'Unauthorized',
@@ -216,7 +255,23 @@ export default function Dashboard() {
       }
 
       const errorMessage = error.message;
-      if (errorMessage.includes('Plan limit reached')) {
+      if (
+        errorMessage.includes('403') &&
+        errorMessage.includes('Plan limit reached')
+      ) {
+        // Try to extract the current count from the error message
+        try {
+          // The error message might contain JSON data
+          const jsonMatch = errorMessage.match(/\{.*\}/);
+          if (jsonMatch) {
+            const errorData = JSON.parse(jsonMatch[0]);
+            setCurrentSavedCount(errorData.currentCount || 0);
+          }
+        } catch (e) {
+          console.warn('Could not extract current count from error:', e);
+          // Default to 3 since they've reached the limit
+          setCurrentSavedCount(3);
+        }
         setShowLimitModal(true);
         return;
       }
@@ -290,7 +345,7 @@ export default function Dashboard() {
       return;
     }
 
-    if (user?.subscriptionPlan !== 'premium') {
+    if (backendUser?.subscriptionPlan !== 'premium') {
       toast({
         title: 'Premium Feature Required',
         description: 'Upgrade to Premium to analyze wine menus',
@@ -351,10 +406,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-gradient-to-br from-cream to-white">
       <Header />
 
-      <section className="py-16 bg-white">
+      <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Welcome Header */}
           <div className="text-center mb-12">
@@ -458,14 +513,14 @@ export default function Dashboard() {
                     <VoiceSearch
                       onSearch={handleGetRecommendations}
                       isSearching={getRecommendationsMutation.isPending}
-                      isPremium={user?.subscriptionPlan === 'premium'}
+                      isPremium={backendUser?.subscriptionPlan === 'premium'}
                       onUpgrade={() => (window.location.href = '/pricing')}
                     />
                   </TabsContent>
 
                   <TabsContent value="photo">
                     <MealPairing
-                      isPremium={user?.subscriptionPlan === 'premium'}
+                      isPremium={backendUser?.subscriptionPlan === 'premium'}
                       onUpgrade={() => (window.location.href = '/pricing')}
                     />
                   </TabsContent>
@@ -568,7 +623,7 @@ export default function Dashboard() {
                         </Button>
                       </div>
 
-                      {user?.subscriptionPlan !== 'premium' && (
+                      {backendUser?.subscriptionPlan !== 'premium' && (
                         <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                           <div className="flex items-center space-x-2">
                             <Sparkles className="w-5 h-5 text-amber-600" />
@@ -618,7 +673,7 @@ export default function Dashboard() {
                     onSave={() => handleSaveWine(wine)}
                     isLoading={saveWineMutation.isPending}
                     showSaveButton={true}
-                    isPremium={user?.subscriptionPlan === 'premium'}
+                    isPremium={backendUser?.subscriptionPlan === 'premium'}
                     showPremiumFeatures={true}
                   />
                 ))}
@@ -630,7 +685,7 @@ export default function Dashboard() {
                   <WinePairingSuggestions
                     wineName={recommendations[0].name}
                     wineType={recommendations[0].type}
-                    isPremium={user?.subscriptionPlan === 'premium'}
+                    isPremium={backendUser?.subscriptionPlan === 'premium'}
                     onUpgrade={() => (window.location.href = '/pricing')}
                   />
                 </div>
@@ -655,13 +710,13 @@ export default function Dashboard() {
               </div>
             )}
         </div>
-      </section>
+      </div>
 
       <PlanLimitModal
         open={showLimitModal}
         onOpenChange={setShowLimitModal}
         type="save"
-        currentCount={0}
+        currentCount={currentSavedCount}
         maxCount={3}
       />
 

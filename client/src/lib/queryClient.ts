@@ -1,11 +1,14 @@
 import { QueryClient, QueryFunction } from '@tanstack/react-query';
+import { getAuthToken } from '@/lib/auth';
 
-// Extend Window interface to include Clerk
+// Extend Window interface to include Firebase (for backward compatibility)
 declare global {
   interface Window {
-    Clerk?: {
-      session?: {
-        getToken(): Promise<string | null>;
+    Firebase?: {
+      auth?: {
+        currentUser?: {
+          getIdToken(): Promise<string | null>;
+        };
       };
     };
   }
@@ -24,22 +27,18 @@ export async function apiRequest(
   data?: unknown | undefined,
   token?: string | null
 ): Promise<Response> {
-  // Get the Clerk token if available and not provided
+  // Get the Firebase token if available and not provided
   let authToken: string | null = token;
   if (!authToken) {
     try {
-      // Try to get token from Clerk if it's available
-      if (typeof window !== 'undefined' && window.Clerk) {
-        authToken = await window.Clerk.session?.getToken();
-        console.log(
-          'API Request - Token retrieved:',
-          authToken ? 'Token exists' : 'No token'
-        );
-      } else {
-        console.log('API Request - Clerk not available on window');
-      }
+      // Try to get token from Firebase
+      authToken = await getAuthToken();
+      console.log(
+        'API Request - Token retrieved:',
+        authToken ? 'Token exists' : 'No token'
+      );
     } catch (error) {
-      console.warn('Could not get Clerk token:', error);
+      console.warn('Could not get Firebase token:', error);
     }
   }
 
@@ -76,12 +75,10 @@ export async function authenticatedApiRequest(
   url: string,
   data?: unknown | undefined
 ): Promise<Response> {
-  // Get token from the auth hook
+  // Get token from Firebase auth
   let token: string | null = null;
   try {
-    if (typeof window !== 'undefined' && window.Clerk) {
-      token = await window.Clerk.session?.getToken();
-    }
+    token = await getAuthToken();
   } catch (error) {
     console.warn('Could not get auth token:', error);
   }
@@ -110,14 +107,12 @@ export const getQueryFn: <T>(options: {
     // Get token for authenticated endpoints
     if (isAuthenticatedEndpoint && !authToken) {
       try {
-        if (typeof window !== 'undefined' && window.Clerk) {
-          authToken = await window.Clerk.session?.getToken();
-          console.log(
-            'Query - Token retrieved for',
-            url,
-            authToken ? 'Token exists' : 'No token'
-          );
-        }
+        authToken = await getAuthToken();
+        console.log(
+          'Query - Token retrieved for',
+          url,
+          authToken ? 'Token exists' : 'No token'
+        );
       } catch (error) {
         console.warn('Could not get auth token for query:', error);
       }

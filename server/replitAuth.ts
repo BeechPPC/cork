@@ -1,18 +1,20 @@
-import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
+import * as client from 'openid-client';
+import { Strategy, type VerifyFunction } from 'openid-client/passport';
 
-import passport from "passport";
-import session from "express-session";
-import type { Express, RequestHandler } from "express";
-import memoize from "memoizee";
-import connectPg from "connect-pg-simple";
-import { storage } from "./storage";
+import passport from 'passport';
+import session from 'express-session';
+import type { Express, RequestHandler } from 'express';
+import memoize from 'memoizee';
+import connectPg from 'connect-pg-simple';
+import { storage } from './storage';
 
 // Check if we're in a Replit environment
 const isReplitEnvironment = process.env.REPLIT_DOMAINS && process.env.REPL_ID;
 
 if (!isReplitEnvironment && process.env.NODE_ENV === 'production') {
-  console.warn('Running in production without Replit Auth - some features may be limited');
+  console.warn(
+    'Running in production without Replit Auth - some features may be limited'
+  );
 }
 
 const getOidcConfig = memoize(
@@ -21,7 +23,7 @@ const getOidcConfig = memoize(
       throw new Error('OIDC config not available outside Replit environment');
     }
     return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
+      new URL(process.env.ISSUER_URL ?? 'https://replit.com/oidc'),
       process.env.REPL_ID!
     );
   },
@@ -35,7 +37,7 @@ export function getSession() {
     conString: process.env.DATABASE_URL,
     createTableIfMissing: false,
     ttl: sessionTtl,
-    tableName: "sessions",
+    tableName: 'sessions',
   });
   return session({
     secret: process.env.SESSION_SECRET!,
@@ -60,20 +62,27 @@ function updateUserSession(
   user.expires_at = user.claims?.exp;
 }
 
-async function upsertUser(
-  claims: any,
-) {
-  await storage.upsertUser({
-    id: claims["sub"],
-    email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
-  } as any);
+async function upsertUser(claims: any) {
+  const userData = {
+    firebaseId: claims['sub'],
+    email: claims['email'] || '',
+    firstName: claims['first_name'] || '',
+    lastName: claims['last_name'] || '',
+    profileImageUrl: claims['profile_image_url'] || '',
+    subscriptionPlan: 'free' as const,
+    profileCompleted: false,
+  };
+
+  try {
+    await storage.createUser(userData as any);
+  } catch (error) {
+    // User might already exist, which is fine for upsert behavior
+    console.log('User creation failed (may already exist):', error);
+  }
 }
 
 export async function setupAuth(app: Express) {
-  app.set("trust proxy", 1);
+  app.set('trust proxy', 1);
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
@@ -83,7 +92,8 @@ export async function setupAuth(app: Express) {
     const config = await getOidcConfig();
 
     const verify: VerifyFunction = async (
-      tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
+      tokens: client.TokenEndpointResponse &
+        client.TokenEndpointResponseHelpers,
       verified: passport.AuthenticateCallback
     ) => {
       const user = {};
@@ -92,16 +102,15 @@ export async function setupAuth(app: Express) {
       verified(null, user);
     };
 
-    for (const domain of process.env
-      .REPLIT_DOMAINS!.split(",")) {
+    for (const domain of process.env.REPLIT_DOMAINS!.split(',')) {
       const strategy = new Strategy(
         {
           name: `replitauth:${domain}`,
           config,
-          scope: "openid email profile offline_access",
+          scope: 'openid email profile offline_access',
           callbackURL: `https://${domain}/api/callback`,
         },
-        verify,
+        verify
       );
       passport.use(strategy);
     }
@@ -112,31 +121,37 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
-  app.get("/api/login", (req, res, next) => {
+  app.get('/api/login', (req, res, next) => {
     if (!isReplitEnvironment) {
-      return res.status(503).json({ message: "Authentication not available in this environment" });
+      return res
+        .status(503)
+        .json({ message: 'Authentication not available in this environment' });
     }
     passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
+      prompt: 'login consent',
+      scope: ['openid', 'email', 'profile', 'offline_access'],
     })(req, res, next);
   });
 
-  app.get("/api/callback", (req, res, next) => {
+  app.get('/api/callback', (req, res, next) => {
     if (!isReplitEnvironment) {
-      return res.status(503).json({ message: "Authentication not available in this environment" });
+      return res
+        .status(503)
+        .json({ message: 'Authentication not available in this environment' });
     }
     passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
+      successReturnToOrRedirect: '/',
+      failureRedirect: '/api/login',
     })(req, res, next);
   });
 
-  app.get("/api/logout", async (req, res) => {
+  app.get('/api/logout', async (req, res) => {
     if (!isReplitEnvironment) {
-      return res.status(503).json({ message: "Authentication not available in this environment" });
+      return res
+        .status(503)
+        .json({ message: 'Authentication not available in this environment' });
     }
-    
+
     const config = await getOidcConfig();
     req.logout(() => {
       res.redirect(
@@ -152,13 +167,15 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   // In non-Replit environments, authentication is not available
   if (!isReplitEnvironment) {
-    return res.status(401).json({ message: "Authentication not available in this environment" });
+    return res
+      .status(401)
+      .json({ message: 'Authentication not available in this environment' });
   }
 
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   const now = Math.floor(Date.now() / 1000);
@@ -168,7 +185,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
   const refreshToken = user.refresh_token;
   if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
+    res.status(401).json({ message: 'Unauthorized' });
     return;
   }
 
@@ -178,7 +195,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     updateUserSession(user, tokenResponse);
     return next();
   } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
+    res.status(401).json({ message: 'Unauthorized' });
     return;
   }
 };

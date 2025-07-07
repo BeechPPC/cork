@@ -1,5 +1,5 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { useAuth } from "@/components/auth-wrapper";
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useAuth } from '@/components/firebase-auth/AuthWrapper';
 
 // Custom hook that automatically includes auth tokens in queries
 export function useAuthenticatedQuery<TData = unknown, TError = Error>(
@@ -15,7 +15,7 @@ export function useAuthenticatedQuery<TData = unknown, TError = Error>(
       const token = isSignedIn ? await getToken?.() : null;
       return queryFn(token);
     },
-    enabled: isSignedIn && (options?.enabled !== false),
+    enabled: isSignedIn && options?.enabled !== false,
     ...options,
   });
 }

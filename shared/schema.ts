@@ -1,179 +1,182 @@
-import {
-  pgTable,
-  text,
-  varchar,
-  timestamp,
-  jsonb,
-  index,
-  serial,
-  boolean,
-  decimal,
-  integer,
-} from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-import { createInsertSchema } from 'drizzle-zod';
-import { z } from 'zod/v4';
+import { z } from 'zod';
 
-// Session storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-export const sessions = pgTable(
-  'sessions',
-  {
-    sid: varchar('sid').primaryKey(),
-    sess: jsonb('sess').notNull(),
-    expire: timestamp('expire').notNull(),
-  },
-  table => [index('IDX_session_expire').on(table.expire)]
-);
+// Simple TypeScript interfaces for Firebase Firestore
+export interface User {
+  id: string;
+  email: string;
+  firebaseId: string;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
+  subscriptionPlan: 'free' | 'premium';
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  dateOfBirth?: string;
+  wineExperienceLevel?: string;
+  preferredWineTypes?: string[];
+  budgetRange?: string;
+  location?: string;
+  profileCompleted: boolean;
+  usage?: {
+    savedWines: number;
+    uploadedWines: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
 
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  email: varchar('email').unique(),
-  clerkId: varchar('clerk_id').unique(),
-  firstName: varchar('first_name'),
-  lastName: varchar('last_name'),
-  profileImageUrl: varchar('profile_image_url'),
-  subscriptionPlan: varchar('subscription_plan').default('free'), // "free" or "premium"
-  stripeCustomerId: varchar('stripe_customer_id'),
-  stripeSubscriptionId: varchar('stripe_subscription_id'),
-  dateOfBirth: timestamp('date_of_birth'),
-  wineExperienceLevel: varchar('wine_experience_level'),
-  preferredWineTypes: varchar('preferred_wine_types').array(),
-  budgetRange: varchar('budget_range'),
-  location: varchar('location'),
-  profileCompleted: boolean('profile_completed').default(false).notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+export interface SavedWine {
+  id: string;
+  userId: string;
+  wineName: string;
+  wineType: string;
+  region?: string;
+  vintage?: string;
+  description?: string;
+  priceRange?: string;
+  abv?: number;
+  rating?: number;
+  imageUrl?: string;
+  source: 'recommendation' | 'uploaded';
+  createdAt: string;
+}
+
+export interface UploadedWine {
+  id: string;
+  userId: string;
+  originalImageUrl: string;
+  wineName?: string;
+  wineType?: string;
+  region?: string;
+  vintage?: string;
+  optimalDrinkingStart?: string;
+  optimalDrinkingEnd?: string;
+  peakYearsStart?: string;
+  peakYearsEnd?: string;
+  analysis?: string;
+  estimatedValue?: string;
+  abv?: number;
+  createdAt: string;
+}
+
+export interface RecommendationHistory {
+  id: string;
+  userId: string;
+  query: string;
+  recommendations: any[];
+  createdAt: string;
+}
+
+export interface EmailSignup {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+// Zod schemas for validation
+export const userSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  firebaseId: z.string(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  profileImageUrl: z.string().optional(),
+  subscriptionPlan: z.enum(['free', 'premium']),
+  stripeCustomerId: z.string().optional(),
+  stripeSubscriptionId: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  wineExperienceLevel: z.string().optional(),
+  preferredWineTypes: z.array(z.string()).optional(),
+  budgetRange: z.string().optional(),
+  location: z.string().optional(),
+  profileCompleted: z.boolean(),
+  usage: z
+    .object({
+      savedWines: z.number(),
+      uploadedWines: z.number(),
+    })
+    .optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
-// Saved wines table
-export const savedWines = pgTable(
-  'saved_wines',
-  {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    wineName: varchar('wine_name').notNull(),
-    wineType: varchar('wine_type').notNull(),
-    region: varchar('region'),
-    vintage: varchar('vintage'),
-    description: text('description'),
-    priceRange: varchar('price_range'),
-    abv: decimal('abv', { precision: 4, scale: 2 }),
-    rating: decimal('rating', { precision: 3, scale: 1 }),
-    imageUrl: varchar('image_url'),
-    source: varchar('source').notNull(), // "recommendation" or "uploaded"
-    createdAt: timestamp('created_at').defaultNow(),
-  },
-  table => [index('IDX_saved_wines_user_id').on(table.userId)]
-);
-
-// Uploaded wines table
-export const uploadedWines = pgTable(
-  'uploaded_wines',
-  {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    originalImageUrl: varchar('original_image_url').notNull(),
-    wineName: varchar('wine_name'),
-    wineType: varchar('wine_type'),
-    region: varchar('region'),
-    vintage: varchar('vintage'),
-    optimalDrinkingStart: varchar('optimal_drinking_start'),
-    optimalDrinkingEnd: varchar('optimal_drinking_end'),
-    peakYearsStart: varchar('peak_years_start'),
-    peakYearsEnd: varchar('peak_years_end'),
-    analysis: text('analysis'),
-    estimatedValue: varchar('estimated_value'),
-    abv: decimal('abv', { precision: 4, scale: 2 }),
-    createdAt: timestamp('created_at').defaultNow(),
-  },
-  table => [index('IDX_uploaded_wines_user_id').on(table.userId)]
-);
-
-// Wine recommendations history
-export const recommendationHistory = pgTable(
-  'recommendation_history',
-  {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    query: text('query').notNull(),
-    recommendations: jsonb('recommendations').notNull(),
-    createdAt: timestamp('created_at').defaultNow(),
-  },
-  table => [index('IDX_recommendation_history_user_id').on(table.userId)]
-);
-
-// Email signups for pre-launch
-export const emailSignups = pgTable('email_signups', {
-  id: serial('id').primaryKey(),
-  email: varchar('email').notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow(),
+export const savedWineSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  wineName: z.string(),
+  wineType: z.string(),
+  region: z.string().optional(),
+  vintage: z.string().optional(),
+  description: z.string().optional(),
+  priceRange: z.string().optional(),
+  abv: z.number().optional(),
+  rating: z.number().optional(),
+  imageUrl: z.string().optional(),
+  source: z.enum(['recommendation', 'uploaded']),
+  createdAt: z.string(),
 });
 
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  savedWines: many(savedWines),
-  uploadedWines: many(uploadedWines),
-  recommendationHistory: many(recommendationHistory),
-}));
+export const uploadedWineSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  originalImageUrl: z.string(),
+  wineName: z.string().optional(),
+  wineType: z.string().optional(),
+  region: z.string().optional(),
+  vintage: z.string().optional(),
+  optimalDrinkingStart: z.string().optional(),
+  optimalDrinkingEnd: z.string().optional(),
+  peakYearsStart: z.string().optional(),
+  peakYearsEnd: z.string().optional(),
+  analysis: z.string().optional(),
+  estimatedValue: z.string().optional(),
+  abv: z.number().optional(),
+  createdAt: z.string(),
+});
 
-export const savedWinesRelations = relations(savedWines, ({ one }) => ({
-  user: one(users, {
-    fields: [savedWines.userId],
-    references: [users.id],
-  }),
-}));
+export const recommendationHistorySchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  query: z.string(),
+  recommendations: z.array(z.any()),
+  createdAt: z.string(),
+});
 
-export const uploadedWinesRelations = relations(uploadedWines, ({ one }) => ({
-  user: one(users, {
-    fields: [uploadedWines.userId],
-    references: [users.id],
-  }),
-}));
+export const emailSignupSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  createdAt: z.string(),
+});
 
-export const recommendationHistoryRelations = relations(
-  recommendationHistory,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [recommendationHistory.userId],
-      references: [users.id],
-    }),
-  })
-);
-
-// Insert schemas
-export const insertUserSchema = createInsertSchema(users);
-
-export const insertSavedWineSchema = createInsertSchema(savedWines);
-
-export const insertUploadedWineSchema = createInsertSchema(uploadedWines);
-
-export const insertRecommendationHistorySchema = createInsertSchema(
-  recommendationHistory
-);
-
-export const insertEmailSignupSchema = createInsertSchema(emailSignups);
+// Insert schemas (for creating new records)
+export const insertUserSchema = userSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const insertSavedWineSchema = savedWineSchema.omit({
+  id: true,
+  createdAt: true,
+});
+export const insertUploadedWineSchema = uploadedWineSchema.omit({
+  id: true,
+  createdAt: true,
+});
+export const insertRecommendationHistorySchema =
+  recommendationHistorySchema.omit({ id: true, createdAt: true });
+export const insertEmailSignupSchema = emailSignupSchema.omit({
+  id: true,
+  createdAt: true,
+});
 
 // Types
-export type User = typeof users.$inferSelect;
-export type UserInsert = typeof users.$inferInsert;
-export type UpsertUser = Partial<User> & { id: number };
-export type CreateUser = Partial<User> & { clerkId: string };
-export type UpdateUser = Partial<User> & { clerkId: string };
-export type SavedWine = typeof savedWines.$inferSelect;
-export type InsertSavedWine = typeof savedWines.$inferInsert;
-export type UploadedWine = typeof uploadedWines.$inferSelect;
-export type InsertUploadedWine = typeof uploadedWines.$inferInsert;
-export type RecommendationHistory = typeof recommendationHistory.$inferSelect;
-export type InsertRecommendationHistory =
-  typeof recommendationHistory.$inferInsert;
-export type EmailSignup = typeof emailSignups.$inferSelect;
-export type InsertEmailSignup = typeof emailSignups.$inferInsert;
+export type UserInsert = z.infer<typeof insertUserSchema>;
+export type UpsertUser = Partial<User> & { id: string };
+export type CreateUser = Partial<User> & { firebaseId?: string };
+export type UpdateUser = Partial<User> & { firebaseId?: string };
+export type InsertSavedWine = z.infer<typeof insertSavedWineSchema>;
+export type InsertUploadedWine = z.infer<typeof insertUploadedWineSchema>;
+export type InsertRecommendationHistory = z.infer<
+  typeof insertRecommendationHistorySchema
+>;
+export type InsertEmailSignup = z.infer<typeof insertEmailSignupSchema>;

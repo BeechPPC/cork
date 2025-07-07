@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { useAuth } from "@/components/auth-wrapper";
-import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from '@/components/firebase-auth/AuthWrapper';
+import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -17,22 +17,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { 
-  Crown, 
-  Check, 
-  CreditCard, 
-  Calendar, 
-  User, 
-  ArrowRight, 
-  Download, 
+} from '@/components/ui/select';
+import {
+  Crown,
+  Check,
+  CreditCard,
+  Calendar,
+  User,
+  ArrowRight,
+  Download,
   ExternalLink,
   MapPin,
   Edit,
@@ -42,10 +42,10 @@ import {
   Play,
   RefreshCw,
   AlertTriangle,
-  Shield
-} from "lucide-react";
-import Header from "@/components/header";
-import { Link } from "wouter";
+  Shield,
+} from 'lucide-react';
+import Header from '@/components/header';
+import { Link } from 'wouter';
 
 interface BillingInfo {
   hasStripeData: boolean;
@@ -98,36 +98,39 @@ export default function Subscription() {
     city: '',
     state: '',
     postal_code: '',
-    country: 'AU'
+    country: 'AU',
   });
 
   const isPremium = user?.subscriptionPlan === 'premium';
 
   // Fetch billing information
-  const { data: billingInfo, isLoading: billingLoading } = useQuery<BillingInfo>({
-    queryKey: ['/api/billing-info'],
-    enabled: isPremium,
-  });
+  const { data: billingInfo, isLoading: billingLoading } =
+    useQuery<BillingInfo>({
+      queryKey: ['/api/billing-info'],
+      enabled: isPremium,
+    });
 
   // Update billing address mutation
   const updateAddressMutation = useMutation({
     mutationFn: async (address: any) => {
-      const response = await apiRequest("POST", "/api/update-billing-address", { address });
+      const response = await apiRequest('POST', '/api/update-billing-address', {
+        address,
+      });
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Billing address updated successfully",
+        title: 'Success',
+        description: 'Billing address updated successfully',
       });
       setIsEditingAddress(false);
       queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to update billing address",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to update billing address',
+        variant: 'destructive',
       });
     },
   });
@@ -140,7 +143,7 @@ export default function Subscription() {
         city: billingInfo.customer.address.city || '',
         state: billingInfo.customer.address.state || '',
         postal_code: billingInfo.customer.address.postal_code || '',
-        country: billingInfo.customer.address.country || 'AU'
+        country: billingInfo.customer.address.country || 'AU',
       });
     }
     setIsEditingAddress(true);
@@ -152,16 +155,16 @@ export default function Subscription() {
 
   const handleManagePayment = async () => {
     try {
-      const response = await apiRequest("POST", "/api/create-portal-session");
+      const response = await apiRequest('POST', '/api/create-portal-session');
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to open payment management",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to open payment management',
+        variant: 'destructive',
       });
     }
   };
@@ -170,89 +173,101 @@ export default function Subscription() {
     return new Date(timestamp * 1000).toLocaleDateString('en-AU', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   const formatAmount = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-AU', {
       style: 'currency',
-      currency: currency.toUpperCase()
+      currency: currency.toUpperCase(),
     }).format(amount / 100);
   };
 
   // Subscription control mutations
   const pauseSubscriptionMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/pause-subscription");
+      const response = await apiRequest('POST', '/api/pause-subscription');
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Subscription Paused",
-        description: "Your subscription has been paused. You can resume it anytime.",
+        title: 'Subscription Paused',
+        description:
+          'Your subscription has been paused. You can resume it anytime.',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to pause subscription",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to pause subscription',
+        variant: 'destructive',
       });
     },
   });
 
   const resumeSubscriptionMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/resume-subscription");
+      const response = await apiRequest('POST', '/api/resume-subscription');
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Subscription Resumed",
-        description: "Your subscription has been resumed successfully.",
+        title: 'Subscription Resumed',
+        description: 'Your subscription has been resumed successfully.',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to resume subscription",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to resume subscription',
+        variant: 'destructive',
       });
     },
   });
 
   const changePlanMutation = useMutation({
     mutationFn: async (newPlan: string) => {
-      const response = await apiRequest("POST", "/api/change-plan", { newPlan });
+      const response = await apiRequest('POST', '/api/change-plan', {
+        newPlan,
+      });
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast({
-        title: "Plan Changed",
+        title: 'Plan Changed',
         description: data.message,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to change plan",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to change plan',
+        variant: 'destructive',
       });
     },
   });
 
   const cancelSubscriptionMutation = useMutation({
-    mutationFn: async ({ cancelImmediately, reason }: { cancelImmediately: boolean; reason: string }) => {
-      const response = await apiRequest("POST", "/api/cancel-subscription", { cancelImmediately, reason });
+    mutationFn: async ({
+      cancelImmediately,
+      reason,
+    }: {
+      cancelImmediately: boolean;
+      reason: string;
+    }) => {
+      const response = await apiRequest('POST', '/api/cancel-subscription', {
+        cancelImmediately,
+        reason,
+      });
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast({
-        title: "Subscription Canceled",
+        title: 'Subscription Canceled',
         description: data.message,
       });
       setShowCancelModal(false);
@@ -261,30 +276,30 @@ export default function Subscription() {
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to cancel subscription",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to cancel subscription',
+        variant: 'destructive',
       });
     },
   });
 
   const reactivateSubscriptionMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/reactivate-subscription");
+      const response = await apiRequest('POST', '/api/reactivate-subscription');
       return response.json();
     },
     onSuccess: () => {
       toast({
-        title: "Subscription Reactivated",
-        description: "Welcome back! Your subscription has been reactivated.",
+        title: 'Subscription Reactivated',
+        description: 'Welcome back! Your subscription has been reactivated.',
       });
       queryClient.invalidateQueries({ queryKey: ['/api/billing-info'] });
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to reactivate subscription",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to reactivate subscription',
+        variant: 'destructive',
       });
     },
   });
@@ -298,11 +313,17 @@ export default function Subscription() {
       setShowRetentionOffer(true);
       return;
     }
-    cancelSubscriptionMutation.mutate({ cancelImmediately: false, reason: cancellationReason });
+    cancelSubscriptionMutation.mutate({
+      cancelImmediately: false,
+      reason: cancellationReason,
+    });
   };
 
   const handleCancelImmediate = () => {
-    cancelSubscriptionMutation.mutate({ cancelImmediately: true, reason: cancellationReason });
+    cancelSubscriptionMutation.mutate({
+      cancelImmediately: true,
+      reason: cancellationReason,
+    });
   };
 
   const isPaused = billingInfo?.subscription?.pause_collection !== null;
@@ -327,16 +348,16 @@ export default function Subscription() {
         window.location.href = data.url;
       } else {
         toast({
-          title: "Error",
-          description: data.message || "Failed to start checkout process",
-          variant: "destructive",
+          title: 'Error',
+          description: data.message || 'Failed to start checkout process',
+          variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to connect to payment service",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to connect to payment service',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -344,27 +365,27 @@ export default function Subscription() {
   };
 
   const freeFeatures = [
-    "3 wine recommendations per search",
-    "Save up to 3 wines",
-    "2 wine photo uploads",
-    "Basic wine information"
+    '3 wine recommendations per search',
+    'Save up to 3 wines',
+    '2 wine photo uploads',
+    'Basic wine information',
   ];
 
   const premiumFeatures = [
-    "Unlimited wine recommendations",
-    "Unlimited wine saves",
-    "Unlimited wine photo uploads",
-    "Detailed wine analysis & valuation",
-    "Voice-to-text search",
-    "Advanced food pairing suggestions",
-    "Cellar analytics & insights",
-    "Priority customer support"
+    'Unlimited wine recommendations',
+    'Unlimited wine saves',
+    'Unlimited wine photo uploads',
+    'Detailed wine analysis & valuation',
+    'Voice-to-text search',
+    'Advanced food pairing suggestions',
+    'Cellar analytics & insights',
+    'Priority customer support',
   ];
 
   return (
     <div className="min-h-screen bg-cream dark:bg-gray-900">
       <Header />
-      
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header Section */}
         <div className="text-center mb-8">
@@ -384,8 +405,11 @@ export default function Subscription() {
                 <User className="mr-2 h-5 w-5" />
                 Current Plan
               </CardTitle>
-              <Badge variant={isPremium ? "default" : "secondary"} className={isPremium ? "bg-grape text-white" : ""}>
-                {isPremium ? "Premium" : "Free"}
+              <Badge
+                variant={isPremium ? 'default' : 'secondary'}
+                className={isPremium ? 'bg-grape text-white' : ''}
+              >
+                {isPremium ? 'Premium' : 'Free'}
               </Badge>
             </div>
           </CardHeader>
@@ -393,34 +417,41 @@ export default function Subscription() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-slate dark:text-white mb-2">
-                  {isPremium ? "Premium Plan" : "Free Plan"}
+                  {isPremium ? 'Premium Plan' : 'Free Plan'}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {isPremium 
-                    ? "You have access to all premium features and unlimited usage"
-                    : "You're currently on the free plan with limited features"
-                  }
+                  {isPremium
+                    ? 'You have access to all premium features and unlimited usage'
+                    : "You're currently on the free plan with limited features"}
                 </p>
                 {isPremium && billingInfo?.subscription && (
                   <div className="space-y-1 mt-3">
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <Calendar className="mr-1 h-4 w-4" />
                       <span>
-                        Next billing: {formatDate(billingInfo.subscription.current_period_end)} 
-                        ({billingInfo.subscription.plan === 'month' ? 'Monthly' : 'Yearly'})
+                        Next billing:{' '}
+                        {formatDate(
+                          billingInfo.subscription.current_period_end
+                        )}
+                        (
+                        {billingInfo.subscription.plan === 'month'
+                          ? 'Monthly'
+                          : 'Yearly'}
+                        )
                       </span>
                     </div>
                     {billingInfo.subscription.cancel_at_period_end && (
-                      <Badge variant="outline" className="text-orange-600 border-orange-600">
+                      <Badge
+                        variant="outline"
+                        className="text-orange-600 border-orange-600"
+                      >
                         Cancels at period end
                       </Badge>
                     )}
                   </div>
                 )}
               </div>
-              {isPremium && (
-                <Crown className="h-12 w-12 text-grape" />
-              )}
+              {isPremium && <Crown className="h-12 w-12 text-grape" />}
             </div>
           </CardContent>
         </Card>
@@ -439,7 +470,9 @@ export default function Subscription() {
                 </CardHeader>
                 <CardContent>
                   {billingLoading ? (
-                    <p className="text-gray-500">Loading payment information...</p>
+                    <p className="text-gray-500">
+                      Loading payment information...
+                    </p>
                   ) : billingInfo?.paymentMethod ? (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
@@ -452,14 +485,18 @@ export default function Subscription() {
                               •••• •••• •••• {billingInfo.paymentMethod.last4}
                             </p>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                              Expires {billingInfo.paymentMethod.exp_month.toString().padStart(2, '0')}/{billingInfo.paymentMethod.exp_year}
+                              Expires{' '}
+                              {billingInfo.paymentMethod.exp_month
+                                .toString()
+                                .padStart(2, '0')}
+                              /{billingInfo.paymentMethod.exp_year}
                             </p>
                           </div>
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleManagePayment}
                         className="w-full"
                       >
@@ -469,10 +506,12 @@ export default function Subscription() {
                     </div>
                   ) : (
                     <div className="text-center py-4">
-                      <p className="text-gray-500 dark:text-gray-400 mb-3">No payment method on file</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <p className="text-gray-500 dark:text-gray-400 mb-3">
+                        No payment method on file
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleManagePayment}
                       >
                         <CreditCard className="mr-2 h-4 w-4" />
@@ -492,7 +531,11 @@ export default function Subscription() {
                       Billing Address
                     </div>
                     {!isEditingAddress && billingInfo?.customer?.address && (
-                      <Button variant="ghost" size="sm" onClick={handleEditAddress}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleEditAddress}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                     )}
@@ -500,7 +543,9 @@ export default function Subscription() {
                 </CardHeader>
                 <CardContent>
                   {billingLoading ? (
-                    <p className="text-gray-500">Loading address information...</p>
+                    <p className="text-gray-500">
+                      Loading address information...
+                    </p>
                   ) : isEditingAddress ? (
                     <div className="space-y-4">
                       <div>
@@ -508,7 +553,12 @@ export default function Subscription() {
                         <Input
                           id="line1"
                           value={addressForm.line1}
-                          onChange={(e) => setAddressForm(prev => ({ ...prev, line1: e.target.value }))}
+                          onChange={e =>
+                            setAddressForm(prev => ({
+                              ...prev,
+                              line1: e.target.value,
+                            }))
+                          }
                           placeholder="Street address"
                         />
                       </div>
@@ -517,7 +567,12 @@ export default function Subscription() {
                         <Input
                           id="line2"
                           value={addressForm.line2}
-                          onChange={(e) => setAddressForm(prev => ({ ...prev, line2: e.target.value }))}
+                          onChange={e =>
+                            setAddressForm(prev => ({
+                              ...prev,
+                              line2: e.target.value,
+                            }))
+                          }
                           placeholder="Apartment, suite, unit, etc."
                         />
                       </div>
@@ -527,7 +582,12 @@ export default function Subscription() {
                           <Input
                             id="city"
                             value={addressForm.city}
-                            onChange={(e) => setAddressForm(prev => ({ ...prev, city: e.target.value }))}
+                            onChange={e =>
+                              setAddressForm(prev => ({
+                                ...prev,
+                                city: e.target.value,
+                              }))
+                            }
                           />
                         </div>
                         <div>
@@ -535,7 +595,12 @@ export default function Subscription() {
                           <Input
                             id="state"
                             value={addressForm.state}
-                            onChange={(e) => setAddressForm(prev => ({ ...prev, state: e.target.value }))}
+                            onChange={e =>
+                              setAddressForm(prev => ({
+                                ...prev,
+                                state: e.target.value,
+                              }))
+                            }
                           />
                         </div>
                       </div>
@@ -545,7 +610,12 @@ export default function Subscription() {
                           <Input
                             id="postal_code"
                             value={addressForm.postal_code}
-                            onChange={(e) => setAddressForm(prev => ({ ...prev, postal_code: e.target.value }))}
+                            onChange={e =>
+                              setAddressForm(prev => ({
+                                ...prev,
+                                postal_code: e.target.value,
+                              }))
+                            }
                           />
                         </div>
                         <div>
@@ -553,22 +623,29 @@ export default function Subscription() {
                           <Input
                             id="country"
                             value={addressForm.country}
-                            onChange={(e) => setAddressForm(prev => ({ ...prev, country: e.target.value }))}
+                            onChange={e =>
+                              setAddressForm(prev => ({
+                                ...prev,
+                                country: e.target.value,
+                              }))
+                            }
                           />
                         </div>
                       </div>
                       <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           onClick={handleSaveAddress}
                           disabled={updateAddressMutation.isPending}
                         >
                           <Save className="mr-2 h-4 w-4" />
-                          {updateAddressMutation.isPending ? 'Saving...' : 'Save'}
+                          {updateAddressMutation.isPending
+                            ? 'Saving...'
+                            : 'Save'}
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => setIsEditingAddress(false)}
                         >
                           <X className="mr-2 h-4 w-4" />
@@ -578,19 +655,33 @@ export default function Subscription() {
                     </div>
                   ) : billingInfo?.customer?.address ? (
                     <div className="space-y-2">
-                      <p className="text-slate dark:text-white">{billingInfo.customer.address.line1}</p>
+                      <p className="text-slate dark:text-white">
+                        {billingInfo.customer.address.line1}
+                      </p>
                       {billingInfo.customer.address.line2 && (
-                        <p className="text-slate dark:text-white">{billingInfo.customer.address.line2}</p>
+                        <p className="text-slate dark:text-white">
+                          {billingInfo.customer.address.line2}
+                        </p>
                       )}
                       <p className="text-slate dark:text-white">
-                        {billingInfo.customer.address.city}, {billingInfo.customer.address.state} {billingInfo.customer.address.postal_code}
+                        {billingInfo.customer.address.city},{' '}
+                        {billingInfo.customer.address.state}{' '}
+                        {billingInfo.customer.address.postal_code}
                       </p>
-                      <p className="text-slate dark:text-white">{billingInfo.customer.address.country}</p>
+                      <p className="text-slate dark:text-white">
+                        {billingInfo.customer.address.country}
+                      </p>
                     </div>
                   ) : (
                     <div className="text-center py-4">
-                      <p className="text-gray-500 dark:text-gray-400 mb-3">No billing address on file</p>
-                      <Button variant="outline" size="sm" onClick={handleEditAddress}>
+                      <p className="text-gray-500 dark:text-gray-400 mb-3">
+                        No billing address on file
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleEditAddress}
+                      >
                         <MapPin className="mr-2 h-4 w-4" />
                         Add Billing Address
                       </Button>
@@ -613,8 +704,11 @@ export default function Subscription() {
                   <p className="text-gray-500">Loading billing history...</p>
                 ) : billingInfo?.invoices && billingInfo.invoices.length > 0 ? (
                   <div className="space-y-4">
-                    {billingInfo.invoices.map((invoice) => (
-                      <div key={invoice.id} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    {billingInfo.invoices.map(invoice => (
+                      <div
+                        key={invoice.id}
+                        className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                      >
                         <div className="flex-1">
                           <div className="flex items-center space-x-4">
                             <div>
@@ -626,22 +720,35 @@ export default function Subscription() {
                               </p>
                             </div>
                             <div>
-                              <Badge 
-                                variant={invoice.status === 'paid' ? 'default' : 'secondary'}
-                                className={invoice.status === 'paid' ? 'bg-green-500' : ''}
+                              <Badge
+                                variant={
+                                  invoice.status === 'paid'
+                                    ? 'default'
+                                    : 'secondary'
+                                }
+                                className={
+                                  invoice.status === 'paid'
+                                    ? 'bg-green-500'
+                                    : ''
+                                }
                               >
                                 {invoice.status}
                               </Badge>
                             </div>
                           </div>
                           <p className="text-xs text-gray-400 mt-1">
-                            Billing period: {formatDate(invoice.period_start)} - {formatDate(invoice.period_end)}
+                            Billing period: {formatDate(invoice.period_start)} -{' '}
+                            {formatDate(invoice.period_end)}
                           </p>
                         </div>
                         <div className="flex space-x-2">
                           {invoice.hosted_invoice_url && (
                             <Button variant="outline" size="sm" asChild>
-                              <a href={invoice.hosted_invoice_url} target="_blank" rel="noopener noreferrer">
+                              <a
+                                href={invoice.hosted_invoice_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 <ExternalLink className="mr-2 h-4 w-4" />
                                 View
                               </a>
@@ -649,7 +756,11 @@ export default function Subscription() {
                           )}
                           {invoice.invoice_pdf && (
                             <Button variant="outline" size="sm" asChild>
-                              <a href={invoice.invoice_pdf} target="_blank" rel="noopener noreferrer">
+                              <a
+                                href={invoice.invoice_pdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 <Download className="mr-2 h-4 w-4" />
                                 PDF
                               </a>
@@ -661,7 +772,9 @@ export default function Subscription() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 dark:text-gray-400">No billing history available</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      No billing history available
+                    </p>
                   </div>
                 )}
               </CardContent>
@@ -679,39 +792,60 @@ export default function Subscription() {
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Plan Change */}
                   <div className="space-y-4">
-                    <h4 className="font-medium text-slate dark:text-white">Change Plan</h4>
+                    <h4 className="font-medium text-slate dark:text-white">
+                      Change Plan
+                    </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Switch between monthly and yearly billing. Prorated amounts will be applied.
+                      Switch between monthly and yearly billing. Prorated
+                      amounts will be applied.
                     </p>
                     <div className="flex space-x-2">
                       <Button
-                        variant={currentPlan === 'month' ? 'default' : 'outline'}
+                        variant={
+                          currentPlan === 'month' ? 'default' : 'outline'
+                        }
                         size="sm"
                         onClick={() => changePlanMutation.mutate('monthly')}
-                        disabled={currentPlan === 'month' || changePlanMutation.isPending || isPaused}
+                        disabled={
+                          currentPlan === 'month' ||
+                          changePlanMutation.isPending ||
+                          isPaused
+                        }
                         className={currentPlan === 'month' ? 'bg-grape' : ''}
                       >
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        {currentPlan === 'month' ? 'Current: Monthly' : 'Switch to Monthly'}
+                        {currentPlan === 'month'
+                          ? 'Current: Monthly'
+                          : 'Switch to Monthly'}
                       </Button>
                       <Button
                         variant={currentPlan === 'year' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => changePlanMutation.mutate('yearly')}
-                        disabled={currentPlan === 'year' || changePlanMutation.isPending || isPaused}
+                        disabled={
+                          currentPlan === 'year' ||
+                          changePlanMutation.isPending ||
+                          isPaused
+                        }
                         className={currentPlan === 'year' ? 'bg-grape' : ''}
                       >
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        {currentPlan === 'year' ? 'Current: Yearly' : 'Switch to Yearly (Save 17%)'}
+                        {currentPlan === 'year'
+                          ? 'Current: Yearly'
+                          : 'Switch to Yearly (Save 17%)'}
                       </Button>
                     </div>
                   </div>
 
                   {/* Pause/Resume */}
                   <div className="space-y-4">
-                    <h4 className="font-medium text-slate dark:text-white">Pause Subscription</h4>
+                    <h4 className="font-medium text-slate dark:text-white">
+                      Pause Subscription
+                    </h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {isPaused ? 'Your subscription is currently paused. Resume to regain access.' : 'Temporarily pause your subscription without losing your account.'}
+                      {isPaused
+                        ? 'Your subscription is currently paused. Resume to regain access.'
+                        : 'Temporarily pause your subscription without losing your account.'}
                     </p>
                     {isPaused ? (
                       <Button
@@ -721,17 +855,23 @@ export default function Subscription() {
                         className="bg-green-600 hover:bg-green-700 text-white"
                       >
                         <Play className="mr-2 h-4 w-4" />
-                        {resumeSubscriptionMutation.isPending ? 'Resuming...' : 'Resume Subscription'}
+                        {resumeSubscriptionMutation.isPending
+                          ? 'Resuming...'
+                          : 'Resume Subscription'}
                       </Button>
                     ) : (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => pauseSubscriptionMutation.mutate()}
-                        disabled={pauseSubscriptionMutation.isPending || isCanceled}
+                        disabled={
+                          pauseSubscriptionMutation.isPending || isCanceled
+                        }
                       >
                         <Pause className="mr-2 h-4 w-4" />
-                        {pauseSubscriptionMutation.isPending ? 'Pausing...' : 'Pause Subscription'}
+                        {pauseSubscriptionMutation.isPending
+                          ? 'Pausing...'
+                          : 'Pause Subscription'}
                       </Button>
                     )}
                   </div>
@@ -742,17 +882,23 @@ export default function Subscription() {
                 {/* Cancel/Reactivate */}
                 <div className="space-y-4">
                   <h4 className="font-medium text-slate dark:text-white">
-                    {isCanceled ? 'Reactivate Subscription' : 'Cancel Subscription'}
+                    {isCanceled
+                      ? 'Reactivate Subscription'
+                      : 'Cancel Subscription'}
                   </h4>
-                  
+
                   {isCanceled ? (
                     <div className="space-y-4">
                       <div className="p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
                         <div className="flex items-center">
                           <AlertTriangle className="h-5 w-5 text-orange-600 mr-2" />
                           <p className="text-sm text-orange-800 dark:text-orange-200">
-                            Your subscription is set to cancel on {formatDate(billingInfo?.subscription?.current_period_end || 0)}. 
-                            You can reactivate it before then to continue your service.
+                            Your subscription is set to cancel on{' '}
+                            {formatDate(
+                              billingInfo?.subscription?.current_period_end || 0
+                            )}
+                            . You can reactivate it before then to continue your
+                            service.
                           </p>
                         </div>
                       </div>
@@ -763,13 +909,16 @@ export default function Subscription() {
                         className="bg-green-600 hover:bg-green-700 text-white"
                       >
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        {reactivateSubscriptionMutation.isPending ? 'Reactivating...' : 'Reactivate Subscription'}
+                        {reactivateSubscriptionMutation.isPending
+                          ? 'Reactivating...'
+                          : 'Reactivate Subscription'}
                       </Button>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Cancel your subscription with options to retain access until your billing period ends.
+                        Cancel your subscription with options to retain access
+                        until your billing period ends.
                       </p>
                       <Button
                         variant="outline"
@@ -797,21 +946,29 @@ export default function Subscription() {
             <DialogHeader>
               <DialogTitle>Cancel Subscription</DialogTitle>
               <DialogDescription>
-                We're sorry to see you go. Please let us know why you're canceling to help us improve.
+                We're sorry to see you go. Please let us know why you're
+                canceling to help us improve.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="reason">Reason for canceling (optional)</Label>
-                <Select value={cancellationReason} onValueChange={setCancellationReason}>
+                <Select
+                  value={cancellationReason}
+                  onValueChange={setCancellationReason}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a reason..." />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="too_expensive">Too expensive</SelectItem>
                     <SelectItem value="not_using">Not using enough</SelectItem>
-                    <SelectItem value="missing_features">Missing features</SelectItem>
-                    <SelectItem value="found_alternative">Found alternative</SelectItem>
+                    <SelectItem value="missing_features">
+                      Missing features
+                    </SelectItem>
+                    <SelectItem value="found_alternative">
+                      Found alternative
+                    </SelectItem>
                     <SelectItem value="temporary">Temporary break</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
@@ -831,7 +988,9 @@ export default function Subscription() {
                 disabled={cancelSubscriptionMutation.isPending}
                 className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
               >
-                {cancelSubscriptionMutation.isPending ? 'Processing...' : 'Cancel at Period End'}
+                {cancelSubscriptionMutation.isPending
+                  ? 'Processing...'
+                  : 'Cancel at Period End'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -859,12 +1018,14 @@ export default function Subscription() {
                     </div>
                   </div>
                 </Card>
-                
+
                 <Card className="p-4 border-grape/20">
                   <div className="flex items-center space-x-3">
                     <RefreshCw className="h-5 w-5 text-grape" />
                     <div>
-                      <h4 className="font-medium">Switch to yearly and save 17%</h4>
+                      <h4 className="font-medium">
+                        Switch to yearly and save 17%
+                      </h4>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         Lower monthly cost with annual billing
                       </p>
@@ -892,7 +1053,9 @@ export default function Subscription() {
                   changePlanMutation.mutate('yearly');
                   setShowRetentionOffer(false);
                 }}
-                disabled={changePlanMutation.isPending || currentPlan === 'year'}
+                disabled={
+                  changePlanMutation.isPending || currentPlan === 'year'
+                }
                 className="w-full sm:w-auto"
               >
                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -903,7 +1066,9 @@ export default function Subscription() {
                 disabled={cancelSubscriptionMutation.isPending}
                 className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
               >
-                {cancelSubscriptionMutation.isPending ? 'Canceling...' : 'Still Cancel'}
+                {cancelSubscriptionMutation.isPending
+                  ? 'Canceling...'
+                  : 'Still Cancel'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -912,28 +1077,46 @@ export default function Subscription() {
         {/* Plan Comparison */}
         <div className="grid md:grid-cols-2 gap-8">
           {/* Free Plan */}
-          <Card className={`border-2 ${!isPremium ? 'border-grape bg-grape/5 dark:bg-grape/10' : 'border-gray-200 dark:border-gray-700'}`}>
+          <Card
+            className={`border-2 ${
+              !isPremium
+                ? 'border-grape bg-grape/5 dark:bg-grape/10'
+                : 'border-gray-200 dark:border-gray-700'
+            }`}
+          >
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span className="text-slate dark:text-white">Free Plan</span>
-                {!isPremium && <Badge className="bg-grape text-white">Current</Badge>}
+                {!isPremium && (
+                  <Badge className="bg-grape text-white">Current</Badge>
+                )}
               </CardTitle>
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold text-slate dark:text-white">$0</span>
-                <span className="text-gray-600 dark:text-gray-300 ml-2">/month</span>
+                <span className="text-3xl font-bold text-slate dark:text-white">
+                  $0
+                </span>
+                <span className="text-gray-600 dark:text-gray-300 ml-2">
+                  /month
+                </span>
               </div>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 {freeFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-600 dark:text-gray-300">
+                  <li
+                    key={index}
+                    className="flex items-center text-gray-600 dark:text-gray-300"
+                  >
                     <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                     {feature}
                   </li>
                 ))}
               </ul>
               {!isPremium && (
-                <Badge variant="outline" className="w-full justify-center py-2 border-grape text-grape">
+                <Badge
+                  variant="outline"
+                  className="w-full justify-center py-2 border-grape text-grape"
+                >
                   Your Current Plan
                 </Badge>
               )}
@@ -941,7 +1124,13 @@ export default function Subscription() {
           </Card>
 
           {/* Premium Plan */}
-          <Card className={`border-2 ${isPremium ? 'border-grape bg-grape/5 dark:bg-grape/10' : 'border-gray-200 dark:border-gray-700'} relative`}>
+          <Card
+            className={`border-2 ${
+              isPremium
+                ? 'border-grape bg-grape/5 dark:bg-grape/10'
+                : 'border-gray-200 dark:border-gray-700'
+            } relative`}
+          >
             {!isPremium && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-grape text-white px-4 py-1">
@@ -952,43 +1141,56 @@ export default function Subscription() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span className="text-slate dark:text-white">Premium Plan</span>
-                {isPremium && <Badge className="bg-grape text-white">Current</Badge>}
+                {isPremium && (
+                  <Badge className="bg-grape text-white">Current</Badge>
+                )}
               </CardTitle>
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold text-slate dark:text-white">$4.99</span>
-                <span className="text-gray-600 dark:text-gray-300 ml-2">/month</span>
+                <span className="text-3xl font-bold text-slate dark:text-white">
+                  $4.99
+                </span>
+                <span className="text-gray-600 dark:text-gray-300 ml-2">
+                  /month
+                </span>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">or $49.99/year (save 17%)</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                or $49.99/year (save 17%)
+              </p>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 mb-6">
                 {premiumFeatures.map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-600 dark:text-gray-300">
+                  <li
+                    key={index}
+                    className="flex items-center text-gray-600 dark:text-gray-300"
+                  >
                     <Check className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                     {feature}
                   </li>
                 ))}
               </ul>
-              
+
               {!isPremium ? (
                 <div className="space-y-3">
-                  <Button 
+                  <Button
                     onClick={() => handleUpgrade('monthly')}
                     disabled={isLoading}
                     className="w-full bg-grape hover:bg-grape/90 text-white"
                   >
                     <CreditCard className="mr-2 h-4 w-4" />
-                    {isLoading ? "Processing..." : "Start Monthly Plan"}
+                    {isLoading ? 'Processing...' : 'Start Monthly Plan'}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => handleUpgrade('yearly')}
                     disabled={isLoading}
                     variant="outline"
                     className="w-full border-grape text-grape hover:bg-grape/10"
                   >
                     <Crown className="mr-2 h-4 w-4" />
-                    {isLoading ? "Processing..." : "Start Yearly Plan (Save 17%)"}
+                    {isLoading
+                      ? 'Processing...'
+                      : 'Start Yearly Plan (Save 17%)'}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                   <p className="text-xs text-center text-gray-500 dark:text-gray-400">
@@ -997,11 +1199,15 @@ export default function Subscription() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <Badge variant="outline" className="w-full justify-center py-2 border-grape text-grape">
+                  <Badge
+                    variant="outline"
+                    className="w-full justify-center py-2 border-grape text-grape"
+                  >
                     Your Current Plan
                   </Badge>
                   <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                    Manage billing and subscription details in your Stripe customer portal
+                    Manage billing and subscription details in your Stripe
+                    customer portal
                   </p>
                 </div>
               )}
@@ -1018,10 +1224,14 @@ export default function Subscription() {
                   Ready to unlock unlimited wine discoveries?
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Start your 7-day free trial today and experience the full power of cork's AI-powered wine recommendations.
+                  Start your 7-day free trial today and experience the full
+                  power of cork's AI-powered wine recommendations.
                 </p>
                 <Link href="/pricing">
-                  <Button variant="outline" className="border-grape text-grape hover:bg-grape/10">
+                  <Button
+                    variant="outline"
+                    className="border-grape text-grape hover:bg-grape/10"
+                  >
                     View Detailed Pricing
                   </Button>
                 </Link>

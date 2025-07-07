@@ -1,21 +1,29 @@
-import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { Upload as UploadIcon, Loader2, Camera, CheckCircle, AlertCircle, Edit3, Save } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import { useAuth } from "@/components/auth-wrapper";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
-import UploadArea from "@/components/upload-area";
-import PlanLimitModal from "@/components/plan-limit-modal";
+import { useState, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import {
+  Upload as UploadIcon,
+  Loader2,
+  Camera,
+  CheckCircle,
+  AlertCircle,
+  Edit3,
+  Save,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest, queryClient } from '@/lib/queryClient';
+import { isUnauthorizedError } from '@/lib/authUtils';
+import { useAuth } from '@/components/firebase-auth/AuthWrapper';
+import Header from '@/components/header';
+import Footer from '@/components/footer';
+import UploadArea from '@/components/upload-area';
+import PlanLimitModal from '@/components/plan-limit-modal';
 
 interface AnalysisResult {
   id: number;
@@ -36,7 +44,9 @@ interface AnalysisResult {
 export default function Upload() {
   const { user, isAuthenticated, isLoading, getToken } = useAuth();
   const { toast } = useToast();
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
+    null
+  );
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedWine, setEditedWine] = useState<AnalysisResult | null>(null);
@@ -45,12 +55,12 @@ export default function Upload() {
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
+        title: 'Unauthorized',
+        description: 'You are logged out. Logging in again...',
+        variant: 'destructive',
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = '/api/login';
       }, 500);
       return;
     }
@@ -62,14 +72,14 @@ export default function Upload() {
       formData.append('wine_image', file);
 
       const token = await getToken();
-      
+
       const response = await fetch('/api/upload/analyze', {
         method: 'POST',
         body: formData,
         credentials: 'include',
         headers: {
           Authorization: `Bearer ${token}`,
-        }
+        },
       });
 
       if (!response.ok) {
@@ -79,39 +89,39 @@ export default function Upload() {
 
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: data => {
       setAnalysisResult(data);
       setEditedWine(data);
       toast({
-        title: "Analysis Complete!",
-        description: "Your wine has been analyzed successfully.",
+        title: 'Analysis Complete!',
+        description: 'Your wine has been analyzed successfully.',
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/uploads'] });
     },
-    onError: (error) => {
+    onError: error => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
+          title: 'Unauthorized',
+          description: 'You are logged out. Logging in again...',
+          variant: 'destructive',
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = '/api/login';
         }, 500);
         return;
       }
-      
+
       const errorMessage = error.message;
-      if (errorMessage.includes("Upload limit reached")) {
+      if (errorMessage.includes('Upload limit reached')) {
         setShowLimitModal(true);
         return;
       }
-      
+
       toast({
-        title: "Analysis Failed",
-        description: "Failed to analyze wine. Please try again.",
-        variant: "destructive",
+        title: 'Analysis Failed',
+        description: 'Failed to analyze wine. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -152,25 +162,29 @@ export default function Upload() {
         abv: editedWine.abv,
       };
 
-      const response = await apiRequest("PUT", `/api/uploads/${editedWine.id}`, updateData);
+      const response = await apiRequest(
+        'PUT',
+        `/api/uploads/${editedWine.id}`,
+        updateData
+      );
       const updatedWine = await response.json();
-      
+
       setAnalysisResult(updatedWine);
       setEditedWine(updatedWine);
       setIsEditing(false);
-      
+
       toast({
-        title: "Changes Saved",
-        description: "Wine details have been updated successfully.",
+        title: 'Changes Saved',
+        description: 'Wine details have been updated successfully.',
       });
-      
-      queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
+
+      queryClient.invalidateQueries({ queryKey: ['/api/uploads'] });
     } catch (error) {
-      console.error("Save error:", error);
+      console.error('Save error:', error);
       toast({
-        title: "Save Failed",
-        description: "Failed to save changes. Please try again.",
-        variant: "destructive",
+        title: 'Save Failed',
+        description: 'Failed to save changes. Please try again.',
+        variant: 'destructive',
       });
     }
   };
@@ -179,7 +193,7 @@ export default function Upload() {
     if (!editedWine) return;
     setEditedWine({
       ...editedWine,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -206,7 +220,8 @@ export default function Upload() {
               Analyse Your Wine Collection
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Upload photos of wines from your cellar and let AI determine their optimal drinking window
+              Upload photos of wines from your cellar and let AI determine their
+              optimal drinking window
             </p>
           </div>
 
@@ -218,29 +233,33 @@ export default function Upload() {
                   <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-sm font-medium text-yellow-800">Free Plan Usage</span>
+                        <span className="text-sm font-medium text-yellow-800">
+                          Free Plan Usage
+                        </span>
                         <p className="text-xs text-yellow-700">
                           {uploadCount} of 3 wine analyses used this month
                         </p>
                       </div>
-                      <Button 
-                        variant="link" 
+                      <Button
+                        variant="link"
                         className="text-xs text-grape hover:text-purple-800 font-medium p-0"
-                        onClick={() => window.location.href = '/pricing'}
+                        onClick={() => (window.location.href = '/pricing')}
                       >
                         Upgrade for unlimited
                       </Button>
                     </div>
                     <div className="mt-2 bg-yellow-200 rounded-full h-2">
-                      <div 
-                        className="bg-yellow-500 h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${Math.min((uploadCount / 3) * 100, 100)}%` }}
+                      <div
+                        className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${Math.min((uploadCount / 3) * 100, 100)}%`,
+                        }}
                       />
                     </div>
                   </div>
                 )}
 
-                <UploadArea 
+                <UploadArea
                   onFileUpload={handleFileUpload}
                   isLoading={analyzeWineMutation.isPending}
                   disabled={limitReached}
@@ -249,13 +268,15 @@ export default function Upload() {
                 {limitReached && (
                   <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-center">
                     <AlertCircle className="w-6 h-6 text-red-500 mx-auto mb-2" />
-                    <p className="text-sm text-red-700 font-medium">Upload limit reached</p>
+                    <p className="text-sm text-red-700 font-medium">
+                      Upload limit reached
+                    </p>
                     <p className="text-xs text-red-600 mt-1">
                       Upgrade to Premium for unlimited wine uploads and analysis
                     </p>
-                    <Button 
+                    <Button
                       className="mt-3 bg-grape text-white hover:bg-purple-800"
-                      onClick={() => window.location.href = '/pricing'}
+                      onClick={() => (window.location.href = '/pricing')}
                     >
                       Upgrade Now
                     </Button>
@@ -268,22 +289,34 @@ export default function Upload() {
                     <div className="w-12 h-12 bg-grape bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
                       <span className="text-grape font-bold">1</span>
                     </div>
-                    <h4 className="font-semibold text-slate mb-2">Clear Photos</h4>
-                    <p className="text-sm text-gray-600">Capture clear images of wine labels and bottles</p>
+                    <h4 className="font-semibold text-slate mb-2">
+                      Clear Photos
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Capture clear images of wine labels and bottles
+                    </p>
                   </div>
                   <div className="text-center">
                     <div className="w-12 h-12 bg-grape bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
                       <span className="text-grape font-bold">2</span>
                     </div>
-                    <h4 className="font-semibold text-slate mb-2">AI Analysis</h4>
-                    <p className="text-sm text-gray-600">Our AI identifies the wine and analyses aging potential</p>
+                    <h4 className="font-semibold text-slate mb-2">
+                      AI Analysis
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Our AI identifies the wine and analyses aging potential
+                    </p>
                   </div>
                   <div className="text-center">
                     <div className="w-12 h-12 bg-grape bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-3">
                       <span className="text-grape font-bold">3</span>
                     </div>
-                    <h4 className="font-semibold text-slate mb-2">Get Insights</h4>
-                    <p className="text-sm text-gray-600">Receive optimal drinking windows and tasting notes</p>
+                    <h4 className="font-semibold text-slate mb-2">
+                      Get Insights
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Receive optimal drinking windows and tasting notes
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -293,11 +326,15 @@ export default function Upload() {
             <Card className="bg-white border border-gray-200">
               <CardContent className="p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-poppins font-bold text-slate">Analysis Results</h3>
+                  <h3 className="text-xl font-poppins font-bold text-slate">
+                    Analysis Results
+                  </h3>
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-2 text-green-600">
                       <CheckCircle className="w-5 h-5" />
-                      <span className="text-sm font-medium">Analysis Complete</span>
+                      <span className="text-sm font-medium">
+                        Analysis Complete
+                      </span>
                     </div>
                     <Button
                       variant="outline"
@@ -310,51 +347,68 @@ export default function Upload() {
                     </Button>
                   </div>
                 </div>
-                
+
                 {!isEditing ? (
                   /* Display Mode */
                   <div className="grid md:grid-cols-2 gap-8">
                     <div>
-                      <img 
-                        src={analysisResult.originalImageUrl} 
-                        alt="User uploaded wine bottle" 
-                        className="w-full h-64 object-cover rounded-xl" 
+                      <img
+                        src={analysisResult.originalImageUrl}
+                        alt="User uploaded wine bottle"
+                        className="w-full h-64 object-cover rounded-xl"
                       />
                     </div>
-                    
+
                     <div>
                       <div className="mb-4">
-                        <Badge variant="secondary" className="text-wine bg-red-50 mb-2">
+                        <Badge
+                          variant="secondary"
+                          className="text-wine bg-red-50 mb-2"
+                        >
                           {analysisResult.wineType}
                         </Badge>
                         <h4 className="text-lg font-poppins font-semibold text-slate mt-2 mb-1">
-                          {analysisResult.wineName || "Wine Analysis Complete"}
+                          {analysisResult.wineName || 'Wine Analysis Complete'}
                         </h4>
-                        <p className="text-sm text-gray-600">{analysisResult.region}</p>
+                        <p className="text-sm text-gray-600">
+                          {analysisResult.region}
+                        </p>
                         {analysisResult.vintage && (
-                          <p className="text-sm text-gray-600">Vintage: {analysisResult.vintage}</p>
+                          <p className="text-sm text-gray-600">
+                            Vintage: {analysisResult.vintage}
+                          </p>
                         )}
                       </div>
 
                       <div className="space-y-4">
-                        {analysisResult.optimalDrinkingStart && analysisResult.optimalDrinkingEnd && (
-                          <div className="p-4 bg-green-50 rounded-lg">
-                            <h5 className="font-semibold text-green-800 mb-1">Optimal Drinking Window</h5>
-                            <p className="text-sm text-green-700">
-                              {analysisResult.optimalDrinkingStart} - {analysisResult.optimalDrinkingEnd}
-                            </p>
-                            {analysisResult.peakYearsStart && analysisResult.peakYearsEnd && (
-                              <p className="text-xs text-green-600 mt-1">
-                                Peak years: {analysisResult.peakYearsStart}-{analysisResult.peakYearsEnd}
+                        {analysisResult.optimalDrinkingStart &&
+                          analysisResult.optimalDrinkingEnd && (
+                            <div className="p-4 bg-green-50 rounded-lg">
+                              <h5 className="font-semibold text-green-800 mb-1">
+                                Optimal Drinking Window
+                              </h5>
+                              <p className="text-sm text-green-700">
+                                {analysisResult.optimalDrinkingStart} -{' '}
+                                {analysisResult.optimalDrinkingEnd}
                               </p>
-                            )}
-                          </div>
-                        )}
+                              {analysisResult.peakYearsStart &&
+                                analysisResult.peakYearsEnd && (
+                                  <p className="text-xs text-green-600 mt-1">
+                                    Peak years: {analysisResult.peakYearsStart}-
+                                    {analysisResult.peakYearsEnd}
+                                  </p>
+                                )}
+                            </div>
+                          )}
 
                         {analysisResult.analysis && (
                           <div className="p-4 bg-blue-50 rounded-lg">
-                            <h5 className="font-semibold text-blue-800 mb-1">AI Analysis</h5>
-                            <p className="text-sm text-blue-700">{analysisResult.analysis}</p>
+                            <h5 className="font-semibold text-blue-800 mb-1">
+                              AI Analysis
+                            </h5>
+                            <p className="text-sm text-blue-700">
+                              {analysisResult.analysis}
+                            </p>
                           </div>
                         )}
 
@@ -365,22 +419,24 @@ export default function Upload() {
                             </span>
                           )}
                           {analysisResult.abv && (
-                            <span className="text-gray-600">{analysisResult.abv}</span>
+                            <span className="text-gray-600">
+                              {analysisResult.abv}
+                            </span>
                           )}
                         </div>
                       </div>
 
                       <div className="mt-6 flex gap-3">
-                        <Button 
+                        <Button
                           onClick={handleNewAnalysis}
                           className="flex-1 bg-grape text-white hover:bg-purple-800"
                         >
                           Analyse Another Wine
                         </Button>
-                        <Button 
+                        <Button
                           variant="outline"
                           className="border-grape text-grape hover:bg-grape hover:text-white"
-                          onClick={() => window.location.href = '/cellar'}
+                          onClick={() => (window.location.href = '/cellar')}
                         >
                           View Cellar
                         </Button>
@@ -391,73 +447,94 @@ export default function Upload() {
                   /* Edit Mode */
                   <div className="grid md:grid-cols-2 gap-8">
                     <div>
-                      <img 
-                        src={analysisResult.originalImageUrl} 
-                        alt="User uploaded wine bottle" 
-                        className="w-full h-64 object-cover rounded-xl" 
+                      <img
+                        src={analysisResult.originalImageUrl}
+                        alt="User uploaded wine bottle"
+                        className="w-full h-64 object-cover rounded-xl"
                       />
                       <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                         <p className="text-sm text-blue-800 font-medium">
                           Editing Wine Details
                         </p>
                         <p className="text-xs text-blue-600 mt-1">
-                          Correct any details that weren't recognized properly by the AI analysis.
+                          Correct any details that weren't recognized properly
+                          by the AI analysis.
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                       {/* Basic Information */}
                       <div className="space-y-3">
                         <div>
-                          <Label htmlFor="wineName" className="text-sm font-medium text-slate">
+                          <Label
+                            htmlFor="wineName"
+                            className="text-sm font-medium text-slate"
+                          >
                             Wine Name *
                           </Label>
                           <Input
                             id="wineName"
                             value={editedWine?.wineName || ''}
-                            onChange={(e) => handleInputChange('wineName', e.target.value)}
+                            onChange={e =>
+                              handleInputChange('wineName', e.target.value)
+                            }
                             placeholder="Enter wine name"
                             className="mt-1"
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label htmlFor="wineType" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="wineType"
+                              className="text-sm font-medium text-slate"
+                            >
                               Wine Type *
                             </Label>
                             <Input
                               id="wineType"
                               value={editedWine?.wineType || ''}
-                              onChange={(e) => handleInputChange('wineType', e.target.value)}
+                              onChange={e =>
+                                handleInputChange('wineType', e.target.value)
+                              }
                               placeholder="Red, White, Sparkling..."
                               className="mt-1"
                             />
                           </div>
-                          
+
                           <div>
-                            <Label htmlFor="vintage" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="vintage"
+                              className="text-sm font-medium text-slate"
+                            >
                               Vintage
                             </Label>
                             <Input
                               id="vintage"
                               value={editedWine?.vintage || ''}
-                              onChange={(e) => handleInputChange('vintage', e.target.value)}
+                              onChange={e =>
+                                handleInputChange('vintage', e.target.value)
+                              }
                               placeholder="2018"
                               className="mt-1"
                             />
                           </div>
                         </div>
-                        
+
                         <div>
-                          <Label htmlFor="region" className="text-sm font-medium text-slate">
+                          <Label
+                            htmlFor="region"
+                            className="text-sm font-medium text-slate"
+                          >
                             Region *
                           </Label>
                           <Input
                             id="region"
                             value={editedWine?.region || ''}
-                            onChange={(e) => handleInputChange('region', e.target.value)}
+                            onChange={e =>
+                              handleInputChange('region', e.target.value)
+                            }
                             placeholder="Barossa Valley, Hunter Valley..."
                             className="mt-1"
                           />
@@ -468,57 +545,91 @@ export default function Upload() {
 
                       {/* Drinking Windows */}
                       <div className="space-y-3">
-                        <h5 className="font-medium text-slate">Drinking Windows</h5>
+                        <h5 className="font-medium text-slate">
+                          Drinking Windows
+                        </h5>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label htmlFor="optimalStart" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="optimalStart"
+                              className="text-sm font-medium text-slate"
+                            >
                               Optimal Start
                             </Label>
                             <Input
                               id="optimalStart"
                               value={editedWine?.optimalDrinkingStart || ''}
-                              onChange={(e) => handleInputChange('optimalDrinkingStart', e.target.value)}
+                              onChange={e =>
+                                handleInputChange(
+                                  'optimalDrinkingStart',
+                                  e.target.value
+                                )
+                              }
                               placeholder="2024"
                               className="mt-1"
                             />
                           </div>
-                          
+
                           <div>
-                            <Label htmlFor="optimalEnd" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="optimalEnd"
+                              className="text-sm font-medium text-slate"
+                            >
                               Optimal End
                             </Label>
                             <Input
                               id="optimalEnd"
                               value={editedWine?.optimalDrinkingEnd || ''}
-                              onChange={(e) => handleInputChange('optimalDrinkingEnd', e.target.value)}
+                              onChange={e =>
+                                handleInputChange(
+                                  'optimalDrinkingEnd',
+                                  e.target.value
+                                )
+                              }
                               placeholder="2030"
                               className="mt-1"
                             />
                           </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label htmlFor="peakStart" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="peakStart"
+                              className="text-sm font-medium text-slate"
+                            >
                               Peak Start
                             </Label>
                             <Input
                               id="peakStart"
                               value={editedWine?.peakYearsStart || ''}
-                              onChange={(e) => handleInputChange('peakYearsStart', e.target.value)}
+                              onChange={e =>
+                                handleInputChange(
+                                  'peakYearsStart',
+                                  e.target.value
+                                )
+                              }
                               placeholder="2026"
                               className="mt-1"
                             />
                           </div>
-                          
+
                           <div>
-                            <Label htmlFor="peakEnd" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="peakEnd"
+                              className="text-sm font-medium text-slate"
+                            >
                               Peak End
                             </Label>
                             <Input
                               id="peakEnd"
                               value={editedWine?.peakYearsEnd || ''}
-                              onChange={(e) => handleInputChange('peakYearsEnd', e.target.value)}
+                              onChange={e =>
+                                handleInputChange(
+                                  'peakYearsEnd',
+                                  e.target.value
+                                )
+                              }
                               placeholder="2028"
                               className="mt-1"
                             />
@@ -532,40 +643,58 @@ export default function Upload() {
                       <div className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <Label htmlFor="abv" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="abv"
+                              className="text-sm font-medium text-slate"
+                            >
                               ABV
                             </Label>
                             <Input
                               id="abv"
                               value={editedWine?.abv || ''}
-                              onChange={(e) => handleInputChange('abv', e.target.value)}
+                              onChange={e =>
+                                handleInputChange('abv', e.target.value)
+                              }
                               placeholder="14.5%"
                               className="mt-1"
                             />
                           </div>
-                          
+
                           <div>
-                            <Label htmlFor="estimatedValue" className="text-sm font-medium text-slate">
+                            <Label
+                              htmlFor="estimatedValue"
+                              className="text-sm font-medium text-slate"
+                            >
                               Estimated Value
                             </Label>
                             <Input
                               id="estimatedValue"
                               value={editedWine?.estimatedValue || ''}
-                              onChange={(e) => handleInputChange('estimatedValue', e.target.value)}
+                              onChange={e =>
+                                handleInputChange(
+                                  'estimatedValue',
+                                  e.target.value
+                                )
+                              }
                               placeholder="$45-65 AUD"
                               className="mt-1"
                             />
                           </div>
                         </div>
-                        
+
                         <div>
-                          <Label htmlFor="analysis" className="text-sm font-medium text-slate">
+                          <Label
+                            htmlFor="analysis"
+                            className="text-sm font-medium text-slate"
+                          >
                             Analysis & Tasting Notes
                           </Label>
                           <Textarea
                             id="analysis"
                             value={editedWine?.analysis || ''}
-                            onChange={(e) => handleInputChange('analysis', e.target.value)}
+                            onChange={e =>
+                              handleInputChange('analysis', e.target.value)
+                            }
                             placeholder="Describe the wine's characteristics, tasting notes, and aging potential..."
                             className="mt-1 min-h-[100px]"
                           />
@@ -574,14 +703,14 @@ export default function Upload() {
 
                       {/* Action Buttons */}
                       <div className="flex gap-3 pt-4">
-                        <Button 
+                        <Button
                           onClick={handleSaveChanges}
                           className="flex-1 bg-grape text-white hover:bg-purple-800"
                         >
                           <Save className="w-4 h-4 mr-2" />
                           Save Changes
                         </Button>
-                        <Button 
+                        <Button
                           variant="outline"
                           onClick={handleEditToggle}
                           className="border-gray-300 hover:bg-gray-50"
@@ -598,14 +727,14 @@ export default function Upload() {
         </div>
       </section>
 
-      <PlanLimitModal 
+      <PlanLimitModal
         open={showLimitModal}
         onOpenChange={setShowLimitModal}
         type="upload"
         currentCount={uploadCount}
         maxCount={3}
       />
-      
+
       <Footer />
     </div>
   );

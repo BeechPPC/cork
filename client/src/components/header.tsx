@@ -19,20 +19,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SignInButton, SignUpButton, useClerk } from '@clerk/clerk-react';
+import SignInButton from '@/components/firebase-auth/SignInButton';
+import SignUpButton from '@/components/firebase-auth/SignUpButton';
 import UserButton from '@/components/user-button';
-import { isClerkConfigured } from '@/lib/clerk';
+import { isFirebaseConfigured } from '@/lib/auth';
+import { signOut } from '@/lib/auth';
 import { useState } from 'react';
 import { useAuthenticatedQuery } from '@/hooks/useAuthenticatedQuery';
 
 export default function Header() {
-  const { user: clerkUser, isAuthenticated } = useAuth();
-  const { signOut } = useClerk();
+  const { user, isAuthenticated } = useAuth();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Fetch user data from backend API for subscription info
-  const { data: user } = useAuthenticatedQuery(
+  const { data: backendUser } = useAuthenticatedQuery(
     ['/api/auth/user'],
     async token => {
       const res = await fetch('/api/auth/user', {
@@ -46,8 +47,8 @@ export default function Header() {
     }
   );
 
-  // Use backend user data if available, fallback to Clerk user data
-  const displayUser = user || clerkUser;
+  // Use backend user data if available, fallback to Firebase user data
+  const displayUser = backendUser || user;
 
   const getInitials = (firstName?: string, lastName?: string) => {
     const first = firstName?.charAt(0) || '';
@@ -58,6 +59,16 @@ export default function Header() {
   const isActive = (path: string) => {
     if (path === '/' && location === '/') return true;
     return location.startsWith(path) && path !== '/';
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      // Optionally redirect to home page
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   return (
@@ -113,45 +124,74 @@ export default function Header() {
                     Upload Wine
                   </Button>
                 </Link>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
-                        isActive('/winery-explorer') ||
-                        isActive('/wine-education')
-                          ? 'text-grape dark:text-purple-400 font-medium'
-                          : ''
-                      }`}
-                    >
-                      Explore
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-56 bg-white dark:bg-gray-800 border dark:border-gray-700"
-                    align="center"
+                <Link href="/wine-education">
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/wine-education')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
                   >
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/winery-explorer"
-                        className="flex items-center"
-                      >
-                        <MapPin className="mr-2 h-4 w-4" />
-                        <span>Winery Explorer</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        href="/wine-education"
-                        className="flex items-center"
-                      >
-                        <BookOpen className="mr-2 h-4 w-4" />
-                        Wine Education
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Wine Education
+                  </Button>
+                </Link>
+                <Link href="/winery-explorer">
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/winery-explorer')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
+                  >
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Winery Explorer
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/pricing')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
+                  >
+                    Pricing
+                  </Button>
+                </Link>
+              </>
+            )}
+
+            {/* Unauthenticated user navigation */}
+            {!isAuthenticated && (
+              <>
+                <Link href="/pricing">
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/pricing')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
+                  >
+                    Pricing
+                  </Button>
+                </Link>
+                <Link href="/contact">
+                  <Button
+                    variant="ghost"
+                    className={`text-slate dark:text-gray-200 hover:text-grape dark:hover:text-purple-400 transition-colors ${
+                      isActive('/contact')
+                        ? 'text-grape dark:text-purple-400 font-medium'
+                        : ''
+                    }`}
+                  >
+                    Contact
+                  </Button>
+                </Link>
               </>
             )}
           </div>
@@ -159,7 +199,7 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             {!isAuthenticated ? (
               <div className="flex items-center space-x-3">
-                {isClerkConfigured ? (
+                {isFirebaseConfigured() ? (
                   <>
                     <SignInButton mode="modal">
                       <Button
@@ -194,18 +234,8 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              /* User Menu */
-              <div className="flex items-center space-x-3">
-                <Badge
-                  variant="secondary"
-                  className="text-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-                >
-                  {displayUser?.subscriptionPlan === 'premium'
-                    ? 'Premium'
-                    : 'Free'}{' '}
-                  Plan
-                </Badge>
-
+              <div className="flex items-center space-x-4">
+                {/* User menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -215,9 +245,9 @@ export default function Header() {
                       <Avatar className="h-8 w-8">
                         <AvatarImage
                           src={displayUser?.profileImageUrl}
-                          alt="Profile"
+                          alt={displayUser?.firstName || 'User'}
                         />
-                        <AvatarFallback className="bg-grape dark:bg-purple-600 text-white text-sm">
+                        <AvatarFallback>
                           {getInitials(
                             displayUser?.firstName,
                             displayUser?.lastName
@@ -253,7 +283,7 @@ export default function Header() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => signOut()}
+                      onClick={handleSignOut}
                       className="flex items-center cursor-pointer"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
@@ -321,7 +351,7 @@ export default function Header() {
               <Button
                 variant="ghost"
                 className="w-full justify-start"
-                onClick={() => signOut()}
+                onClick={handleSignOut}
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out

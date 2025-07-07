@@ -25,8 +25,9 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/components/auth-wrapper';
+import { useAuth } from '@/components/firebase-auth/AuthWrapper';
 import { queryClient } from '@/lib/queryClient';
+import { apiRequestWithAuth } from '@/lib/api-request';
 import {
   saveTemporaryProfile,
   validateAge,
@@ -107,7 +108,17 @@ export default function ProfileSetupModal({
   };
 
   const handleComplete = async () => {
+    console.log('🔍 ProfileSetupModal: handleComplete called');
+    console.log('🔍 ProfileSetupModal: Current auth state:', {
+      isSignedIn,
+    });
+
     if (!dateOfBirth || !acceptedTerms || !isValidAge) {
+      console.log('🔍 ProfileSetupModal: Validation failed:', {
+        dateOfBirth,
+        acceptedTerms,
+        isValidAge,
+      });
       toast({
         title: 'Required Information Missing',
         description:
@@ -120,7 +131,7 @@ export default function ProfileSetupModal({
     setIsLoading(true);
 
     try {
-      console.log('Submitting profile setup:', {
+      console.log('🔍 ProfileSetupModal: Submitting profile setup:', {
         dateOfBirth,
         wineExperienceLevel: experienceLevel || null,
         preferredWineTypes:
@@ -128,16 +139,6 @@ export default function ProfileSetupModal({
         budgetRange: budgetRange || null,
         location: location || null,
       });
-
-      // Check if user is signed in and get token
-      if (!isSignedIn) {
-        throw new Error('Please sign in to complete your profile');
-      }
-
-      const token = await getToken?.();
-      if (!token) {
-        throw new Error('Authentication token not available');
-      }
 
       const requestData = {
         dateOfBirth,
@@ -148,46 +149,42 @@ export default function ProfileSetupModal({
         location: location || null,
       };
 
-      // Try server endpoint first
-      try {
-        const response = await fetch('/api/profile/setup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(requestData),
+      // Save profile to Firebase using authenticated request
+      console.log(
+        '🔍 ProfileSetupModal: Making API request to /api/profile/setup'
+      );
+      const response = await apiRequestWithAuth(
+        'POST',
+        '/api/profile/setup',
+        requestData
+      );
+
+      console.log(
+        '🔍 ProfileSetupModal: API response status:',
+        response.status
+      );
+      console.log('🔍 ProfileSetupModal: API response ok:', response.ok);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('🔍 ProfileSetupModal: Profile setup successful:', result);
+
+        // Clear any temporary profile data
+        clearTemporaryProfile();
+
+        // Invalidate user query to refresh profile status
+        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+
+        toast({
+          title: 'Profile Complete!',
+          description: 'Welcome to Cork! Your wine journey begins now.',
         });
-
-        if (response.ok) {
-          // Clear any temporary profile data since server successfully completed setup
-          clearTemporaryProfile();
-          queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-          toast({
-            title: 'Profile Complete!',
-            description: 'Welcome to Cork! Your wine journey begins now.',
-          });
-          onComplete();
-          return;
-        }
-      } catch (serverError) {
-        console.warn(
-          'Server profile setup failed, using temporary storage:',
-          serverError
-        );
+        onComplete();
+      } else {
+        const errorData = await response.json();
+        console.log('🔍 ProfileSetupModal: API error:', errorData);
+        throw new Error(errorData.message || 'Failed to save profile');
       }
-
-      // Fallback to temporary storage
-      console.log('Using temporary profile storage as fallback');
-      saveTemporaryProfile(requestData);
-
-      toast({
-        title: 'Profile Saved!',
-        description:
-          'Welcome to Cork! Your profile has been saved and will sync when our servers are ready.',
-      });
-
-      onComplete();
     } catch (error) {
       console.error('Profile setup error:', error);
       toast({

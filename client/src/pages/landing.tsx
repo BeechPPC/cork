@@ -9,12 +9,11 @@ import {
   FaLinkedin,
   FaThreads,
 } from 'react-icons/fa6';
-import { isClerkConfigured } from '@/lib/clerk';
 import { Link, useLocation } from 'wouter';
 import Header from '@/components/header';
 import EmailCaptureModal from '@/components/email-capture-modal';
-import { useAuth } from '@/components/auth-wrapper';
-import { SignInButton } from '@clerk/clerk-react';
+import { useAuth } from '@/components/firebase-auth/AuthWrapper';
+import SignInButton from '@/components/firebase-auth/SignInButton';
 
 // Simple button component for all cases
 function ActionButton({
@@ -33,8 +32,8 @@ function ActionButton({
   );
 }
 
-// Clerk SignIn Button wrapper
-function ClerkActionButton({
+// Firebase SignIn Button wrapper
+function FirebaseActionButton({
   children,
   className,
 }: {
@@ -42,7 +41,7 @@ function ClerkActionButton({
   className?: string;
 }) {
   return (
-    <SignInButton mode="modal">
+    <SignInButton>
       <Button className={className}>{children}</Button>
     </SignInButton>
   );
@@ -87,13 +86,8 @@ export default function Landing() {
   }, [isLoaded, isSignedIn, user]);
 
   const handleGetStarted = () => {
-    if (isClerkConfigured) {
-      // Use Clerk SignUp component instead of direct navigation
-      window.location.href = '/api/login';
-    } else {
-      // Show email capture when auth is not available
-      setShowEmailCapture(true);
-    }
+    // Show email capture when auth is not available
+    setShowEmailCapture(true);
   };
 
   // Show loading state if redirecting
@@ -158,18 +152,9 @@ export default function Landing() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
-              {isClerkConfigured ? (
-                <ClerkActionButton className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg shadow-2xl hover:shadow-red-500/25 transition-all transform hover:scale-105 border-0">
-                  Get Started Free
-                </ClerkActionButton>
-              ) : (
-                <ActionButton
-                  onClick={handleGetStarted}
-                  className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg shadow-2xl hover:shadow-red-500/25 transition-all transform hover:scale-105 border-0"
-                >
-                  Join Waitlist
-                </ActionButton>
-              )}
+              <FirebaseActionButton className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-10 py-4 rounded-2xl font-poppins font-semibold text-lg shadow-2xl hover:shadow-red-500/25 transition-all transform hover:scale-105 border-0">
+                Get Started Free
+              </FirebaseActionButton>
               <Button
                 variant="outline"
                 onClick={() => setLocation('/pricing')}
@@ -278,18 +263,9 @@ export default function Landing() {
             Join a community of wine enthusiasts who are discovering new
             favourite wines. discoveries
           </p>
-          {isClerkConfigured ? (
-            <ClerkActionButton className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg transition-all transform hover:scale-105 shadow-lg">
-              Get Started Free
-            </ClerkActionButton>
-          ) : (
-            <ActionButton
-              onClick={handleGetStarted}
-              className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg transition-all transform hover:scale-105 shadow-lg"
-            >
-              Join Waitlist
-            </ActionButton>
-          )}
+          <FirebaseActionButton className="bg-grape hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-8 py-4 rounded-xl font-poppins font-semibold text-lg transition-all transform hover:scale-105 shadow-lg">
+            Get Started Free
+          </FirebaseActionButton>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
             Free plan includes 3 saved wines • Premium from $4.99/month
           </p>
