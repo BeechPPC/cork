@@ -804,9 +804,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update user's usage count after deletion
       const newSavedWineCount = await storage.getSavedWineCount(userId);
+      const currentUploadedWineCount = await storage.getUploadedWineCount(
+        userId
+      );
       await storage.updateUser(userId, {
         usage: {
           savedWines: newSavedWineCount,
+          uploadedWines: currentUploadedWineCount,
         },
       });
 
