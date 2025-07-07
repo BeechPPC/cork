@@ -8,7 +8,9 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "mkdir -p dist/public && cp -r client/* dist/public/",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "echo 'Server build complete'",
     "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",
     "db:push": "drizzle-kit push",
@@ -127,6 +129,9 @@
   ],
   "overrides": {
     "rollup": "4.9.5",
-    "@rollup/rollup-linux-x64-gnu": "npm:@rollup/rollup-linux-x64-musl@4.9.5"
+    "@rollup/rollup-linux-x64-gnu": "npm:@rollup/rollup-linux-x64-musl@4.9.5",
+    "vite": {
+      "rollup": "4.9.5"
+    }
   }
 }

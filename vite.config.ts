@@ -35,6 +35,9 @@ export default defineConfig({
     minify: 'esbuild',
     rollupOptions: {
       external: ['@rollup/rollup-linux-x64-gnu'],
+      output: {
+        manualChunks: undefined,
+      },
     },
   },
   server: {
@@ -45,5 +48,9 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['@rollup/rollup-linux-x64-gnu'],
+    force: true,
+  },
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
   },
 });
