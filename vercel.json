@@ -2,18 +2,6 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/health.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/email-signup.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/recommendations-final.js",
-      "use": "@vercel/node"
-    },
-    {
       "src": "server/index.ts",
       "use": "@vercel/node"
     },
@@ -27,18 +15,6 @@
     }
   ],
   "routes": [
-    {
-      "src": "/api/health",
-      "dest": "/api/health.js"
-    },
-    {
-      "src": "/api/email-signup",
-      "dest": "/api/email-signup.js"
-    },
-    {
-      "src": "/api/recommendations",
-      "dest": "/api/recommendations-final.js"
-    },
     {
       "src": "/api/(.*)",
       "dest": "/server/index.ts"
