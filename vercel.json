@@ -1,23 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "server/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "runtime": "nodejs18.x"
-      }
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "buildCommand": "npm run build:client",
-        "outputDirectory": "dist/public",
-        "runtime": "nodejs18.x"
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/api/(.*)",
