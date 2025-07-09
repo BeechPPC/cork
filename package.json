@@ -10,7 +10,7 @@
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "node scripts/build-client.js",
-    "build:server": "echo 'Server build complete'",
+    "build:server": "tsc",
     "copy-assets": "mkdir -p dist/public && cp -r client/public/* dist/public/ && cp client/index.html dist/public/",
     "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",
