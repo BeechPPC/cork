@@ -18,6 +18,20 @@ cpSync(
   resolve(outputDir, 'index.html')
 );
 
+// Collect all VITE_* env vars from process.env
+const viteEnv = Object.keys(process.env)
+  .filter(key => key.startsWith('VITE_'))
+  .reduce((acc, key) => {
+    acc[`import.meta.env.${key}`] = JSON.stringify(process.env[key]);
+    return acc;
+  }, {});
+
+// Add standard env vars
+viteEnv['process.env.NODE_ENV'] = '"production"';
+viteEnv['import.meta.env.NODE_ENV'] = '"production"';
+viteEnv['import.meta.env.PROD'] = 'true';
+viteEnv['import.meta.env.DEV'] = 'false';
+
 try {
   // Build with esbuild
   await build({
@@ -28,12 +42,7 @@ try {
     target: 'es2020',
     jsx: 'automatic',
     minify: true,
-    define: {
-      'process.env.NODE_ENV': '"production"',
-      'import.meta.env.NODE_ENV': '"production"',
-      'import.meta.env.PROD': 'true',
-      'import.meta.env.DEV': 'false',
-    },
+    define: viteEnv,
     resolveExtensions: ['.tsx', '.ts', '.jsx', '.js'],
     alias: {
       '@': resolve(__dirname, '../client/src'),
