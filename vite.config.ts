@@ -34,7 +34,6 @@ export default defineConfig({
     target: 'esnext',
     minify: 'esbuild',
     rollupOptions: {
-      external: ['@rollup/rollup-linux-x64-gnu'],
       output: {
         manualChunks: undefined,
       },
@@ -47,7 +46,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ['@rollup/rollup-linux-x64-gnu'],
     force: true,
   },
   define: {
