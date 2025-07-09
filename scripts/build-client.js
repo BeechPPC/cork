@@ -32,6 +32,13 @@ viteEnv['import.meta.env.NODE_ENV'] = '"production"';
 viteEnv['import.meta.env.PROD'] = 'true';
 viteEnv['import.meta.env.DEV'] = 'false';
 
+// Debug: Log what environment variables we found
+console.log(
+  '🔍 Environment variables found:',
+  Object.keys(process.env).filter(key => key.startsWith('VITE_'))
+);
+console.log('🔍 Vite env vars to inject:', Object.keys(viteEnv));
+
 try {
   // Build with esbuild
   await build({
