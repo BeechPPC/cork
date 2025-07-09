@@ -73,6 +73,22 @@ viteEnv['import.meta.env.NODE_ENV'] = '"production"';
 viteEnv['import.meta.env.PROD'] = 'true';
 viteEnv['import.meta.env.DEV'] = 'false';
 
+// If no environment variables are found, create a fallback config
+if (Object.keys(viteEnv).length === 0) {
+  console.log('⚠️ No environment variables found, creating fallback config');
+
+  // Create a simple config that will prevent the app from crashing
+  viteEnv['import.meta.env.VITE_FIREBASE_API_KEY'] = '"MISSING_API_KEY"';
+  viteEnv['import.meta.env.VITE_FIREBASE_AUTH_DOMAIN'] =
+    '"MISSING_AUTH_DOMAIN"';
+  viteEnv['import.meta.env.VITE_FIREBASE_PROJECT_ID'] = '"MISSING_PROJECT_ID"';
+  viteEnv['import.meta.env.VITE_FIREBASE_STORAGE_BUCKET'] =
+    '"MISSING_STORAGE_BUCKET"';
+  viteEnv['import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID'] =
+    '"MISSING_SENDER_ID"';
+  viteEnv['import.meta.env.VITE_FIREBASE_APP_ID'] = '"MISSING_APP_ID"';
+}
+
 try {
   // Build with esbuild
   await build({
