@@ -18,6 +18,27 @@ cpSync(
   resolve(outputDir, 'index.html')
 );
 
+// Debug: Log all environment variables to see what's available
+console.log('🔍 All environment variables:', Object.keys(process.env));
+console.log(
+  '🔍 Environment variables found:',
+  Object.keys(process.env).filter(key => key.startsWith('VITE_'))
+);
+
+// Create a temporary .env file for the build
+const envContent = Object.keys(process.env)
+  .filter(key => key.startsWith('VITE_'))
+  .map(key => `${key}=${process.env[key]}`)
+  .join('\n');
+
+if (envContent) {
+  writeFileSync(resolve(__dirname, '../.env'), envContent);
+  console.log('📝 Created temporary .env file with Vite variables');
+  console.log('📝 .env content:', envContent);
+} else {
+  console.log('⚠️ No VITE_* environment variables found');
+}
+
 // Collect all VITE_* env vars from process.env
 const viteEnv = Object.keys(process.env)
   .filter(key => key.startsWith('VITE_'))
@@ -26,18 +47,31 @@ const viteEnv = Object.keys(process.env)
     return acc;
   }, {});
 
+console.log('🔍 Vite env vars to inject:', Object.keys(viteEnv));
+
+// Check for specific Firebase variables
+const firebaseVars = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID',
+];
+
+firebaseVars.forEach(varName => {
+  const value = process.env[varName];
+  console.log(`🔍 ${varName}: ${value ? '✅ Set' : '❌ Missing'}`);
+  if (value) {
+    console.log(`   Value: ${value.substring(0, 10)}...`);
+  }
+});
+
 // Add standard env vars
 viteEnv['process.env.NODE_ENV'] = '"production"';
 viteEnv['import.meta.env.NODE_ENV'] = '"production"';
 viteEnv['import.meta.env.PROD'] = 'true';
 viteEnv['import.meta.env.DEV'] = 'false';
-
-// Debug: Log what environment variables we found
-console.log(
-  '🔍 Environment variables found:',
-  Object.keys(process.env).filter(key => key.startsWith('VITE_'))
-);
-console.log('🔍 Vite env vars to inject:', Object.keys(viteEnv));
 
 try {
   // Build with esbuild
