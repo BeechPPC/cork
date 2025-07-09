@@ -86,6 +86,28 @@ if (
 if (!firebaseConfig.appId || firebaseConfig.appId === 'MISSING_APP_ID')
   missingFields.push('appId');
 
+// Create a mock auth object to prevent the app from crashing
+const createMockAuth = () => ({
+  currentUser: null,
+  onAuthStateChanged: (callback: any) => {
+    console.log('Mock auth: onAuthStateChanged called');
+    callback(null);
+    return () => {};
+  },
+  signInWithEmailAndPassword: async () => {
+    throw new Error('Firebase Auth not properly configured');
+  },
+  createUserWithEmailAndPassword: async () => {
+    throw new Error('Firebase Auth not properly configured');
+  },
+  signOut: async () => {
+    console.log('Mock auth: signOut called');
+  },
+});
+
+let app: any = null;
+let auth: any = null;
+
 if (missingFields.length > 0) {
   console.error('❌ Missing Firebase config fields:', missingFields);
 
@@ -110,30 +132,11 @@ if (missingFields.length > 0) {
   `;
   document.body.appendChild(errorDiv);
 
-  // Create a mock auth object to prevent the app from crashing
-  const mockAuth = {
-    currentUser: null,
-    onAuthStateChanged: (callback: any) => {
-      console.log('Mock auth: onAuthStateChanged called');
-      callback(null);
-      return () => {};
-    },
-    signInWithEmailAndPassword: async () => {
-      throw new Error('Firebase Auth not properly configured');
-    },
-    createUserWithEmailAndPassword: async () => {
-      throw new Error('Firebase Auth not properly configured');
-    },
-    signOut: async () => {
-      console.log('Mock auth: signOut called');
-    },
-  };
-
-  export { mockAuth as auth };
-  export default null;
+  // Use mock auth
+  auth = createMockAuth();
+  app = null;
 } else {
   // Initialize Firebase with error handling
-  let app;
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     console.log('✅ Firebase app initialized successfully');
@@ -148,7 +151,6 @@ if (missingFields.length > 0) {
   }
 
   // Initialize Firebase Auth with detailed error handling
-  let auth;
   try {
     auth = getAuth(app);
     console.log('✅ Firebase Auth initialized successfully');
@@ -205,28 +207,12 @@ if (missingFields.length > 0) {
 
       // Create a mock auth object to prevent the app from crashing
       console.warn('⚠️ Creating mock auth object to prevent app crash');
-      auth = {
-        currentUser: null,
-        onAuthStateChanged: (callback: any) => {
-          console.log('Mock auth: onAuthStateChanged called');
-          callback(null);
-          return () => {};
-        },
-        signInWithEmailAndPassword: async () => {
-          throw new Error('Firebase Auth not properly configured');
-        },
-        createUserWithEmailAndPassword: async () => {
-          throw new Error('Firebase Auth not properly configured');
-        },
-        signOut: async () => {
-          console.log('Mock auth: signOut called');
-        },
-      };
+      auth = createMockAuth();
     } else {
       throw error;
     }
   }
-
-  export { auth };
-  export default app;
 }
+
+export { auth };
+export default app;
