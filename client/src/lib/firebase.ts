@@ -47,6 +47,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Declare variables at the top level
+let app: any;
+let auth: any;
+
 // Debug: Log the actual config (without sensitive data)
 console.log('Firebase config:', {
   apiKey: firebaseConfig.apiKey
@@ -61,91 +65,53 @@ console.log('Firebase config:', {
 
 // Check if any required fields are missing
 const missingFields = [];
-if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'MISSING_API_KEY')
-  missingFields.push('apiKey');
-if (
-  !firebaseConfig.authDomain ||
-  firebaseConfig.authDomain === 'MISSING_AUTH_DOMAIN'
-)
-  missingFields.push('authDomain');
-if (
-  !firebaseConfig.projectId ||
-  firebaseConfig.projectId === 'MISSING_PROJECT_ID'
-)
-  missingFields.push('projectId');
-if (
-  !firebaseConfig.storageBucket ||
-  firebaseConfig.storageBucket === 'MISSING_STORAGE_BUCKET'
-)
-  missingFields.push('storageBucket');
-if (
-  !firebaseConfig.messagingSenderId ||
-  firebaseConfig.messagingSenderId === 'MISSING_SENDER_ID'
-)
-  missingFields.push('messagingSenderId');
-if (!firebaseConfig.appId || firebaseConfig.appId === 'MISSING_APP_ID')
-  missingFields.push('appId');
-
-// Create a mock auth object to prevent the app from crashing
-const createMockAuth = () => ({
-  currentUser: null,
-  onAuthStateChanged: (callback: any) => {
-    console.log('Mock auth: onAuthStateChanged called');
-    callback(null);
-    return () => {};
-  },
-  signInWithEmailAndPassword: async () => {
-    throw new Error('Firebase Auth not properly configured');
-  },
-  createUserWithEmailAndPassword: async () => {
-    throw new Error('Firebase Auth not properly configured');
-  },
-  signOut: async () => {
-    console.log('Mock auth: signOut called');
-  },
-});
-
-let app: any = null;
-let auth: any = null;
+if (!firebaseConfig.apiKey) missingFields.push('apiKey');
+if (!firebaseConfig.authDomain) missingFields.push('authDomain');
+if (!firebaseConfig.projectId) missingFields.push('projectId');
+if (!firebaseConfig.storageBucket) missingFields.push('storageBucket');
+if (!firebaseConfig.messagingSenderId) missingFields.push('messagingSenderId');
+if (!firebaseConfig.appId) missingFields.push('appId');
 
 if (missingFields.length > 0) {
-  console.error('❌ Missing Firebase config fields:', missingFields);
+  console.warn('⚠️ Missing Firebase config fields:', missingFields);
+  console.warn('⚠️ Creating mock Firebase configuration for development');
 
-  // Show a user-friendly error message
-  const errorDiv = document.createElement('div');
-  errorDiv.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: #f44336;
-    color: white;
-    padding: 20px;
-    text-align: center;
-    z-index: 9999;
-    font-family: Arial, sans-serif;
-  `;
-  errorDiv.innerHTML = `
-    <h3>Configuration Error</h3>
-    <p>Firebase configuration is missing. Please check your environment variables.</p>
-    <p>Missing: ${missingFields.join(', ')}</p>
-  `;
-  document.body.appendChild(errorDiv);
+  // Create a mock Firebase app and auth object
+  app = {
+    name: '[DEFAULT]',
+    options: {},
+  };
 
-  // Use mock auth
-  auth = createMockAuth();
-  app = null;
+  auth = {
+    currentUser: null,
+    onAuthStateChanged: (callback: any) => {
+      console.log('Mock auth: onAuthStateChanged called');
+      callback(null);
+      return () => {};
+    },
+    signInWithEmailAndPassword: async () => {
+      throw new Error('Firebase Auth not properly configured');
+    },
+    createUserWithEmailAndPassword: async () => {
+      throw new Error('Firebase Auth not properly configured');
+    },
+    signOut: async () => {
+      console.log('Mock auth: signOut called');
+    },
+  };
+
+  console.log('✅ Mock Firebase configuration created');
 } else {
   // Initialize Firebase with error handling
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     console.log('✅ Firebase app initialized successfully');
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Firebase initialization failed:', error);
     console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      stack: error.stack,
+      message: error?.message,
+      code: error?.code,
+      stack: error?.stack,
     });
     throw error;
   }
@@ -165,7 +131,7 @@ if (missingFields.length > 0) {
     // Test the onAuthStateChanged function immediately
     console.log('🔍 Testing onAuthStateChanged function...');
     try {
-      const testUnsubscribe = auth.onAuthStateChanged(user => {
+      const testUnsubscribe = auth.onAuthStateChanged((user: any) => {
         console.log('🔍 Test auth listener fired with user:', user?.uid);
       });
       console.log('✅ Test auth listener set up successfully');
@@ -174,7 +140,7 @@ if (missingFields.length > 0) {
         testUnsubscribe();
         console.log('🔍 Test auth listener cleaned up');
       }, 1000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error testing onAuthStateChanged:', error);
     }
 
@@ -183,19 +149,19 @@ if (missingFields.length > 0) {
       .then(() => {
         console.log('✅ Firebase Auth persistence set to LOCAL');
       })
-      .catch(error => {
+      .catch((error: any) => {
         console.error('❌ Failed to set Firebase Auth persistence:', error);
       });
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Firebase Auth initialization failed:', error);
     console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      stack: error.stack,
+      message: error?.message,
+      code: error?.code,
+      stack: error?.stack,
     });
 
     // Provide specific guidance based on error code
-    if (error.code === 'auth/invalid-api-key') {
+    if (error?.code === 'auth/invalid-api-key') {
       console.error('🔧 Troubleshooting auth/invalid-api-key:');
       console.error('1. Check if the API key is correct in your .env file');
       console.error('2. Verify the Firebase project exists and is active');
@@ -207,7 +173,23 @@ if (missingFields.length > 0) {
 
       // Create a mock auth object to prevent the app from crashing
       console.warn('⚠️ Creating mock auth object to prevent app crash');
-      auth = createMockAuth();
+      auth = {
+        currentUser: null,
+        onAuthStateChanged: (callback: any) => {
+          console.log('Mock auth: onAuthStateChanged called');
+          callback(null);
+          return () => {};
+        },
+        signInWithEmailAndPassword: async () => {
+          throw new Error('Firebase Auth not properly configured');
+        },
+        createUserWithEmailAndPassword: async () => {
+          throw new Error('Firebase Auth not properly configured');
+        },
+        signOut: async () => {
+          console.log('Mock auth: signOut called');
+        },
+      };
     } else {
       throw error;
     }
@@ -215,4 +197,5 @@ if (missingFields.length > 0) {
 }
 
 export { auth };
+
 export default app;

@@ -6,25 +6,22 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Create output directory
-const outputDir = resolve(__dirname, '../dist/public');
-mkdirSync(outputDir, { recursive: true });
+console.log('🚀 Starting Vite build process...');
 
-// Copy static assets
-console.log('📁 Copying static assets...');
-cpSync(resolve(__dirname, '../client/public'), outputDir, { recursive: true });
-cpSync(
-  resolve(__dirname, '../client/index.html'),
-  resolve(outputDir, 'index.html')
-);
+// Run Vite build
+try {
+  console.log('📦 Running Vite build...');
+  execSync('npx vite build', {
+    stdio: 'inherit',
+    cwd: resolve(__dirname, '..'),
+  });
+  console.log('✅ Vite build completed successfully!');
+} catch (error) {
+  console.error('❌ Vite build failed:', error.message);
+  process.exit(1);
+}
 
-// Copy source files
-console.log('📁 Copying source files...');
-cpSync(resolve(__dirname, '../client/src'), resolve(outputDir, 'src'), {
-  recursive: true,
-});
-
-// Create environment variables file
+// Create environment variables file for production
 console.log('🔧 Creating environment variables...');
 const envVars = {
   VITE_FIREBASE_API_KEY: process.env.VITE_FIREBASE_API_KEY || '',
@@ -43,12 +40,14 @@ window.import.meta = window.import.meta || {};
 window.import.meta.env = ${JSON.stringify(envVars, null, 2)};
 `;
 
+const outputDir = resolve(__dirname, '../dist/public');
 writeFileSync(resolve(outputDir, 'env.js'), envScript);
 
 // Update HTML to include environment variables
-console.log('📝 Updating HTML...');
+console.log('📝 Updating HTML with environment variables...');
 let html = readFileSync(resolve(outputDir, 'index.html'), 'utf8');
 html = html.replace('</head>', `<script src="/env.js"></script></head>`);
 writeFileSync(resolve(outputDir, 'index.html'), html);
 
-console.log('✅ Build completed successfully!');
+console.log('✅ Build process completed successfully!');
+console.log('📁 Output directory:', outputDir);
