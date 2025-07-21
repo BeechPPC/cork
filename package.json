@@ -133,7 +133,6 @@
   "overrides": {
     "rollup": "4.9.5",
     "@rollup/rollup-linux-x64-gnu": "npm:@rollup/rollup-linux-x64-musl@4.9.5",
-    "@rollup/rollup-darwin-x64": "4.9.5",
     "vite": {
       "rollup": "4.9.5"
     }
